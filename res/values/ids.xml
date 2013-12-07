@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="id" name="action_settings"/>
+    <item type="id" name="action_enable"/>
+    <item type="id" name="action_disable"/>    
+    <item type="id" name="action_exit"/>
+    <item type="id" name="action_add"/>
+    <item type="id" name="action_add_host"/>
+    <item type="id" name="action_add_group"/>
+    <item type="id" name="action_add_gateway"/>
+    <item type="id" name="action_delete"/>
+    <item type="id" name="action_edit"/>
+    <item type="id" name="action_add_tag"/>
+    <item type="id" name="action_save"/>
+    <item type="id" name="action_save_to_disk"/>
+    <item type="id" name="action_load_from_disk"/>
+    <item type="id" name="action_save_to_anm"/>
+    <item type="id" name="action_load_from_anm"/>
+    <item type="id" name="action_work_local"/>
+    <item type="id" name="action_retry"/>
+    <item type="id" name="action_topo_details"/>
+    <item type="id" name="action_conn_mgr"/>
+    <item type="id" name="action_check_cert"/>
+    
+</resources>

@@ -1,0 +1,48 @@
+{
+	"id": "sample-topology",
+	"version": 1,
+	"timestamp": 1385998573977,
+	"productVersion": "7.1.1",
+	"hosts": [
+		{ "id": "host-1",
+		  "name" : "example.com"
+		}
+	],
+	"groups": [
+		{ "id": "group-1",
+		  "name": "Node Manager Group",
+		  "tags": {},
+		  "services": [{
+			"id":"nodemanager-1",
+			"name":"NodeMgr1",
+			"scheme":"https",
+			"hostID":"host-1",
+			"managementPort":8090,
+			"tags": {},
+			"enabled":true
+		}],
+		"hostIds": ["host-1"]
+		},
+		{ "id":"group-2",
+		  "name":"Group2",
+		  "tags":{},
+		  "services": [{
+			"id":"instance-1",
+			"name":"Instance1",
+			"scheme":"https",
+			"hostID":"host-1",
+			"managementPort":8085,
+			"tags": {},
+			"enabled":true
+		}],
+		"hostIds": ["host-1"]
+		}
+	],
+	"uniqueIdCounters": {
+		"Group": 2,
+		"NodeManager": 1,
+		"Gateway": 1,
+		"Host": 1
+	}
+}
+		

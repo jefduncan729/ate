@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+   <PreferenceCategory
+            android:title="@string/admin_nodemgr">
+<!-- 
+        <EditTextPreference
+			android:key="adminNodeMgrHost"
+			android:title="Host/IP where the admin node manager is running"
+			android:summary=""
+			android:dialogTitle="Admin Node Manager Host" />
+        
+
+        <com.axway.anodemanager.IntegerPreference
+            android:key="adminNodeMgrPort"
+            android:defaultValue="8090"
+            android:dialogTitle="Admin Node Manager Port"
+            android:dialogMessage="Port"
+            android:title="Port where Admin Node Manager is listening"
+            android:summary=""
+        	android:dialogLayout="@layout/int_dlg"
+       	/>
+
+        <CheckBoxPreference
+                android:key="useSsl"
+                android:title="Use SSL?"
+                android:summary="Use a secure connection to the Admin Node Manager"
+                android:dialogTitle="Use SSL?" />
+         
+        <CheckBoxPreference
+                android:key="autoConnect"
+                android:title="Connect at startup?"
+                android:summary="Attempt a connection to the Admin Node Manager at startup"
+                android:dialogTitle="Connect at startup?" />
+ -->                
+<!--
+        <EditTextPreference
+                android:key="interval"
+                android:title="@string/title_srch_ival"
+                android:summary="@string/summary_srch_ival"
+                android:dialogTitle="@string/title_srch_ival" />
+ 
+        <CheckBoxPreference
+                android:key="showLocation"
+                android:title="Show my location"
+                android:summary="Allows retrieving and displaying my location"
+                android:dialogTitle="Show my location" />
+            
+        <CheckBoxPreference
+                android:key="showCompass"
+                android:title="Show compass"
+                android:summary="Allows displaying the compass"
+                android:dialogTitle="Show compass" />
+            
+        <CheckBoxPreference
+                android:key="viewAsMap"
+                android:title="View route on map"
+                android:summary="Allows your walk to be displayed on a map"
+                android:dialogTitle="View route on map" />
+        
+        <EditTextPreference
+                android:key="maxWalkTime"
+                android:title="Max Walk Time (minutes)"
+                android:summary="Walks will be auto-stopped after this many minutes"
+                android:dialogTitle="Max Walk Time (minutes)"
+                />
+-->        
+    </PreferenceCategory>
+    
+</PreferenceScreen>

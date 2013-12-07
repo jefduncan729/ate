@@ -1,0 +1,59 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.axway.ate"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="18" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        
+         
+        <provider
+            android:name=".db.DbProvider"
+            android:authorities="com.axway.ate"
+        />
+ 
+        <service android:name=".activity.MainService" android:exported="false" />
+        
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/action_settings" >
+        </activity>
+        <activity
+            android:name=".activity.HostActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/hosts" >
+        </activity>
+        <activity
+            android:name=".activity.GroupActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/groups" >
+        </activity>
+        <activity
+            android:name=".activity.ServiceActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/services" >
+        </activity>
+        <activity
+            android:name=".activity.TopologyActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.ConnMgrActivity"
+            android:label="@string/action_conn_mgr" >
+        </activity>
+    </application>
+
+</manifest>

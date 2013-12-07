@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_add_gateway"
+        android:orderInCategory="11"
+        android:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/action_add_gateway"/>
+</menu>

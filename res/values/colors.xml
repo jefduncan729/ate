@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="host">#669966</color>
+    <color name="group">#336699</color>
+    <color name="service">#990033</color>
+    <color name="disabled">#dddddd</color>
+</resources>

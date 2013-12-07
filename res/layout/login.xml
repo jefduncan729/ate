@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ignition="http://github.com/ignition/schema"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+<!--     
+    <com.github.ignition.core.widgets.RemoteImageView
+        android:src="@drawable/ic_launcher"
+        android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
+        android:id="@+id/image01"
+	    android:layout_width="80dp"
+    	android:layout_height="80dp"
+    	android:contentDescription="@string/logo"
+    	android:paddingTop="4dp"
+    	ignition:autoLoad="true"
+    	ignition:imageUrl="http://tngstatic.eyeofcat.com/img/tng_logo_blue_sm.png"
+    />
+--> 	
+ 	<View
+ 	    android:id="@+id/spacer01"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="32dp"
+ 	    />
+ 
+    <EditText
+        android:id="@android:id/text1"
+	    android:layout_width="180dp"
+	    android:layout_height="wrap_content"
+	    android:layout_centerHorizontal="true"
+	    android:layout_below="@id/spacer01"
+	    android:hint="@string/username"
+    />
+	    
+    <EditText
+        android:id="@android:id/text2"
+	    android:layout_width="180dp"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@android:id/text1"
+	    android:layout_centerHorizontal="true"
+	    android:hint="@string/password"
+	    android:inputType="textPassword"
+    />
+    
+ 	<View
+ 	    android:id="@+id/spacer02"
+ 	    android:layout_width="match_parent"
+ 	    android:layout_height="32dp"
+	    android:layout_below="@android:id/text2"
+ 	    />
+    
+    <CheckBox
+        android:id="@android:id/checkbox"
+        android:text="@string/remember_creds"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/spacer02"
+	    android:layout_centerHorizontal="true"
+        />
+ 
+ 	<View
+ 	    android:id="@+id/spacer03"
+ 	    android:layout_width="match_parent"
+	    android:layout_below="@android:id/checkbox"
+ 	    android:layout_height="32dp"
+ 	    />
+    
+    <Button
+        android:id="@android:id/button1"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_centerHorizontal="true"
+	    android:layout_below="@id/spacer03"
+	    android:text="@string/login"
+	/>
+</RelativeLayout>

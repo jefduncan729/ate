@@ -1,0 +1,88 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<!-- 
+    <item
+        android:id="@+id/action_add_host"
+        android:orderInCategory="5"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_add_host"/>
+
+    <item
+        android:id="@+id/action_add_group"
+        android:orderInCategory="10"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_add_group"/>
+
+    <item
+        android:id="@+id/action_topo_nm"
+        android:orderInCategory="15"
+        android:showAsAction="ifRoom"
+        android:title="@string/nodemgrs"/>
+    
+    <item
+        android:id="@+id/action_topo_gw"
+        android:orderInCategory="20"
+        android:showAsAction="ifRoom"
+        android:title="@string/gateways"/>
+
+    <item
+        android:id="@+id/action_topo_full"
+        android:orderInCategory="25"
+        android:showAsAction="ifRoom"
+        android:title="@string/full_topology"/>
+    
+    <item
+        android:id="@+id/action_test"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom"
+        android:title="@string/test"/>
+-->    
+    
+    <item
+        android:id="@+id/action_topo_details"
+        android:orderInCategory="10"
+        android:showAsAction="never"
+        android:title="@string/action_topo_details"/>
+        
+    <item
+        android:id="@+id/action_load_from_disk"
+        android:orderInCategory="20"
+        android:showAsAction="never"
+        android:title="@string/action_load_from_disk"/>
+    
+    <item
+        android:id="@+id/action_load_from_anm"
+        android:orderInCategory="21"
+        android:showAsAction="never"
+        android:title="@string/action_load_from_anm"/>
+    
+    <item
+        android:id="@+id/action_save_to_disk"
+        android:orderInCategory="25"
+        android:showAsAction="never"
+        android:title="@string/action_save_to_disk"/>
+    
+    <item
+        android:id="@+id/action_conn_mgr"
+        android:orderInCategory="28"
+        android:showAsAction="never"
+        android:title="@string/action_conn_mgr"/>
+    
+    <item
+        android:id="@+id/action_compare_topo"
+        android:orderInCategory="30"
+        android:showAsAction="never"
+        android:title="@string/action_compare_topo"/>
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/>
+    
+    <item
+        android:id="@+id/action_remove_trust"
+        android:orderInCategory="110"
+        android:showAsAction="never"
+        android:title="@string/action_remove_trust"/>
+    
+</menu>

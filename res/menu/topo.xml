@@ -1,0 +1,33 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_add_host"
+        android:orderInCategory="10"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_add_host"/>
+
+    <item
+        android:id="@+id/action_add_group"
+        android:orderInCategory="10"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_add_group"/>
+    
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"/>
+
+    <item
+        android:id="@+id/action_forget_creds"
+        android:orderInCategory="105"
+        android:showAsAction="never"
+        android:title="@string/forget_creds"/>
+    
+    <item
+        android:id="@+id/action_remove_trust"
+        android:orderInCategory="110"
+        android:showAsAction="never"
+        android:title="@string/action_remove_trust"/>
+    
+</menu>
