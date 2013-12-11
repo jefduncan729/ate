@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
-import com.axway.ate.api.ServerInfo;
+import com.axway.ate.ServerInfo;
 
 public class ServerInfoListAdapter extends BaseListAdapter<ServerInfo> {
 	

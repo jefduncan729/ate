@@ -70,4 +70,6 @@
     <string name="saved_servers">Saved servers</string>
     <string name="action_check_cert">Is Cert Trusted?</string>
     <string name="cert_trusted">Certificate Chain Trusted</string>
+    <string name="truststore_removed">Trust Store removed</string>
+    <string name="truststore_notfound">Trust Store not found</string>
 </resources>

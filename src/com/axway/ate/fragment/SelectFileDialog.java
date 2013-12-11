@@ -40,6 +40,7 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 	private View ctr01;
 	private View ctr02;
 	private EditText editFname;
+	private int action;
 	
 	public SelectFileDialog() {
 		super();
@@ -49,6 +50,7 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 		selectedFile = null;
 		listener = null;
 		listView = null;
+		action = 0;
 	}
 	
 	public void setListener(Listener l) {
@@ -60,7 +62,6 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 		String t = DEF_TITLE;
 		List<String> fnames = null;
 		Bundle args = getArguments();
-		int action = 0;
 		if (args != null) {
 			if (args.containsKey(Intent.EXTRA_TITLE))
 				t = args.getString(Intent.EXTRA_TITLE);
@@ -109,8 +110,6 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 				}
 			}
 		};
-//		if (onPositive == null)
-//			onPositive = AlertDialogFragment.NOOP_LISTENER;
 		if (action == R.id.action_save_to_disk)
 			bldr.setPositiveButton(posResId, onPositive);
 		bldr.setNegativeButton(negResId, AlertDialogFragment.NOOP_LISTENER);
@@ -129,26 +128,14 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 		setOnPositive(onPositive);
 		posResId = resId;
 	}
-//
-//	public DialogInterface.OnClickListener getOnNegative() {
-//		return onNegative;
-//	}
-//
-//	public void setOnNegative(DialogInterface.OnClickListener onNegative) {
-//		this.onNegative = onNegative;
-//	}
-//
-//	public void setOnNegative(DialogInterface.OnClickListener onNegative, int resId) {
-//		setOnNegative(onNegative);
-//		negResId = resId;
-//	}
 
 	@Override
 	public void onItemClick(AdapterView<?> listView, View view, int pos, long id) {
 		selectedFile = (String)listView.getItemAtPosition(pos);
 		if (listener != null && selectedFile != null) {
 			listener.onFileSelected(selectedFile);
-			dismiss();
+			if (action == R.id.action_load_from_disk)
+				dismiss();
 		}
 	}
 }

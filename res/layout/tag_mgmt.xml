@@ -10,7 +10,7 @@
 		android:layout_width="match_parent"
 		android:orientation="horizontal">
 		<TextView
-	        android:id="@+id/label1"
+	        android:id="@id/label01"
 	        android:layout_height="wrap_content"
 	        android:layout_width="wrap_content"
 	        android:text="@string/tags"
@@ -18,7 +18,7 @@
 		/>
 <!-- 
 	    <Button
-	        android:id="@+id/action_add_tag"
+	        android:id="@id/action_add_tag"
 	        android:layout_height="wrap_content"
 	        android:layout_width="0dp"
 	        android:layout_weight="0.4"
@@ -34,7 +34,7 @@
 		android:orientation="vertical">
  -->
 	<ListView 
-        android:id="@+id/tag_list"
+        android:id="@id/tag_list"
         android:layout_height="match_parent"
 		android:layout_width="match_parent"
     />

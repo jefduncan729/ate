@@ -15,10 +15,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.axway.ate.Constants;
+import com.axway.ate.DomainHelper;
 import com.axway.ate.R;
-import com.axway.ate.activity.DomainHelper;
-import com.axway.ate.activity.MainService;
 import com.axway.ate.util.UiUtils;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.vordel.api.topology.model.Service;
 import com.vordel.api.topology.model.Topology;
 import com.vordel.api.topology.model.Topology.EntityType;
@@ -27,44 +29,75 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	
 	private static final String TAG = EditFragment.class.getSimpleName();
 	
+	public interface Listener {
+		public void onSaveObject(Object h);
+		public void onEditService(Object from, Service s);
+		public void onAddService(Object from);
+	}
+	
 	protected EditText editName;
 	protected View invalidView;
 	protected View viewGateways;
 	protected View viewTags;
 	
 	protected DomainHelper helper;
-	protected MainService topoService;
 	protected Object itemBeingEdited;
 	protected String itemId;
 	protected Topology topology;
+	protected int action;	//add or update
+	protected Listener listener;
+	private String jsonRep;
 
-	abstract protected void onPrepareItem();
+	abstract protected void onPrepareItem(JsonObject json);
 	abstract protected void onDisplayItem();
+	abstract protected void onSaveItem();
 	abstract protected int getLayoutId();
 	abstract protected EntityType getItemType();
-	abstract protected void onSaveObject();
 	
 	public EditFragment() {
 		super();
 		Log.d(TAG, "constructor");
 		helper  = DomainHelper.getInstance();
-		topoService = null;
 		topology = null;
 	}
 
+	public void setListener(Listener l) {
+		listener = l;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate");
 		setHasOptionsMenu(true);
-		itemId = null;
+		jsonRep = null;
+		String jsonTopo = null;
+		action = R.id.action_edit;
 		if (savedInstanceState != null) {
-			if (savedInstanceState.containsKey(Intent.EXTRA_UID))
-				itemId = savedInstanceState.getString(Intent.EXTRA_UID);
+			if (savedInstanceState.containsKey(Intent.EXTRA_TEXT))
+				jsonRep = savedInstanceState.getString(Intent.EXTRA_TEXT);
+			if (savedInstanceState.containsKey(Constants.EXTRA_ACTION))
+				action = savedInstanceState.getInt(Constants.EXTRA_ACTION);
+			if (savedInstanceState.containsKey(Intent.EXTRA_STREAM))
+				jsonTopo = savedInstanceState.getString(Intent.EXTRA_STREAM);
 		}
 		else if (getArguments() != null) {
-			itemId = getArguments().getString(Intent.EXTRA_UID);
+			jsonRep = getArguments().getString(Intent.EXTRA_TEXT);
+			action = getArguments().getInt(Constants.EXTRA_ACTION, R.id.action_edit);
+			jsonTopo = getArguments().getString(Intent.EXTRA_STREAM);
 		}
+		if (jsonRep == null)
+			throw new IllegalStateException("must provide JSON representation of object being edited");
+		if (jsonTopo != null)
+			topology = helper.topologyFromJson(helper.parse(jsonTopo).getAsJsonObject());
+		prepareItem();
+	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		if (activity instanceof Listener) 
+			listener = (Listener)activity;
 	}
 	
 	@Override
@@ -127,11 +160,18 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	}
 	
 	protected void save() {
-		Log.d(TAG, "save");		
-		Intent i = new Intent();
-		onSaveObject();
-		getActivity().setResult(Activity.RESULT_OK, i);
-		getActivity().finish();
+		Log.d(TAG, "save");
+		if (isValid()) {
+			onSaveItem();
+			if (listener != null)
+				listener.onSaveObject(itemBeingEdited);
+		}
+		else {
+			notifyInvalid();
+		}
+//		Intent i = new Intent();
+//		getActivity().setResult(Activity.RESULT_OK, i);
+//		getActivity().finish();
 	}
 
 	@Override
@@ -162,32 +202,34 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 	}
-	
-	public void onServiceAvailable(MainService s) {
-		Log.d(TAG, "onServiceAvailable");
-		topology = null;
-		this.topoService = s;
-		if (topoService != null)
-			topology = topoService.getTopology();
-		if (topology == null)
-			Log.e(TAG, "topology is null when it shouldn't be");
-		else {
-			prepareItem();
-			displayItem();
-		}
-	}
+//	
+//	public void onServiceAvailable(AbstractTopologyClient<?> s) {
+//		Log.d(TAG, "onServiceAvailable");
+//		topology = null;
+//		this.topoService = s;
+//		if (topoService != null)
+//			topology = topoService.getTopology();
+//		if (topology == null)
+//			Log.e(TAG, "topology is null when it shouldn't be");
+//		else {
+//			prepareItem();
+//			displayItem();
+//		}
+//	}
 
 	private void prepareItem() {
 		Log.d(TAG, "prepareItem");
-		onPrepareItem();
+		JsonElement e = helper.parse(jsonRep);
+		if (e != null)
+			onPrepareItem(e.getAsJsonObject());
 	}
 
 	private void displayItem() {
 		Log.d(TAG, "displayItem");
-		if (TextUtils.isEmpty(itemId))
-			getActivity().setTitle("New " + getItemType().name());
-		else
-			getActivity().setTitle("Edit " + itemId);
+//		if (TextUtils.isEmpty(itemId))
+//			getActivity().setTitle("New " + getItemType().name());
+//		else
+//			getActivity().setTitle("Edit " + itemId);
 		onDisplayItem();
 	}
 	
@@ -201,5 +243,27 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 		if (viewTags == null)
 			return;
 		viewTags.setVisibility(show ? View.VISIBLE : View.GONE);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		displayItem();
+	}
+	
+	protected void editService(Service s) {
+		if (listener == null)
+			return;
+		if (s == null)
+			listener.onAddService(itemBeingEdited);
+		else
+			listener.onEditService(itemBeingEdited, s);
+//		Intent i = new Intent(getActivity(), ServiceActivity.class);
+//		if (s != null)
+//			i.putExtra(Intent.EXTRA_UID, s.getId());
+//		i.putExtra(Intent.EXTRA_SUBJECT, EntityType.Gateway.name());
+//		i.putExtra(Intent.EXTRA_REFERRER, EntityType.Host.name());
+//		i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Host)itemBeingEdited).getId());
+//		startActivityForResult(i, EntityType.Gateway.ordinal());		
 	}
 }

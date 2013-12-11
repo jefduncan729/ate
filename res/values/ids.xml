@@ -21,5 +21,38 @@
     <item type="id" name="action_topo_details"/>
     <item type="id" name="action_conn_mgr"/>
     <item type="id" name="action_check_cert"/>
+
+    <!-- Containers -->
+    <item type="id" name="container01"/>
+    <item type="id" name="container02"/>
+	<item type="id" name="container03"/>
     
+    <!-- Edit fields -->
+    <item type="id" name="edit_name"/>
+    <item type="id" name="edit_host"/>
+	<item type="id" name="edit_group"/>
+    <item type="id" name="edit_use_ssl"/>
+    <item type="id" name="edit_mgmt_port"/>
+    <item type="id" name="edit_port"/>
+    <item type="id" name="edit_user"/>
+    <item type="id" name="edit_passwd"/>
+    <item type="id" name="edit_enabled"/>
+    
+    <!-- Lists -->
+    <item type="id" name="tag_list"/>
+    <item type="id" name="gateway_list"/>
+    <item type="id" name="nodemgr_list"/>
+    
+    <!-- Labels -->
+    <item type="id" name="label01"/>
+    <item type="id" name="label02"/>
+	<item type="id" name="label03"/>
+    <item type="id" name="label04"/>
+    <item type="id" name="label05"/>
+    <item type="id" name="label06"/>
+    
+    <!-- Spacers -->
+    <item type="id" name="spacer01"/>
+    <item type="id" name="spacer02"/>
+	<item type="id" name="spacer03"/>	
 </resources>

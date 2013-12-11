@@ -10,14 +10,15 @@ import android.os.Bundle;
 
 import com.axway.ate.Constants;
 import com.axway.ate.R;
-import com.axway.ate.api.ServerInfo;
+import com.axway.ate.ServerInfo;
 import com.axway.ate.db.DbHelper.ConnMgrColumns;
 import com.axway.ate.fragment.ConnMgrDialog;
 import com.axway.ate.fragment.ConnMgrFragment;
 import com.axway.ate.fragment.ConnMgrFragment.Listener;
+import com.axway.ate.service.RestService;
 import com.axway.ate.util.UiUtils;
 
-public class ConnMgrActivity extends ServiceAwareActivity implements Listener {
+public class ConnMgrActivity extends BaseActivity implements Listener {
 	
 	private static final String TAG = ConnMgrActivity.class.getSimpleName();
 
@@ -130,8 +131,6 @@ public class ConnMgrActivity extends ServiceAwareActivity implements Listener {
 
 	@Override
 	public void onCheckCert(Uri uri) {
-		if (service == null)
-			return;
 		Cursor c = getContentResolver().query(uri, null, null, null, null);
 		if (c == null)
 			return;
@@ -140,6 +139,11 @@ public class ConnMgrActivity extends ServiceAwareActivity implements Listener {
 			info = ServerInfo.from(c);
 		}
 		c.close();
-		service.checkCertificateTrust(info);
+		Intent i = new Intent(this, RestService.class);		
+		i.setAction(RestService.ACTION_CHECK_CERT);
+		i.putExtra(Intent.EXTRA_LOCAL_ONLY, info.toBundle());
+//		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+		i.putExtra(Intent.EXTRA_TEXT, info.buildUrl("topology"));
+		startService(i);
 	}
 }

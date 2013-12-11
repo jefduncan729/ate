@@ -27,10 +27,12 @@ public class TopologyAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private List<Entry> entries;
 	private BitmapFactory bmpFactory;
+	private String source;
 	
-	public TopologyAdapter(Context ctx, Topology item) {
+	public TopologyAdapter(Context ctx, Topology item, String source) {
 		super();
 		t = item;
+		this.source = source;
 		inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		bmpFactory = BitmapFactory.getInstance(ctx);
 		createEntries();
@@ -60,18 +62,18 @@ public class TopologyAdapter extends BaseAdapter {
 		if (t == null)
 			return;
 		entries = new ArrayList<Entry>();
+		//The 'NodeManager' entry is a special entry which displays the source of the topology (file or url)
+		entries.add(new Entry(EntityType.NodeManager, "", "Loaded from " + source, -1));
 		if (t.getHosts() != null && t.getHosts().size() > 0) {
-//			entries.add(new Entry(Constants.TYPE_HEADER, "", "Hosts", 1));
 			for (Host h: t.getHosts()) {
 				int n = t.getServicesOnHost(h.getId(), ServiceType.gateway).size();
-				entries.add(new Entry(EntityType.Host, h.getId(), h.getName(), n));
+				entries.add(new Entry(EntityType.Host, h.getId() == null ? "adding..." : h.getId(), h.getName(), n));
 			}
 		}
 		if (t.getGroups() != null && t.getGroups().size() > 0) {
-//			entries.add(new Entry(Constants.TYPE_HEADER, "", "Groups", 1));
-			boolean addGrp = true;
+			boolean addGrp;
 			for (Group g: t.getGroups()) {
-//				int n = g.getServicesByType(ServiceType.gateway).size();
+				addGrp = true;
 				Collection<Service> nms = g.getServicesByType(ServiceType.nodemanager);
 				for (Service s: nms) {
 					if (Topology.isAdminNodeManager(s)) {
@@ -81,31 +83,13 @@ public class TopologyAdapter extends BaseAdapter {
 				}
 				if (addGrp) {
 					Collection<Service> gws = g.getServicesByType(ServiceType.gateway);
-					entries.add(new Entry(EntityType.Group, g.getId(), g.getName(), gws.size()));
+					entries.add(new Entry(EntityType.Group, g.getId() == null ? "adding..." : g.getId(), g.getName(), gws.size()));
 					if (gws.size() > 0) {
-//						entries.add(new Entry(Constants.TYPE_HEADER, "", "API Server Instances", 2));
 						for (Service s: gws) {
-							entries.add(new Entry(EntityType.Gateway, g.getId()+"/"+s.getId(), s.getName()));
+							entries.add(new Entry(EntityType.Gateway, g.getId()+"/"+(s.getId() == null ? "adding..." : s.getId()), s.getName()));
 						}
 					}
 				}
-				
-//				entries.add(new Entry(Constants.TYPE_HEADER, "", "Group"));
-//				entries.add(new Entry(EntityType.Group, g.getId(), g.getName()));
-//				Collection<Service> nodeMgrs = g.getServicesByType(ServiceType.nodemanager);
-//				Collection<Service> gateways = g.getServicesByType(ServiceType.gateway);
-//				if (nodeMgrs!= null && nodeMgrs.size() > 0) {
-//					entries.add(new Entry(Constants.TYPE_HEADER, "", "Node Managers"));
-//					for (Service s: nodeMgrs) {
-//						entries.add(new Entry(Constants.TYPE_NODEMGR, g.getId()+"/"+s.getId(), s.getName()));
-//					}
-//				}
-//				if (gateways!= null && gateways.size() > 0) {
-//					entries.add(new Entry(Constants.TYPE_HEADER, "", "API Server Instances"));
-//					for (Service s: gateways) {
-//						entries.add(new Entry(EntityType.Gateway, g.getId()+"/"+s.getId(), s.getName()));
-//					}
-//				}
 			}
 		}
 	}
@@ -141,12 +125,14 @@ public class TopologyAdapter extends BaseAdapter {
 //					rv = R.layout.listitem_hdr;
 //			break;
 			case Gateway:
-			case NodeManager:
 				rv = R.layout.listitem_3;
 			break;
 			case Group:
 			case Host:
 				rv = R.layout.listitem_2;
+			break;
+			case NodeManager:
+				rv = android.R.layout.simple_list_item_1;
 			break;
 			default:
 				rv = R.layout.listitem_2;
@@ -168,8 +154,16 @@ public class TopologyAdapter extends BaseAdapter {
 //				case Constants.TYPE_HEADER:
 //					txt01.setText(e.name);
 //				break;
-				case Gateway:
 				case NodeManager:
+					//node managers are not actually displayed by the adapter; this is a special entry used to provide status info
+					txt01.setText(e.name);
+					if (e.data != -1 && txt02 != null) {
+						txt02.setText(buildDetail(e));
+						if (img01 != null)
+							img01.setImageBitmap(bmpFactory.get(e.itemType));
+					}
+				break;
+				case Gateway:
 				case Group:
 				case Host:
 					txt01.setText(e.name);

@@ -1,5 +1,17 @@
-package com.axway.ate.activity;
+package com.axway.ate;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -10,7 +22,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.axway.ate.util.UiUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -23,6 +37,7 @@ import com.vordel.api.topology.model.Topology.EntityType;
 import com.vordel.api.topology.model.Topology.ServiceType;
 
 public class DomainHelper {
+	private static final String TAG = DomainHelper.class.getSimpleName();
 	
 	public static DateFormat DATE_TIME_FORMAT = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss", Locale.US);
 	public static DateFormat DATE_ONLY_FORMAT = new java.text.SimpleDateFormat("MM/dd/yyyy", Locale.US);
@@ -68,8 +83,73 @@ public class DomainHelper {
 	}
 
 	public JsonElement parse(String json) {
-		JsonElement rv = getJsonParser().parse(json);
+		JsonElement rv = null;
+		if (!TextUtils.isEmpty(json))
+			rv = getJsonParser().parse(json);
 		return rv;
+	}
+	
+	public Topology loadFromStream(InputStream is) {
+		if (is == null)
+			return null;
+		Topology rv = null;
+		String contents = null;
+		Reader r = new BufferedReader(new InputStreamReader(is));
+		Writer w = new StringWriter();
+		char buf[] = new char[4096];
+		int n = 0;
+		try {
+			while ((n = r.read(buf)) != -1) {
+				w.write(buf, 0, n);
+			}
+			contents = w.toString();
+		}
+		catch (IOException e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+		}
+		finally {
+			try { is.close(); } catch (IOException e) {}
+		}
+		if (TextUtils.isEmpty(contents))
+			return rv;
+		JsonElement jo = parse(contents);
+		rv = topologyFromJson(jo.getAsJsonObject());
+		return rv;
+	}
+
+	public Topology loadFromFile(File f) {
+		if (f == null || !f.exists())
+			return null;
+		InputStream is = null;
+		Topology rv = null;
+		try {
+			is = new FileInputStream(f);
+			rv = loadFromStream(is);
+		} 
+		catch (FileNotFoundException e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+		}
+		return rv;	
+	}	
+
+	public void saveToFile(File f, Topology topology) {
+		if (f == null || topology == null)
+			return;
+		JsonObject json = toJson(topology);
+		if (json == null)
+			return;
+		Writer bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(f));
+			bw.write(json.toString());
+		}
+		catch (IOException e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+		}
+		finally {
+			if (bw != null)
+				try {bw.close();} catch (IOException e){}
+		}		
 	}
 	
 	public Topology topologyFromJson(JsonObject json) {

@@ -12,13 +12,13 @@
  -->
  <!-- 
     <LinearLayout
-        android:id="@+id/container01"
+        android:id="@id/container01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         >
         <TextView
-            android:id="@+id/label1"
+            android:id="@id/label1"
 	        android:layout_width="0dp"
 	        android:layout_weight="0.4"
     	    android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
 		/>
 		        
 	    <Spinner
-	        android:id="@+id/saved_servers"
+	        android:id="@id/saved_servers"
 	        android:layout_width="0dp"
 	        android:layout_weight="0.6"
 	        android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
     </LinearLayout>
  -->    
     <LinearLayout
-        android:id="@+id/container02"
+        android:id="@id/container02"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -46,17 +46,17 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@+id/label3"
+		        android:id="@id/label03"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
 		        android:gravity="fill_horizontal"
 		        android:text="@string/host"
-		        android:labelFor="@+id/edit_host"
+		        android:labelFor="@id/edit_host"
 		        android:textAppearance="?android:attr/textAppearanceMedium" 
 			/>
 	        <EditText
-		        android:id="@+id/edit_host"
+		        android:id="@id/edit_host"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.7"
@@ -73,17 +73,17 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@+id/label4"
+		        android:id="@id/label04"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
 		        android:gravity="fill_horizontal"
 		        android:text="@string/port"
-		        android:labelFor="@+id/edit_port"
+		        android:labelFor="@id/edit_port"
 		        android:textAppearance="?android:attr/textAppearanceMedium" 
 			/>
 	        <EditText
-		        android:id="@+id/edit_port"
+		        android:id="@id/edit_port"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.7"
@@ -104,7 +104,7 @@
 		        android:layout_width="match_parent"
 			> 		    
 	        <CheckBox
-		        android:id="@+id/edit_use_ssl"
+		        android:id="@id/edit_use_ssl"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:text="@string/use_ssl"
@@ -120,17 +120,17 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@+id/label5"
+		        android:id="@id/label05"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
 		        android:gravity="fill_horizontal"
 		        android:text="@string/username"
-		        android:labelFor="@+id/edit_user"
+		        android:labelFor="@id/edit_user"
 		        android:textAppearance="?android:attr/textAppearanceMedium" 
 			/>
 	        <EditText
-		        android:id="@+id/edit_user"
+		        android:id="@id/edit_user"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.7"
@@ -147,17 +147,17 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@+id/label6"
+		        android:id="@id/label06"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
 		        android:gravity="fill_horizontal"
 		        android:text="@string/password"
-		        android:labelFor="@+id/edit_passwd"
+		        android:labelFor="@id/edit_passwd"
 		        android:textAppearance="?android:attr/textAppearanceMedium" 
 			/>
 	        <EditText
-		        android:id="@+id/edit_passwd"
+		        android:id="@id/edit_passwd"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.7"
@@ -179,7 +179,7 @@
 		        android:layout_width="match_parent"
 			> 		    
 	        <CheckBox
-		        android:id="@+id/edit_enabled"
+		        android:id="@id/edit_enabled"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:text="@string/enabled"

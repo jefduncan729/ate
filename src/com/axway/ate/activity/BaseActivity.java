@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -35,6 +36,12 @@ public class BaseActivity extends Activity implements OnClickListener {
 		if (prefs == null)
 			prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		return prefs;
+	}
+
+	protected void cancelTask(AsyncTask<?, ?, ?> task) {
+		if (task == null)
+			return;
+		task.cancel(true);
 	}
 	
 	protected void showSettings() {

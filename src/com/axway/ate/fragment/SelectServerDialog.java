@@ -13,8 +13,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.axway.ate.ServerInfo;
 import com.axway.ate.adapter.ServerInfoListAdapter;
-import com.axway.ate.api.ServerInfo;
 
 public class SelectServerDialog extends DialogFragment implements OnItemClickListener {
 

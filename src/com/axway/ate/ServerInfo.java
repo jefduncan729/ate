@@ -1,4 +1,4 @@
-package com.axway.ate.api;
+package com.axway.ate;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.axway.ate.Constants;
 import com.axway.ate.db.DbHelper.ConnMgrColumns;
 
 public class ServerInfo {
@@ -106,7 +105,17 @@ public class ServerInfo {
 	public void setPasswd(String pwd) {
 		this.pwd = pwd;
 	}
-
+	
+	public String displayString() {
+		StringBuilder sb = new StringBuilder("http");
+		if (ssl)
+			sb.append("s");
+		sb.append("://").append(host);
+		if (port != 0)
+			sb.append(":").append(port);
+		return sb.toString();
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		boolean rv = false;
@@ -211,10 +220,13 @@ public class ServerInfo {
 			if (!endpoint.endsWith("/"))
 				sb.append("/");
 			String val = null;
+			int i = 0;
 			for (String k: params) {
 				try {
 					val = URLEncoder.encode(k, Constants.UTF8);
-					sb.append(val).append("/");
+					if (i++ > 0)
+						sb.append("/");
+					sb.append(val);
 				} 
 				catch (UnsupportedEncodingException e) {
 					Log.e(TAG, e.getLocalizedMessage(), e);

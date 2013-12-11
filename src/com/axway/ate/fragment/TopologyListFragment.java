@@ -25,6 +25,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	private static final String TAG = TopologyListFragment.class.getSimpleName();
 
 	private Topology t;
+	private String src;
 	private Listener listener;
 
 	public interface Listener {
@@ -87,8 +88,9 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		return listener.onMenuItemSelected(item);
 	}
 	
-	public void update(Topology in) {
+	public void update(Topology in, String src) {
 		t = in;
+		this.src = src;
 		refreshAdapter();
 	}
 	
@@ -97,7 +99,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 			setListAdapter(null);
 		else {
 			getListView().setOnItemClickListener(this);
-			setListAdapter(new TopologyAdapter(getActivity(), t));
+			setListAdapter(new TopologyAdapter(getActivity(), t, src));
 		}
 	}
 
@@ -126,7 +128,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 			case Group:
 				iAdd = new Intent();
 				iAdd.putExtra(Intent.EXTRA_REFERRER, e.itemType.name());
-				iAdd.putExtra(Intent.EXTRA_LOCAL_ONLY, EntityType.Gateway.name());
+				iAdd.putExtra(Intent.EXTRA_SUBJECT, EntityType.Gateway.name());
 				iAdd.putExtra(Intent.EXTRA_ORIGINATING_URI, e.id);
 				if (e.data == 0)
 					menu.add(0, R.id.action_delete, p++, "Remove");

@@ -1,5 +1,6 @@
 package com.axway.ate.activity;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,17 +8,17 @@ import android.util.Log;
 import com.axway.ate.R;
 import com.axway.ate.fragment.EditFragment;
 
-abstract public class SinglePaneActivity extends ServiceAwareActivity {
+abstract public class SinglePaneActivity extends BaseActivity {
 	private static final String TAG = SinglePaneActivity.class.getSimpleName();
 	
-	protected EditFragment frag;
+	protected Fragment frag;
 	
 	protected SinglePaneActivity() {
 		super();
 		frag = null;
 	}
 	
-	abstract protected EditFragment onCreateFragment();
+	abstract protected Fragment onCreateFragment();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +54,12 @@ abstract public class SinglePaneActivity extends ServiceAwareActivity {
 			rv.putAll(i.getExtras());
 		return rv;
 	}
-
-	@Override
-	protected void afterServiceConnected(boolean isConnected) {
-		super.afterServiceConnected(isConnected);
-		Log.d(TAG, "afterServiceConnected");
-		if (frag != null)
-			frag.onServiceAvailable(service);
-	}
+//
+//	@Override
+//	protected void afterServiceConnected(boolean isConnected) {
+//		super.afterServiceConnected(isConnected);
+//		Log.d(TAG, "afterServiceConnected");
+//		if (frag != null)
+//			frag.onServiceAvailable(service);
+//	}
 }

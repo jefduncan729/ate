@@ -16,7 +16,7 @@
 	    />
  	    
     <FrameLayout
-        android:id="@+id/container01"
+        android:id="@id/container01"
         android:layout_below="@android:id/progress"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

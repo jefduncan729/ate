@@ -8,7 +8,7 @@
     <com.github.ignition.core.widgets.RemoteImageView
         android:src="@drawable/ic_launcher"
         android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
-        android:id="@+id/image01"
+        android:id="@id/image01"
 	    android:layout_width="80dp"
     	android:layout_height="80dp"
     	android:contentDescription="@string/logo"
@@ -18,7 +18,7 @@
     />
 --> 	
  	<View
- 	    android:id="@+id/spacer01"
+ 	    android:id="@id/spacer01"
  	    android:layout_width="match_parent"
  	    android:layout_height="32dp"
  	    />
@@ -43,7 +43,7 @@
     />
     
  	<View
- 	    android:id="@+id/spacer02"
+ 	    android:id="@id/spacer02"
  	    android:layout_width="match_parent"
  	    android:layout_height="32dp"
 	    android:layout_below="@android:id/text2"
@@ -59,7 +59,7 @@
         />
  
  	<View
- 	    android:id="@+id/spacer03"
+ 	    android:id="@id/spacer03"
  	    android:layout_width="match_parent"
 	    android:layout_below="@android:id/checkbox"
  	    android:layout_height="32dp"

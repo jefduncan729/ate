@@ -1,4 +1,4 @@
-package com.axway.ate.api;
+package com.axway.ate;
 
 import com.google.gson.JsonArray;
 

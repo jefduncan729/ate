@@ -15,7 +15,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.axway.ate.R;
-import com.axway.ate.api.ServerInfo;
+import com.axway.ate.ServerInfo;
 import com.axway.ate.db.DbHelper.ConnMgrColumns;
 import com.axway.ate.util.UiUtils;
 

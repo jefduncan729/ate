@@ -14,7 +14,7 @@
     <include layout="@layout/edit_name"/>
    
     <LinearLayout
-        android:id="@+id/container01"
+        android:id="@id/container01"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:orientation="vertical"
@@ -35,7 +35,7 @@
 	        	android:orientation="horizontal">
 		        	        
 			    <TextView
-			        android:id="@+id/label2"
+			        android:id="@id/label02"
 				    android:layout_width="0dp"
 			    	android:layout_height="wrap_content"
 					android:layout_weight="0.92"
@@ -47,7 +47,7 @@
 			        android:text="@string/gateways"
 				/>
 				<ImageButton
-					android:id="@+id/action_add_gateway"
+					android:id="@id/action_add_gateway"
 				    android:layout_width="40dp"
 			    	android:layout_height="wrap_content"
 					android:layout_weight="0.08"
@@ -58,7 +58,7 @@
 			</LinearLayout>
 	    	
 			<ListView 
-		        android:id="@+id/gateway_list"
+		        android:id="@id/gateway_list"
 		        android:layout_height="match_parent"
 				android:layout_width="match_parent"
 	        	android:paddingLeft="@dimen/listitem_small_margin"
@@ -67,7 +67,7 @@
 		</LinearLayout>
     	        
 	    <LinearLayout
-        	android:id="@+id/container02"
+        	android:id="@id/container02"
 	        android:layout_height="0dp"
 	        android:layout_width="match_parent"
 	        android:layout_weight="0.5"
@@ -81,7 +81,7 @@
 	        	android:layout_width="match_parent"
 	        	android:orientation="horizontal">
 				<TextView
-			        android:id="@+id/label3"
+			        android:id="@id/label03"
 				    android:layout_width="0dp"
 			    	android:layout_height="wrap_content"
 					android:layout_weight="0.92"
@@ -94,7 +94,7 @@
 			        android:text="@string/tags"
 				/>
 				<ImageButton
-					android:id="@+id/action_add_tag"
+					android:id="@id/action_add_tag"
 				    android:layout_width="40dp"
 			    	android:layout_height="wrap_content"
 					android:layout_weight="0.08"
@@ -104,7 +104,7 @@
 				    />				
 			</LinearLayout>	    	    
 			<ListView 
-		        android:id="@+id/tag_list"
+		        android:id="@id/tag_list"
 		        android:layout_height="match_parent"
 				android:layout_width="match_parent"
 	        	android:paddingLeft="@dimen/listitem_small_margin"

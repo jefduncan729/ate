@@ -21,12 +21,13 @@
             android:authorities="com.axway.ate"
         />
  
-        <service android:name=".activity.MainService" android:exported="false" />
+        <service android:name=".service.RestService" android:exported="false" />
         
         <activity
             android:name=".activity.SettingsActivity"
             android:label="@string/action_settings" >
         </activity>
+<!--         
         <activity
             android:name=".activity.HostActivity"
             android:windowSoftInputMode="stateHidden"
@@ -41,6 +42,12 @@
             android:name=".activity.ServiceActivity"
             android:windowSoftInputMode="stateHidden"
             android:label="@string/services" >
+        </activity>
+ -->        
+        <activity
+            android:name=".activity.EditActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/hosts" >
         </activity>
         <activity
             android:name=".activity.TopologyActivity"

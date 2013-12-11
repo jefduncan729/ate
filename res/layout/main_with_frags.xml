@@ -10,7 +10,7 @@
     tools:context=".MainActivity" >
     
     <FrameLayout
-        android:id="@+id/container01"
+        android:id="@id/container01"
 	    android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="0.34">
@@ -25,14 +25,14 @@
  -->    	
     
     <FrameLayout
-        android:id="@+id/container02"
+        android:id="@id/container02"
 	    android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="0.33"
     	/>
     
     <FrameLayout
-        android:id="@+id/container03"
+        android:id="@id/container03"
 	    android:layout_width="match_parent"
     	android:layout_height="0dp"
     	android:layout_weight="0.33"
