@@ -75,7 +75,7 @@ public class RestService extends BaseIntentService {
 			removeTrustStore();
 			return;
 		}
-		srvrInfo = ServerInfo.fromBundle(extras.getBundle(Intent.EXTRA_LOCAL_ONLY));
+		srvrInfo = ServerInfo.fromBundle(extras.getBundle(Constants.EXTRA_SERVER_INFO));
 		if (srvrInfo == null) {
 			Log.e(TAG, "no server info passed");
 			return;
@@ -90,13 +90,13 @@ public class RestService extends BaseIntentService {
 		JsonObject resp = null;
 		try {
 			if (HttpMethod.POST == method || HttpMethod.PUT == method || HttpMethod.DELETE == method) {
-				String s = extras.getString(Intent.EXTRA_SUBJECT);
+				String s = extras.getString(Constants.EXTRA_ITEM_TYPE);
 				if (TextUtils.isEmpty(s)) {
 					Log.e(TAG, "no entity type passed");
 					return;
 				}
 				EntityType eType = EntityType.valueOf(s);
-				s = extras.getString(Intent.EXTRA_TEXT);
+				s = extras.getString(Constants.EXTRA_JSON_ITEM);
 				if (TextUtils.isEmpty(s)) {
 					Log.e(TAG, "no json data passed");
 					return;
@@ -111,7 +111,12 @@ public class RestService extends BaseIntentService {
 				resp = doUpdate(makeUrl(eType, json, method, extras), json, method);
 			}
 			else if (HttpMethod.GET == method) {
-				resp = doGet(extras.getString(Intent.EXTRA_TEXT));
+				String url = extras.getString(Constants.EXTRA_URL);
+				if (TextUtils.isEmpty(url)) {
+					Log.e(TAG, "no url passed");
+					return;
+				}
+				resp = doGet(url);
 			}
 		}
 		catch (ApiException e) {
@@ -126,7 +131,7 @@ public class RestService extends BaseIntentService {
 			if (ACTION_CHECK_CERT.equals(action))
 				showToast(getString(R.string.cert_trusted));
 			if (resp != null)
-				extras.putString(Intent.EXTRA_TEXT, resp.toString());
+				extras.putString(Constants.EXTRA_JSON_ITEM, resp.toString());
 			if (getResultReceiver() != null)
 				getResultReceiver().send(HttpStatus.SC_OK, extras);
 		}
@@ -204,7 +209,7 @@ public class RestService extends BaseIntentService {
 		String endpoint = null;
 		String id = json.get("id").getAsString();
 		StringBuilder qStr = new StringBuilder();
-		boolean delFromDisk = extras.getBoolean(Intent.EXTRA_DATA_REMOVED, false); 
+		boolean delFromDisk = extras.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false); 
 		if (eType == EntityType.Host) {
 			if (method == HttpMethod.DELETE) {
 				params = new String[1];
@@ -223,7 +228,7 @@ public class RestService extends BaseIntentService {
 			endpoint = "topology/groups";
 		}
 		else if (eType == EntityType.Gateway) {
-			String grpId = extras.getString(Intent.EXTRA_ORIGINATING_URI);
+			String grpId = extras.getString(Constants.EXTRA_REFERRING_ITEM_ID);
 			if (TextUtils.isEmpty(grpId))
 				throw new IllegalStateException("expecting to find group for service: " + id);
 			endpoint = "topology/services";
@@ -240,7 +245,7 @@ public class RestService extends BaseIntentService {
 				params[0] = grpId;
 			}
 			if (method == HttpMethod.POST) {
-				int sp = extras.getInt(Intent.EXTRA_TEMPLATE, 8080);
+				int sp = extras.getInt(Constants.EXTRA_SERVICES_PORT, 8080);
 				qStr.append("servicesPort=" + Integer.toString(sp));
 			}
 		}
@@ -300,6 +305,7 @@ public class RestService extends BaseIntentService {
 		}
 		catch (HttpClientErrorException e) {
 			switch (e.getStatusCode().value()) {
+				case HttpStatus.SC_BAD_REQUEST:
 				case HttpStatus.SC_UNAUTHORIZED:
 				case HttpStatus.SC_NOT_FOUND:
 				case HttpStatus.SC_FORBIDDEN:

@@ -7,9 +7,9 @@ import com.vordel.api.topology.model.Topology;
 
 public interface TopologyClient {
 
-	public void addHost(Host h) throws ApiException;
+	public void addHost(Host h, boolean useSsl) throws ApiException;
 	public void addGroup(Group g) throws ApiException;
-	public void addService(Service s) throws ApiException;
+	public void addService(Service s, int svcsPort) throws ApiException;
 	
 	public void updateHost(Host h) throws ApiException;
 	public void updateGroup(Group g) throws ApiException;

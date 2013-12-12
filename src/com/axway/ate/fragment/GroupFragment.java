@@ -13,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
 
+import com.axway.ate.Constants;
 import com.axway.ate.R;
 import com.axway.ate.fragment.EditTagDialog.EditTagListener;
 import com.google.gson.JsonElement;
@@ -60,8 +61,8 @@ public class GroupFragment extends TagAwareFragment implements OnItemClickListen
 //	private void editService(Service s) {
 //		Intent i = new Intent(getActivity(), ServiceActivity.class);
 //		if (s != null)
-//			i.putExtra(Intent.EXTRA_UID, s.getId());
-//		i.putExtra(Intent.EXTRA_SUBJECT, ((Group)itemBeingEdited).getName());
+//			i.putExtra(Constants.EXTRA_ITEM_ID, s.getId());
+//		i.putExtra(Constants.EXTRA_ITEM_TYPE, ((Group)itemBeingEdited).getName());
 //		startActivityForResult(i, EntityType.Gateway.ordinal());
 //	}
 	
@@ -98,7 +99,7 @@ public class GroupFragment extends TagAwareFragment implements OnItemClickListen
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if ((requestCode == EntityType.Group.ordinal()) || (requestCode == EntityType.Gateway.ordinal()) || (requestCode == EntityType.NodeManager.ordinal())) {
 			if (resultCode == Activity.RESULT_OK) {
-				String s = data.getStringExtra(Intent.EXTRA_SUBJECT);
+				String s = data.getStringExtra(Constants.EXTRA_JSON_ITEM);
 				if (TextUtils.isEmpty(s))
 					return;
 				JsonElement json = helper.parse(s);
@@ -185,7 +186,7 @@ public class GroupFragment extends TagAwareFragment implements OnItemClickListen
 //	}
 
 	@Override
-	protected void onSaveItem() {
+	protected void onSaveItem(Bundle extras) {
 		if (itemBeingEdited == null)
 			return;
 		Group g = (Group)itemBeingEdited;

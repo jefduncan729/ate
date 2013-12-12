@@ -11,9 +11,11 @@
     <string name="action_add_group">Add Group</string>
     <string name="action_add_gateway">Add API Server</string>
     <string name="action_delete">Delete</string>
+    <string name="action_delete_disk">Delete + Delete Disk Files</string>
     <string name="action_edit">Edit</string>
     <string name="action_enable">Enable</string>
     <string name="action_disable">Disable</string>
+    <string name="action_console">Console</string>
     <string name="enabled">Enabled</string>
     <string name="action_add_tag">Add Tag</string>
     <string name="action_save">Save</string>
@@ -26,6 +28,8 @@
     <string name="action_topo_details">Topology Details</string>
     <string name="action_conn_mgr">Connection Manager</string>
     <string name="action_compare_topo">Compare Topology</string>
+    <string name="action_ssh_to_host">SSH to host</string>
+    <string name="action_start_gateway">Start Gateway</string>
     <string name="msg_loading">Loading&#8230;</string>
     <string name="empty_string"></string>
     <string name="username">Username</string>

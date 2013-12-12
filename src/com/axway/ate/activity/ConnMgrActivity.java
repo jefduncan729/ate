@@ -141,9 +141,8 @@ public class ConnMgrActivity extends BaseActivity implements Listener {
 		c.close();
 		Intent i = new Intent(this, RestService.class);		
 		i.setAction(RestService.ACTION_CHECK_CERT);
-		i.putExtra(Intent.EXTRA_LOCAL_ONLY, info.toBundle());
-//		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
-		i.putExtra(Intent.EXTRA_TEXT, info.buildUrl("topology"));
+		i.putExtra(Constants.EXTRA_SERVER_INFO, info.toBundle());
+		i.putExtra(Constants.EXTRA_URL, info.buildUrl("topology"));
 		startService(i);
 	}
 }

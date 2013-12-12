@@ -5,9 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageButton;
 
+import com.axway.ate.Constants;
 import com.axway.ate.R;
 import com.google.gson.JsonObject;
 import com.vordel.api.topology.model.Host;
@@ -15,9 +16,9 @@ import com.vordel.api.topology.model.Topology.EntityType;
 
 public class HostFragment extends EditFragment implements OnItemClickListener {
 	
-//	private ListView listGateways;
-	private ImageButton btnAddSvc;
-
+	private CheckBox editUseSsl;
+	private View ctrSsl;
+	
 	public HostFragment() {
 		super();
 	}
@@ -30,6 +31,9 @@ public class HostFragment extends EditFragment implements OnItemClickListener {
 	@Override
 	protected void onDisplayItem() {
 		editName.setText(((Host)itemBeingEdited).getName());
+		if (editUseSsl != null) {
+			editUseSsl.setChecked(true);
+		}
 //		if (TextUtils.isEmpty(itemId))
 //			showGateways(false);
 //		else {
@@ -55,12 +59,13 @@ public class HostFragment extends EditFragment implements OnItemClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rv = super.onCreateView(inflater, container, savedInstanceState);	//inflater.inflate(R.layout.edit_host, null);
+		editUseSsl = (CheckBox)rv.findViewById(R.id.edit_use_ssl);
+		ctrSsl = rv.findViewById(R.id.container03);
+		if (ctrSsl != null)
+			ctrSsl.setVisibility(action == R.id.action_add ? View.VISIBLE : View.GONE);
 //		listGateways = (ListView)rv.findViewById(R.id.gateway_list);
 //		listGateways.setOnItemClickListener(this);
 		viewGateways.setVisibility(View.GONE);
-//		btnAddSvc = (ImageButton)rv.findViewById(R.id.action_add_gateway);
-//		if (btnAddSvc != null)
-//			btnAddSvc.setOnClickListener(this);
 		return rv;
 	}
 
@@ -78,10 +83,12 @@ public class HostFragment extends EditFragment implements OnItemClickListener {
 	}
 
 	@Override
-	protected void onSaveItem() {
+	protected void onSaveItem(Bundle extras) {
 		if (itemBeingEdited == null)
 			return;
 		Host h = (Host)itemBeingEdited;
 		h.setName(editName.getText().toString());
+		if (action == R.id.action_add && editUseSsl != null)
+			extras.putBoolean(Constants.EXTRA_USE_SSL, editUseSsl.isChecked());
 	}
 }

@@ -1,12 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/action_add_host"
+        android:id="@id/action_add_host"
         android:orderInCategory="5"
         android:showAsAction="ifRoom"
         android:title="@string/action_add_host"/>
     
     <item
-        android:id="@+id/action_add_group"
+        android:id="@id/action_add_group"
         android:orderInCategory="10"
         android:showAsAction="ifRoom"
         android:title="@string/action_add_group"/>
@@ -38,51 +38,57 @@
 -->    
     
     <item
-        android:id="@+id/action_topo_details"
+        android:id="@id/action_topo_details"
         android:orderInCategory="10"
         android:showAsAction="never"
         android:title="@string/action_topo_details"/>
         
     <item
-        android:id="@+id/action_load_from_disk"
+        android:id="@id/action_load_from_disk"
         android:orderInCategory="20"
         android:showAsAction="never"
         android:title="@string/action_load_from_disk"/>
     
     <item
-        android:id="@+id/action_load_from_anm"
+        android:id="@id/action_load_from_anm"
         android:orderInCategory="21"
         android:showAsAction="never"
         android:title="@string/action_load_from_anm"/>
     
     <item
-        android:id="@+id/action_save_to_disk"
+        android:id="@id/action_save_to_disk"
         android:orderInCategory="25"
         android:showAsAction="never"
         android:title="@string/action_save_to_disk"/>
     
     <item
-        android:id="@+id/action_conn_mgr"
+        android:id="@id/action_conn_mgr"
         android:orderInCategory="28"
         android:showAsAction="never"
         android:title="@string/action_conn_mgr"/>
     
     <item
-        android:id="@+id/action_compare_topo"
+        android:id="@id/action_compare_topo"
         android:orderInCategory="30"
         android:showAsAction="never"
         android:title="@string/action_compare_topo"/>
     
     <item
-        android:id="@+id/action_settings"
+        android:id="@id/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
     
     <item
-        android:id="@+id/action_remove_trust"
+        android:id="@id/action_remove_trust"
         android:orderInCategory="110"
         android:showAsAction="never"
         android:title="@string/action_remove_trust"/>
+    
+    <item
+        android:id="@id/action_console"
+        android:orderInCategory="120"
+        android:showAsAction="never"
+        android:title="@string/action_console"/>
     
 </menu>

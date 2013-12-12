@@ -2,6 +2,7 @@ package com.axway.ate.fragment;
 
 import java.util.List;
 
+import com.axway.ate.Constants;
 import com.axway.ate.R;
 
 import android.app.Activity;
@@ -65,10 +66,10 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 		if (args != null) {
 			if (args.containsKey(Intent.EXTRA_TITLE))
 				t = args.getString(Intent.EXTRA_TITLE);
-			if (args.containsKey(Intent.EXTRA_TEXT))
-				fnames = args.getStringArrayList(Intent.EXTRA_TEXT);
-			if (args.containsKey(Intent.EXTRA_LOCAL_ONLY))
-				action = args.getInt(Intent.EXTRA_LOCAL_ONLY);
+			if (args.containsKey(Constants.EXTRA_JSON_ITEM))
+				fnames = args.getStringArrayList(Constants.EXTRA_JSON_ITEM);
+			if (args.containsKey(Constants.EXTRA_ACTION))
+				action = args.getInt(Constants.EXTRA_ACTION);
 		}
 		AlertDialog.Builder bldr = new AlertDialog.Builder(getActivity());
     	Activity a = getActivity();

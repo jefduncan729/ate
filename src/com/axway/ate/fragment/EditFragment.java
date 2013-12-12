@@ -30,7 +30,7 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	private static final String TAG = EditFragment.class.getSimpleName();
 	
 	public interface Listener {
-		public void onSaveObject(Object h);
+		public void onSaveObject(Object h, Bundle extras);
 		public void onEditService(Object from, Service s);
 		public void onAddService(Object from);
 	}
@@ -50,7 +50,7 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 
 	abstract protected void onPrepareItem(JsonObject json);
 	abstract protected void onDisplayItem();
-	abstract protected void onSaveItem();
+	abstract protected void onSaveItem(Bundle extras);
 	abstract protected int getLayoutId();
 	abstract protected EntityType getItemType();
 	
@@ -74,17 +74,17 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 		String jsonTopo = null;
 		action = R.id.action_edit;
 		if (savedInstanceState != null) {
-			if (savedInstanceState.containsKey(Intent.EXTRA_TEXT))
-				jsonRep = savedInstanceState.getString(Intent.EXTRA_TEXT);
+			if (savedInstanceState.containsKey(Constants.EXTRA_JSON_ITEM))
+				jsonRep = savedInstanceState.getString(Constants.EXTRA_JSON_ITEM);
 			if (savedInstanceState.containsKey(Constants.EXTRA_ACTION))
 				action = savedInstanceState.getInt(Constants.EXTRA_ACTION);
-			if (savedInstanceState.containsKey(Intent.EXTRA_STREAM))
-				jsonTopo = savedInstanceState.getString(Intent.EXTRA_STREAM);
+			if (savedInstanceState.containsKey(Constants.EXTRA_JSON_TOPOLOGY))
+				jsonTopo = savedInstanceState.getString(Constants.EXTRA_JSON_TOPOLOGY);
 		}
 		else if (getArguments() != null) {
-			jsonRep = getArguments().getString(Intent.EXTRA_TEXT);
+			jsonRep = getArguments().getString(Constants.EXTRA_JSON_ITEM);
 			action = getArguments().getInt(Constants.EXTRA_ACTION, R.id.action_edit);
-			jsonTopo = getArguments().getString(Intent.EXTRA_STREAM);
+			jsonTopo = getArguments().getString(Constants.EXTRA_JSON_TOPOLOGY);
 		}
 		if (jsonRep == null)
 			throw new IllegalStateException("must provide JSON representation of object being edited");
@@ -162,9 +162,10 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	protected void save() {
 		Log.d(TAG, "save");
 		if (isValid()) {
-			onSaveItem();
+			Bundle extras = new Bundle();
+			onSaveItem(extras);
 			if (listener != null)
-				listener.onSaveObject(itemBeingEdited);
+				listener.onSaveObject(itemBeingEdited, extras);
 		}
 		else {
 			notifyInvalid();

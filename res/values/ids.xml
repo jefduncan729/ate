@@ -9,6 +9,7 @@
     <item type="id" name="action_add_group"/>
     <item type="id" name="action_add_gateway"/>
     <item type="id" name="action_delete"/>
+    <item type="id" name="action_delete_disk"/>
     <item type="id" name="action_edit"/>
     <item type="id" name="action_add_tag"/>
     <item type="id" name="action_save"/>
@@ -21,7 +22,12 @@
     <item type="id" name="action_topo_details"/>
     <item type="id" name="action_conn_mgr"/>
     <item type="id" name="action_check_cert"/>
-
+    <item type="id" name="action_compare_topo"/>
+    <item type="id" name="action_remove_trust"/>
+    <item type="id" name="action_console"/>
+    <item type="id" name="action_ssh_to_host"/>
+    <item type="id" name="action_start_gateway"/>
+    
     <!-- Containers -->
     <item type="id" name="container01"/>
     <item type="id" name="container02"/>
@@ -32,6 +38,7 @@
     <item type="id" name="edit_host"/>
 	<item type="id" name="edit_group"/>
     <item type="id" name="edit_use_ssl"/>
+    <item type="id" name="edit_svcs_port"/>
     <item type="id" name="edit_mgmt_port"/>
     <item type="id" name="edit_port"/>
     <item type="id" name="edit_user"/>

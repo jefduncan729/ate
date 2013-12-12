@@ -34,7 +34,7 @@ public class EditActivity extends SinglePaneActivity implements Listener {
 	@Override
 	protected EditFragment onCreateFragment() {
 		EditFragment rv = null;
-		String s = getIntent().getStringExtra(Intent.EXTRA_SUBJECT);
+		String s = getIntent().getStringExtra(Constants.EXTRA_ITEM_TYPE);
 		eType = EntityType.valueOf(s);
 		switch (eType) {
 			case Host:
@@ -55,17 +55,19 @@ public class EditActivity extends SinglePaneActivity implements Listener {
 	}
 
 	@Override
-	public void onSaveObject(Object o) {
+	public void onSaveObject(Object o, Bundle extras) {
 		Intent i = new Intent();
+		if (extras != null)
+			i.putExtras(extras);
 		if (o instanceof Host)
-			i.putExtra(Intent.EXTRA_TEXT, helper.toJson((Host)o).toString());
+			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Host)o).toString());
 		else if (o instanceof Group)
-			i.putExtra(Intent.EXTRA_TEXT, helper.toJson((Group)o).toString());
+			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Group)o).toString());
 		else if (o instanceof Service)
-			i.putExtra(Intent.EXTRA_TEXT, helper.toJson((Service)o).toString());
+			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Service)o).toString());
 		else
 			return;
-		i.putExtra(Intent.EXTRA_SUBJECT, eType.name());
+		i.putExtra(Constants.EXTRA_ITEM_TYPE, eType.name());
 		setResult(Activity.RESULT_OK, i);
 		finish();
 	}
@@ -81,17 +83,17 @@ public class EditActivity extends SinglePaneActivity implements Listener {
 	public void onEditService(Object from, Service s) {
 		Intent i = new Intent();
 		if (from instanceof Host) {
-			i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Host)from).getId());
-			i.putExtra(Intent.EXTRA_REFERRER, EntityType.Host.name());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, ((Host)from).getId());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Host.name());
 		}
 		else if (from instanceof Group) {
-			i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Group)from).getId());
-			i.putExtra(Intent.EXTRA_REFERRER, EntityType.Group.name());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, ((Group)from).getId());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Group.name());
 		}
 		else
 			return;
-		i.putExtra(Intent.EXTRA_SUBJECT, EntityType.Gateway.name());
-		i.putExtra(Intent.EXTRA_UID, s.getId());
+		i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Gateway.name());
+		i.putExtra(Constants.EXTRA_ITEM_ID, s.getId());
 		i.putExtra(Constants.EXTRA_ACTION, R.id.action_edit);
 		setResult(Activity.RESULT_OK, i);
 		finish();
@@ -101,51 +103,18 @@ public class EditActivity extends SinglePaneActivity implements Listener {
 	public void onAddService(Object from) {
 		Intent i = new Intent();
 		if (from instanceof Host) {
-			i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Host)from).getId());
-			i.putExtra(Intent.EXTRA_REFERRER, EntityType.Host.name());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, ((Host)from).getId());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Host.name());
 		}
 		else if (from instanceof Group) {
-			i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Group)from).getId());
-			i.putExtra(Intent.EXTRA_REFERRER, EntityType.Group.name());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, ((Group)from).getId());
+			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Group.name());
 		}
 		else
 			return;
-		i.putExtra(Intent.EXTRA_SUBJECT, EntityType.Gateway.name());
+		i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Gateway.name());
 		i.putExtra(Constants.EXTRA_ACTION, R.id.action_add);
 		setResult(Activity.RESULT_OK, i);
 		finish();
 	}
-	
-//	
-//	protected void addObject(Object o) {
-//		switch (eType) {
-//			case Host:
-//				service.addHost((Host)o);
-//			break;
-//			case Group:
-//				service.addGroup((Group)o);
-//			break;
-//			case Gateway:
-//				service.addService((Service)o);
-//			break;
-//			case NodeManager:
-//			break;
-//		}
-//	}
-//	
-//	protected void updateObject(Object o) {
-//		switch (eType) {
-//			case Host:
-//				service.updateHost((Host)o);
-//			break;
-//			case Group:
-//				service.updateGroup((Group)o);
-//			break;
-//			case Gateway:
-//				service.updateService((Service)o);
-//			break;
-//			case NodeManager:
-//			break;
-//		}
-//	}	
 }

@@ -9,7 +9,29 @@
     android:orientation="vertical" >
     
     <include layout="@layout/edit_name"/>
-       
+    
+    <LinearLayout
+        android:id="@id/container03"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+	    android:paddingBottom="@dimen/listitem_small_margin">
+	    
+ 		<RelativeLayout
+	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent"
+		> 		    
+        <CheckBox
+	        android:id="@id/edit_use_ssl"
+	        android:layout_height="wrap_content"
+	        android:layout_width="wrap_content"
+	        android:text="@string/use_ssl"
+	        android:layout_centerHorizontal="true"
+	        android:textAppearance="?android:attr/textAppearanceMedium" 
+		/>
+        </RelativeLayout>
+	</LinearLayout>
+    
     <LinearLayout
         android:id="@id/container01"
         android:layout_height="match_parent"

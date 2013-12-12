@@ -1,6 +1,7 @@
 package com.axway.ate.fragment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,8 @@ import android.widget.EditText;
 
 import com.axway.ate.Constants;
 import com.axway.ate.R;
+import com.axway.ate.util.UiUtils;
+import com.axway.ate.util.Utilities;
 import com.google.gson.JsonObject;
 import com.vordel.api.topology.model.Group;
 import com.vordel.api.topology.model.Host;
@@ -27,16 +30,21 @@ import com.vordel.api.topology.model.Topology.ServiceType;
 public class ServiceFragment extends TagAwareFragment {
 
 	private EditText editMgmtPort;
+	private EditText editSvcsPort;
+	private View ctrMgmtPort;
+	private View ctrSvcsPort;
 	private CheckBox editUseSsl;
 	private AutoCompleteTextView editHost;
 	private AutoCompleteTextView editGroup;
 
 	private Host curHost;
+	private Service usedBySvc;
 	private Group curGroup;
 
 	public ServiceFragment() {
 		super();
 		curHost = null;
+		usedBySvc = null;
 		curGroup = null;
 	}
 	
@@ -45,6 +53,9 @@ public class ServiceFragment extends TagAwareFragment {
 		View rv = super.onCreateView(inflater, container, savedInstanceState);	//inflater.inflate(R.layout.edit_svc, null);
 		editUseSsl = (CheckBox)rv.findViewById(R.id.edit_use_ssl);
 		editMgmtPort = (EditText)rv.findViewById(R.id.edit_mgmt_port);
+		ctrMgmtPort = (View)rv.findViewById(R.id.container01);
+		editSvcsPort = (EditText)rv.findViewById(R.id.edit_svcs_port);
+		ctrSvcsPort = (View)rv.findViewById(R.id.container02);
 		editHost = (AutoCompleteTextView)rv.findViewById(R.id.edit_host);
 		editGroup = (AutoCompleteTextView)rv.findViewById(R.id.edit_group);
 		return rv;
@@ -65,6 +76,10 @@ public class ServiceFragment extends TagAwareFragment {
 	@Override
 	protected void onDisplayItem() {
 		Service service = (Service)itemBeingEdited;
+		if (action == R.id.action_add)
+			ctrSvcsPort.setVisibility(View.VISIBLE);
+		else 
+			ctrSvcsPort.setVisibility(View.GONE);
 		editName.setText(service.getName());
 		if (service.getManagementPort() == 0)
 			editMgmtPort.setText("");
@@ -112,8 +127,8 @@ public class ServiceFragment extends TagAwareFragment {
 			s.setScheme(Constants.HTTPS_SCHEME);
 			s.setType(ServiceType.gateway);
 			if (topology != null && getArguments() != null) {
-				String refId = getArguments().getString(Intent.EXTRA_ORIGINATING_URI);
-				String typ = getArguments().getString(Intent.EXTRA_REFERRER);
+				String refId = getArguments().getString(Constants.EXTRA_REFERRING_ITEM_ID);
+				String typ = getArguments().getString(Constants.EXTRA_REFERRING_ITEM_TYPE);
 				EntityType eType = EntityType.valueOf(typ);
 				if (eType == EntityType.Host) {
 					s.setHostID(refId);
@@ -130,15 +145,110 @@ public class ServiceFragment extends TagAwareFragment {
 		itemBeingEdited = s;
 	}
 
+	private boolean isValidPort(EditText edit, View parent) {
+		if (edit == null || parent == null)
+			return false;
+		if (usedBySvc != null)
+			return true;
+		usedBySvc = null;
+		String s = edit.getText().toString();
+		int p = Utilities.strToIntDef(s, -1);
+		if (p == -1)
+			setInvalidView(edit);
+		else {
+//			Collection<Host>hosts = topology.getHosts();
+			Collection<Group> grps = topology.getGroups();
+			for (Group g: grps) {
+				Collection<Service> svcs = g.getServices();
+				for (Service svc: svcs) {
+					if (svc.getManagementPort() == p) {
+						usedBySvc = svc; 
+						break;
+					}
+				}
+				if (usedBySvc != null)
+					break;
+			}
+			if (usedBySvc != null) {
+				setInvalidView(parent);
+				parent.setTag(p);
+			}
+		}
+		return (usedBySvc == null);
+	}
+	
+	private boolean inUse(int port) {
+		boolean rv = false;
+		Collection<Host>hosts = topology.getHosts();
+		for (Host h: hosts) {
+			if (topology.portUsedBy(h.getId(), port) != null) {
+				rv = true;
+				break;
+			}
+		}
+		return rv;
+	}
+	
+	private Service usedBy(int port) {
+		Service rv = null;
+		Collection<Host>hosts = topology.getHosts();
+		for (Host h: hosts) {
+			rv = topology.portUsedBy(h.getId(), port);
+			if (rv != null) 
+				break;
+		}
+		return rv;
+	}
+	
 	@Override
 	protected boolean isValid() {
 		if (super.isValid()) {
-			if (TextUtils.isEmpty(editMgmtPort.getText().toString()))
-				setInvalidView(editMgmtPort);
+			if (TextUtils.isEmpty(editMgmtPort.getText().toString())) {
+				String s = editMgmtPort.getText().toString();
+				int p = Utilities.strToIntDef(s, -1);
+				if (p == -1)
+					setInvalidView(editMgmtPort);
+				else {
+					usedBySvc = usedBy(p);
+					if (usedBySvc != null) {
+						ctrMgmtPort.setTag(p);
+						setInvalidView(ctrMgmtPort);
+					}
+				}
+			}
 			else if (TextUtils.isEmpty(editHost.getText().toString()))
 				setInvalidView(editHost);
 			else if (TextUtils.isEmpty(editGroup.getText().toString()))
 				setInvalidView(editGroup);
+			if (action == R.id.action_add) {
+				String s = editSvcsPort.getText().toString();
+				int p = Utilities.strToIntDef(s, -1);
+				if (p == -1)
+					setInvalidView(editSvcsPort);
+				else {
+					usedBySvc = usedBy(p);
+					if (usedBySvc != null) {
+						ctrSvcsPort.setTag(p);
+						setInvalidView(ctrSvcsPort);
+					}
+				}
+//				String s = editSvcsPort.getText().toString();
+//				int p = Utilities.strToIntDef(s, -1);
+//				if (p == -1)
+//					setInvalidView(editSvcsPort);
+//				else {
+//					usedBySvc = null;
+//					Collection<Host>hosts = topology.getHosts();
+//					for (Host h: hosts) {
+//						usedBySvc = topology.portUsedBy(h.getId(), p); 
+//						if (usedBySvc != null)
+//							break;
+//					}
+//					if (usedBySvc != null) {
+//						setInvalidView(ctrSvcsPort);
+//					}
+//				}
+			}
 		}
 		return (getInvalidView() == null);
 	}
@@ -147,36 +257,13 @@ public class ServiceFragment extends TagAwareFragment {
 	protected EntityType getItemType() {
 		return EntityType.Gateway;
 	}
-//
-//	@Override
-//	protected void onSaveObject() {
-//		if (topoService == null || itemBeingEdited == null)
-//			return;
-//		Service s = (Service)itemBeingEdited;
-//		s.setName(editName.getText().toString());
-//		s.setManagementPort(Integer.parseInt(editMgmtPort.getText().toString()));
-//		s.setHostID(topology.getHostByName(editHost.getText().toString()).getId());
-//		if (editUseSsl.isChecked())
-//			s.setScheme(Constants.HTTPS_SCHEME);
-//		else
-//			s.setScheme(Constants.HTTP_SCHEME);
-//		String grpName = editGroup.getText().toString();
-//		Group g = topology.getGroupByName(grpName);
-//		if (g == null) {
-//			g = new Group();
-//			g.setName(grpName);
-//			curGroup = g;
-//		}
-//		if (action == R.id.action_add)
-//			topoService.addService(s);
-//		else if (action == R.id.action_edit)
-//			topoService.updateService(s);
-//	}
 
 	@Override
-	protected void onSaveItem() {
+	protected void onSaveItem(Bundle extras) {
 		if (itemBeingEdited == null)
 			return;
+		if (action == R.id.action_add)
+			extras.putInt(Intent.EXTRA_TEMPLATE, Integer.parseInt(editSvcsPort.getText().toString()));
 		Service s = (Service)itemBeingEdited;
 		s.setName(editName.getText().toString());
 		s.setManagementPort(Integer.parseInt(editMgmtPort.getText().toString()));
@@ -192,5 +279,26 @@ public class ServiceFragment extends TagAwareFragment {
 			g.setName(grpName);
 			curGroup = g;
 		}
+	}
+
+	@Override
+	protected void notifyInvalid() {
+		if (getInvalidView() == null)
+			return;
+		String msg = null;
+		if (getInvalidView().getId() == R.id.edit_svcs_port)
+			msg = "Please provide a services port";
+		else if (usedBySvc != null) {
+			int p = (Integer)getInvalidView().getTag();
+			if (getInvalidView().getId() == R.id.container01)
+				msg = "Management port ";
+			else if (getInvalidView().getId() == R.id.container02)
+				msg = "Services port ";
+			msg = msg + Integer.toString(p) + " is in use by " + usedBySvc.getName();
+		}
+		if (msg == null)
+			super.notifyInvalid();
+		else
+			UiUtils.showToast(getActivity(), msg);
 	}
 }
