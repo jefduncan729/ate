@@ -31,6 +31,7 @@ The Connection Manager is backed by a ContentProvider implementation and SQLite 
 
 ### Screenshots ###
 
+<img src="res/raw/cert_not_trusted.png" alt="Certificate not trusted" title="Certificate not trusted" height="480px" width="320px"/>&nbsp;
 <img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="320px"/>&nbsp;
 <img src="res/raw/connection_mgr.png" alt="Connection Manager" title="Connection Manager" height="480px" width="320px"/>&nbsp;
 <img src="res/raw/new_connection.png" alt="New Connection" title="New Connection" height="480px" width="320px"/>&nbsp;
