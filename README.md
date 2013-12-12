@@ -29,6 +29,9 @@ I finally decided to use an IntentService to do the async work. I use them a lot
 there's no need to worry about AsyncTasks. Fragment objects are used for display and Activity objects for communication with the IntentService. 
 The Connection Manager is backed by a ContentProvider implementation and SQLite database.
 
+### Screenshots ###
+
+![Topology Activity](res/raw/topology_activity.png "Topology Activity")
 ### Wishlist ###
 * Finish topology comparison functionality
 
