@@ -32,6 +32,10 @@ The Connection Manager is backed by a ContentProvider implementation and SQLite 
 ### Screenshots ###
 
 <img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="320px"/>
+<img src="res/raw/connection_mgr.png" alt="Connection Manager" title="Connection Manager" height="480px" width="320px"/>
+<img src="res/raw/new_connection.png" alt="New Connection" title="New Connection" height="480px" width="320px"/>
+<img src="res/raw/edit_gateway.png" alt="Edit Gateway" title="Edit Gateway" height="480px" width="320px"/>
+
 ### Wishlist ###
 * Finish topology comparison functionality
 
