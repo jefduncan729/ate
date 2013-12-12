@@ -23,8 +23,8 @@ because Spring's framework didn't like Jersey's JAXB annotations.
 
 ### Android Components used ###
 I experimented with a lot of the different framework components. I started out with an Android Service object to which I binded my Activities.
-This worked fairly well, but required that all activities bind themselves to the service, else it would be destroyed/re-created. I also tried
-just doing the bulk of the work in one main activity with some AsyncTasks but I didn't like all the "listeners" I ended up having to implement.
+This worked fairly well, but the communication between the service and activities was somewhat cumbersome. I also tried just doing the bulk
+of the work in one main activity with some AsyncTasks but I didn't like all the "listeners" I ended up having to implement.
 I finally decided to use an IntentService to do the async work. I use them a lot; they're nice because the async part is built right in and 
 there's no need to worry about AsyncTasks. Fragment objects are used for display and Activity objects for communication with the IntentService. 
 The Connection Manager is backed by a ContentProvider implementation and SQLite database.

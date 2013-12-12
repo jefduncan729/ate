@@ -169,9 +169,6 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 		else {
 			notifyInvalid();
 		}
-//		Intent i = new Intent();
-//		getActivity().setResult(Activity.RESULT_OK, i);
-//		getActivity().finish();
 	}
 
 	@Override
@@ -202,20 +199,6 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 	}
-//	
-//	public void onServiceAvailable(AbstractTopologyClient<?> s) {
-//		Log.d(TAG, "onServiceAvailable");
-//		topology = null;
-//		this.topoService = s;
-//		if (topoService != null)
-//			topology = topoService.getTopology();
-//		if (topology == null)
-//			Log.e(TAG, "topology is null when it shouldn't be");
-//		else {
-//			prepareItem();
-//			displayItem();
-//		}
-//	}
 
 	private void prepareItem() {
 		Log.d(TAG, "prepareItem");
@@ -226,10 +209,6 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 
 	private void displayItem() {
 		Log.d(TAG, "displayItem");
-//		if (TextUtils.isEmpty(itemId))
-//			getActivity().setTitle("New " + getItemType().name());
-//		else
-//			getActivity().setTitle("Edit " + itemId);
 		onDisplayItem();
 	}
 	
@@ -258,12 +237,5 @@ abstract public class EditFragment extends Fragment implements OnClickListener {
 			listener.onAddService(itemBeingEdited);
 		else
 			listener.onEditService(itemBeingEdited, s);
-//		Intent i = new Intent(getActivity(), ServiceActivity.class);
-//		if (s != null)
-//			i.putExtra(Intent.EXTRA_UID, s.getId());
-//		i.putExtra(Intent.EXTRA_SUBJECT, EntityType.Gateway.name());
-//		i.putExtra(Intent.EXTRA_REFERRER, EntityType.Host.name());
-//		i.putExtra(Intent.EXTRA_ORIGINATING_URI, ((Host)itemBeingEdited).getId());
-//		startActivityForResult(i, EntityType.Gateway.ordinal());		
 	}
 }

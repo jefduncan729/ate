@@ -1,10 +1,6 @@
 package com.axway.ate.activity;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,10 +13,8 @@ import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
@@ -520,7 +514,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	
 	private String getTopologySource()  {
 		if (srvrInfo != null)
-			return srvrInfo.getHost() + ":" + Integer.toString(srvrInfo.getPort());
+			return srvrInfo.displayString();
 		else if (file != null)
 			return file.getName();
 		return null;
@@ -655,7 +649,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		else
 			super.onActivityResult(requestCode, resultCode, data);
 	}
-	
+
 	private void networkError(String msg, String title) {
 		AlertDialogFragment dlg = new AlertDialogFragment();
 		Bundle args = new Bundle();
