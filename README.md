@@ -31,7 +31,7 @@ The Connection Manager is backed by a ContentProvider implementation and SQLite 
 
 ### Screenshots ###
 
-![Topology Activity](res/raw/topology_activity.png "Topology Activity")
+<img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="320px"/>
 ### Wishlist ###
 * Finish topology comparison functionality
 
