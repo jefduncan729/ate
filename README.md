@@ -43,7 +43,6 @@ Android to communicate amongst components.
 <img src="res/raw/console.png" alt="Console" title="Console" height="480px" width="300px"/>&nbsp;
 
 ### Wishlist ###
-* <strike>Finish topology comparison functionality</strike>
 
 ### Known issues ###
 I'm sure there are some! :)
