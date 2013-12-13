@@ -130,7 +130,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		Intent iDelDisk = new Intent();
 		iDelDisk.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDelDisk.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
-		iDelDisk.putExtra(Intent.EXTRA_DATA_REMOVED, true);
+		iDelDisk.putExtra(Constants.EXTRA_DELETE_FROM_DISK, true);
 		int p=0;
 		switch (e.itemType) {
 			case Host:

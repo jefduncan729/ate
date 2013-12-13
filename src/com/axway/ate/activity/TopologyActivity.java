@@ -620,20 +620,20 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		confirmDelete(name, eType, id, delFromDisk);
 	}
-
-	private void performDelete(EntityType typ, String id) {
+	
+	private void performDelete(EntityType typ, String id, boolean delFromDisk) {
 		if (EntityType.Host == typ) {
 			Host h = topology.getHost(id);
 			if (h != null) {
 				topology.removeHost(h);
-				asyncModify(createModifyIntent(HttpMethod.DELETE, typ, helper.toJson(h)));
+				removeHost(h);
 			}
 		}
 		else if (EntityType.Group == typ) {
 			Group g = topology.getGroup(id);
 			if (g != null) {
 				topology.removeGroup(g);
-				asyncModify(createModifyIntent(HttpMethod.DELETE, typ, helper.toJson(g)));
+				removeGroup(g, delFromDisk);
 			}
 		}
 		else if (EntityType.Gateway == typ) {
@@ -643,10 +643,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			Service s = topology.getService(ids[1]);
 			Group g = topology.getGroup(ids[0]);
 			if (s != null && g != null) {
-				g.removeService(s.getId());
-				Intent i = createModifyIntent(HttpMethod.DELETE, typ, helper.toJson(s));
-				i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
-				asyncModify(i);
+				removeService(s, delFromDisk);
 			}
 		}
 		updateTopologyView();
@@ -660,7 +657,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		confirmDialog(msg.toString(), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				performDelete(typ, id);
+				performDelete(typ, id, delFromDisk);
 //				getHandler().sendEmptyMessageDelayed(MSG_UPDATE_TOPOLOGY, 50);
 			}
 		});
@@ -1016,18 +1013,20 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 
 	@Override
-	public void removeGroup(Group g) throws ApiException {
+	public void removeGroup(Group g, boolean delFromDisk) throws ApiException {
 		if (topology == null || g == null)
 			return;
 		if (topology.getGroup(g.getId()) != null) {
 			topology.removeGroup(g);
 			updateTopologyView();
-			asyncModify(createModifyIntent(HttpMethod.DELETE, EntityType.Group, helper.toJson(g)));
+			Intent i = createModifyIntent(HttpMethod.DELETE, EntityType.Group, helper.toJson(g));
+			i.putExtra(Constants.EXTRA_DELETE_FROM_DISK, delFromDisk);
+			asyncModify(i);
 		}
 	}
 
 	@Override
-	public void removeService(Service s) throws ApiException {
+	public void removeService(Service s, boolean delFromDisk) throws ApiException {
 		if (topology == null || s == null)
 			return;
 		Group g = topology.getGroupForService(s.getId());
@@ -1036,7 +1035,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		g.removeService(s.getId());
 		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.DELETE, EntityType.Gateway, helper.toJson(s));
-		i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Group.name());
+		i.putExtra(Constants.EXTRA_DELETE_FROM_DISK, delFromDisk);
 		i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
 		asyncModify(i);
 	}
@@ -1057,6 +1056,8 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		}
 		fromGrp.removeService(svc.getId());
 		toGrp.addService(svc);
+		UiUtils.showToast(this, "Moving " + svc.getName() + " from " + fromGrp.getName() + " to " + toGrp.getName());		
+		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.DELETE, EntityType.Gateway, helper.toJson(svc));
 		i.setAction(RestService.ACTION_MOVE_GATEWAY);
 		i.putExtra(Constants.EXTRA_FROM_GROUP, fromGrp.getId());

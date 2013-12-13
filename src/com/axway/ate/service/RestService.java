@@ -52,10 +52,6 @@ public class RestService extends BaseIntentService {
 	public static final String ACTION_MOVE_GATEWAY = ACTION_BASE + "move_gateway";
 	public static final String ACTION_COMPARE = ACTION_BASE + "compare";
 
-//	private static final int STAGE_ADD_HOST = 1;
-//	private static final int STAGE_ADD_NM_SVC = 2;
-//	private static final int STAGE_UPD_NM_GRP = 3;
-	
 	private ServerInfo srvrInfo;
 	private DomainHelper helper;
 	private boolean trustCert;
@@ -64,10 +60,6 @@ public class RestService extends BaseIntentService {
 	private JsonObject svcToMove;
 	private String fromGrp;
 	private String toGrp;
-//	private Group nodeMgrGrp;
-//	private Service nodeMgrSvc;
-//	private boolean stagedUpdate;
-//	private int updateStage;
 
 	public RestService() {
 		super(TAG);
@@ -78,10 +70,6 @@ public class RestService extends BaseIntentService {
 		svcToMove = null;
 		fromGrp = null;
 		toGrp = null;
-//		nodeMgrGrp = null;
-//		nodeMgrSvc = null;
-//		stagedUpdate = false;
-//		updateStage = 0;
 	}
 
 	@Override
@@ -143,10 +131,6 @@ public class RestService extends BaseIntentService {
 					Log.e(TAG, "json parsing error");
 					return;
 				}
-//				if (HttpMethod.POST == method) {
-//					if (eType == EntityType.Host)
-//						setupStagedUpdate(extras);
-//				}
 				json = je.getAsJsonObject();
 				if (movingSvc)
 					svcToMove = json;
@@ -253,7 +237,7 @@ public class RestService extends BaseIntentService {
 		StringBuilder qStr = new StringBuilder();
 		boolean delFromDisk = false;
 		if (extras != null)
-			extras.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false); 
+			delFromDisk = extras.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false); 
 		if (eType == EntityType.Host) {
 			if (method == HttpMethod.DELETE) {
 				params = new String[1];
@@ -295,23 +279,6 @@ public class RestService extends BaseIntentService {
 				qStr.append("servicesPort=" + Integer.toString(sp));
 			}
 		}
-//		else if (eType == EntityType.NodeManager) {
-//			if (nodeMgrGrp == null)
-//				throw new IllegalStateException("expecting to find group for new nodemanager");
-//			endpoint = "topology/services";
-//			if (method == HttpMethod.DELETE) {
-//				params = new String[2];
-//				params[0] = nodeMgrGrp.getId();
-//				params[1] = id;
-//				if (delFromDisk) {
-//					qStr.append("deleteDiskInstance=true");
-//				}
-//			}
-//			else {
-//				params = new String[1];
-//				params[0] = nodeMgrGrp.getId();
-//			}
-//		}
 		String rv = srvrInfo.buildUrl(endpoint, params);
 		if (qStr.length() > 0)
 			rv = rv + "?" + qStr.toString();
@@ -367,8 +334,6 @@ public class RestService extends BaseIntentService {
 							ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
 							throw excp;
 						}
-	//					if (stagedUpdate)
-	//						handleStagedUpdate(rv);
 					}
 				}
 			}
@@ -392,54 +357,6 @@ public class RestService extends BaseIntentService {
 		}
 		return rv;
 	}
-
-//	private void setupStagedUpdate(Bundle extras) {
-//		String nmg = extras.getString(Constants.EXTRA_NODE_MGR_GROUP);
-//		if (!TextUtils.isEmpty(nmg)) {
-//			stagedUpdate = true;
-//			updateStage = STAGE_ADD_HOST;
-//			nodeMgrGrp = helper.groupFromJson(helper.parse(nmg).getAsJsonObject());
-//			if (nodeMgrGrp != null) {
-//				nodeMgrSvc = new Service();
-//				nodeMgrSvc.setEnabled(false);
-//				nodeMgrSvc.setManagementPort(extras.getInt(Constants.EXTRA_MGMT_PORT, 0));
-//				nodeMgrSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nodeMgrSvc.getManagementPort()));
-//				nodeMgrSvc.setScheme(extras.getBoolean(Constants.EXTRA_USE_SSL, false) ? "https" : "http");
-//				nodeMgrSvc.setType(ServiceType.nodemanager);
-//			}
-//		}
-//	}
-//	
-//	private void handleStagedUpdate(JsonObject json) {
-//		if (json == null)
-//			return;
-//		JsonObject sJson = null;
-//		switch (updateStage) {
-//			case STAGE_ADD_HOST:
-//				if (nodeMgrGrp != null && nodeMgrSvc != null) {
-//					nodeMgrSvc.setHostID(json.get("id").getAsString());
-//					sJson = helper.toJson(nodeMgrSvc);
-//					updateStage = STAGE_ADD_NM_SVC;
-//					doUpdate(makeUrl(EntityType.NodeManager, sJson, HttpMethod.POST, null), sJson, HttpMethod.POST);
-//				}
-//			break;
-//			case STAGE_ADD_NM_SVC:
-//				if (nodeMgrGrp != null) {
-//					nodeMgrSvc = helper.serviceFromJson(json);
-//					nodeMgrGrp.addService(nodeMgrSvc);
-//					JsonObject gjson = helper.toJson(nodeMgrGrp);
-//					updateStage = STAGE_UPD_NM_GRP;
-//					doUpdate(makeUrl(EntityType.Group, gjson, HttpMethod.PUT, null), gjson, HttpMethod.PUT);
-//				}
-//			break;
-//			case STAGE_UPD_NM_GRP:
-//				updateStage = 0;
-//				stagedUpdate = false;
-//				nodeMgrGrp = null;
-//				nodeMgrSvc = null;
-//			break;
-//		}
-//	}
 	
 	private JsonObject doGet(String url) throws ApiException {
 		HttpAuthentication authHdr = new HttpBasicAuthentication(srvrInfo.getUser(), srvrInfo.getPasswd());

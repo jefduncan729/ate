@@ -16,8 +16,8 @@ public interface TopologyClient {
 	public void updateService(Service s) throws ApiException;
 	
 	public void removeHost(Host h) throws ApiException;
-	public void removeGroup(Group g) throws ApiException;
-	public void removeService(Service s) throws ApiException;
+	public void removeGroup(Group g, boolean delFromDisk) throws ApiException;
+	public void removeService(Service s, boolean delFromDisk) throws ApiException;
 
 	public void moveService(Service s, Group fromGrp, Group toGrp) throws ApiException;
 	
