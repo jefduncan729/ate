@@ -8,7 +8,7 @@ However, I ultimately found that Android's Java implementation did not provide t
 I chose Spring's Android framework for REST API support and I'm quite happy with it (for example, it was a breeze to add custom
 SSL support). Although, I did roll my own Json marshalling because Spring's framework didn't like Jersey's JAXB annotations.
 
-After working with the app for a while, I've decided it doesn't make sense to add hosts via the app so I removed that functionality.
+After working with the app for a while, I've decided it doesn't make sense to add hosts via the app so I removed that menu item.
 
 ### Features ###
 
@@ -43,6 +43,8 @@ Android to communicate amongst components.
 <img src="res/raw/console.png" alt="Console" title="Console" height="480px" width="300px"/>&nbsp;
 
 ### Wishlist ###
+* Finish moving string constants into res/strings.xml
+* Implement customizable SSH user for 'SSH to host' command (currently uses root)
 
 ### Known issues ###
 * Does moving a Gateway from one Group to another make sense? (I'm thinking not)

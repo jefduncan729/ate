@@ -65,7 +65,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	private DomainHelper helper;
 	private Topology topology;
 	private Intent outstandingIntent;
-	private Boolean consoleAvailable;
+	private Boolean haveConsole;
 	private String consoleHandle;
 	
 	private ResultReceiver resRcvr;
@@ -81,7 +81,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		selGrp = null;
 		resRcvr = null;
 		outstandingIntent = null;
-		consoleAvailable = null;
+		haveConsole = null;
 		consoleHandle = null;
 	}
 
@@ -466,7 +466,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			addService(s, b.getInt(Constants.EXTRA_SERVICES_PORT, 0));
 		}
 		else if (act == R.id.action_edit) {
-			s.setId(b.getString(Intent.EXTRA_UID));
 			updateService(s);
 		}
 	}
@@ -644,6 +643,8 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			Group g = topology.getGroup(ids[0]);
 			if (s != null && g != null) {
 				removeService(s, delFromDisk);
+				if (g.getServices().size() == 0)
+					topology.removeGroup(g);
 			}
 		}
 		updateTopologyView();
@@ -653,12 +654,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		StringBuilder msg = new StringBuilder("Touch OK to delete ");
 		msg.append(typ.name()).append(" '").append(name).append("'");
 		if (delFromDisk)
-			msg.append("\nand also delete the disk files associated with this ").append(typ.name());
+			msg.append(" and also delete the disk files associated with this ").append(typ.name());
 		confirmDialog(msg.toString(), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				performDelete(typ, id, delFromDisk);
-//				getHandler().sendEmptyMessageDelayed(MSG_UPDATE_TOPOLOGY, 50);
 			}
 		});
 	}
@@ -1113,10 +1113,10 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 
 	private boolean isConsoleAvailable() {
-		if (consoleAvailable == null) {
-			consoleAvailable = Boolean.valueOf(getPackageManager().getLaunchIntentForPackage("jackpal.androidterm") != null);
+		if (haveConsole == null) {
+			haveConsole = Boolean.valueOf(getPackageManager().getLaunchIntentForPackage("jackpal.androidterm") != null);
 		}
-		return consoleAvailable.booleanValue();
+		return haveConsole.booleanValue();
 	}
 	
 	private void launchConsole() {
@@ -1153,23 +1153,20 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 	
 	private void sshToHost(Host h) {
-		if (!isConsoleAvailable()) {
-			UiUtils.showToast(this, "No console available");
-			return;
-		}
 		if (h == null)
 			return;
+		if (consoleHandle == null) {
+			UiUtils.showToast(this, "Please open a console before SSHing to a host");
+			return;
+		}
 		String cmd = "ssh root@" + h.getName();
 		runScriptInConsole(cmd);
 	}
 	
 	private void startGateway(Service s) {
-		if (!isConsoleAvailable()) {
-			UiUtils.showToast(this, "No console available");
-			return;
-		}
 		if (consoleHandle == null) {
-			UiUtils.showToast(this, "Please SSH to a host before starting a gateway");
+			UiUtils.showToast(this, "Please open a console and SSH to a host before starting a gateway");
+			return;
 		}
 		Group g = topology.getGroupForService(s.getId());
 		if (g == null)
