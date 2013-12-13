@@ -148,8 +148,13 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			loadFromServer();
 			return;
 		}
-		UiUtils.showToast(this, "Update successful");		
+		UiUtils.showToast(this, "Update successful");
+		if (getPrefs().getBoolean(Constants.KEY_RELOAD_AFTER_UPD, true)) {
+			loadFromServer();
+			return;
+		}
 		if (HttpMethod.POST.name().equals(action)) {
+			//for POSTs we need to update the id of the new item; for PUT/DELETE the topology view has already been updated
 			EntityType typ = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
 			String jstr = data.getString(Constants.EXTRA_JSON_ITEM);
 			if (EntityType.Host == typ) {
@@ -260,6 +265,9 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		i = menu.findItem(R.id.action_add_host);
 		if (i != null)
 			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_console);
+		if (i != null)
+			i.setVisible(isConsoleAvailable());
 //		if (isConsoleAvailable()) {
 //			//cool, no action needed
 //		}
@@ -320,7 +328,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				compareTopology();
 			break;
 			case R.id.action_console:
-				runScriptInConsole("echo 'Welcome to the APIGateway Console!'");
+				launchConsole();
 			break;
 			case R.id.action_ssh_to_host:
 				if (menuItem.getIntent() != null) {
@@ -592,8 +600,8 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				jsonStr = helper.toJson(g).toString();
 			break;
 			case Host:
-				Host h = new Host();
-				jsonStr = helper.toJson(h).toString();
+//				Host h = new Host();
+//				jsonStr = helper.toJson(h).toString();
 			break;
 			case NodeManager:
 				//node managers are not added via UI
@@ -626,14 +634,12 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	private void edit(Object o) {
 		if (o == null)
 			return;
-		Intent i = new Intent(this, EditActivity.class);
 		if (o instanceof Host) {
 			showHostDialog((Host)o);
 			return;
-//			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Host)o).toString());
-//			i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Host.name());
 		}
-		else if (o instanceof Group) {
+		Intent i = new Intent(this, EditActivity.class);
+		if (o instanceof Group) {
 			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Group)o).toString());
 			i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Group.name());
 		}
@@ -665,13 +671,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	
 	@Override
 	public void onTopologyItemSelected(EntityType itemType, String id) {
-		if (getTopology() == null)
-			return;
 		if (itemType == EntityType.Host) {
-			edit(getTopology().getHost(id));
+			edit(topology.getHost(id));
 		}
 		else if (itemType == EntityType.Group) {
-			edit(getTopology().getGroup(id));
+			edit(topology.getGroup(id));
 		}
 		else if (itemType == EntityType.NodeManager) {
 			topologyDetails();
@@ -682,7 +686,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				return;
 			String gid = ids[0];
 			String sid = ids[1];
-			Group g = getTopology().getGroup(gid);
+			Group g = topology.getGroup(gid);
 			if (g == null)
 				return;
 			Service s = g.getService(sid);
@@ -1150,7 +1154,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 
 	private boolean isConsoleAvailable() {
 		if (consoleAvailable == null) {
-			consoleAvailable = new Boolean(getPackageManager().getLaunchIntentForPackage("jackpal.androidterm") != null);
+			consoleAvailable = Boolean.valueOf(getPackageManager().getLaunchIntentForPackage("jackpal.androidterm") != null);
 		}
 		return consoleAvailable.booleanValue();
 	}

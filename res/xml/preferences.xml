@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
    <PreferenceCategory
-            android:title="@string/admin_nodemgr">
+            android:title="@string/general_settings">
+            
+        <CheckBoxPreference
+            android:key="showNodeMgrs"
+            android:title="Show NodeManagers"
+            android:summary="Show NodeManagers in the topology view"
+		/>
+         
+        <CheckBoxPreference
+            android:key="reloadAfterUpdate"
+            android:title="Reload after each update"
+            android:summary="Reload the topology after each update"
+		/>
+        
 <!-- 
         <EditTextPreference
 			android:key="adminNodeMgrHost"

@@ -36,6 +36,14 @@ public class Constants {
 	public static final String EXTRA_USE_SSL = EXTRA_BASE + "use_ssl";
 	public static final String EXTRA_NODE_MGR_GROUP = EXTRA_BASE + "nm_grp";
 	public static final String EXTRA_CONSOLE_HANDLE = EXTRA_BASE + "console_handle";
-		
+	
+	public static final String KEY_SHOW_NODE_MGRS = "showNodeMgrs";
+	public static final String KEY_RELOAD_AFTER_UPD = "reloadAfterUpdate";
+	
+	public static final boolean DEF_SHOW_NODE_MGRS = false;
+	
+	public static final int FLAG_SHOW_NODE_MGRS   = 0x0001;
+	public static final int FLAG_RELOAD_AFTER_UPD = 0x0010;
+			
 	public static final int CERT_NOT_TRUSTED = 1001;
 }

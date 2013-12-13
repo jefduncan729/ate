@@ -13,6 +13,7 @@ because Spring's framework didn't like Jersey's JAXB annotations.
 * Connection Manager - to manage connections to various servers
 * SSL Support - allows for easy SSL certificate trusting
 * Work locally - allows saving/loading topologies to/from files
+* Console - if you have a Terminal Emulator app on your device, you can SSH to your host(s) and start Gateways with a menu selection
 
 ### Dependencies ###
 * API Server's common.jar and server.jar
@@ -31,11 +32,12 @@ The Connection Manager is backed by a ContentProvider implementation and SQLite 
 
 ### Screenshots ###
 
-<img src="res/raw/cert_not_trusted.png" alt="Certificate not trusted" title="Certificate not trusted" height="480px" width="320px"/>&nbsp;
-<img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="320px"/>&nbsp;
-<img src="res/raw/connection_mgr.png" alt="Connection Manager" title="Connection Manager" height="480px" width="320px"/>&nbsp;
-<img src="res/raw/new_connection.png" alt="New Connection" title="New Connection" height="480px" width="320px"/>&nbsp;
-<img src="res/raw/edit_gateway.png" alt="Edit Gateway" title="Edit Gateway" height="480px" width="320px"/>&nbsp;
+<img src="res/raw/cert_not_trusted.png" alt="Certificate not trusted" title="Certificate not trusted" height="480px" width="300px"/>&nbsp;
+<img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="300px"/>&nbsp;
+<img src="res/raw/connection_mgr.png" alt="Connection Manager" title="Connection Manager" height="480px" width="300px"/>&nbsp;
+<img src="res/raw/new_connection.png" alt="New Connection" title="New Connection" height="480px" width="300px"/>&nbsp;
+<img src="res/raw/edit_gateway.png" alt="Edit Gateway" title="Edit Gateway" height="480px" width="300px"/>&nbsp;
+<img src="res/raw/console.png" alt="Console" title="Console" height="480px" width="300px"/>&nbsp;
 
 ### Wishlist ###
 * Finish topology comparison functionality

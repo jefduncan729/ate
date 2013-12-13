@@ -76,4 +76,6 @@
     <string name="cert_trusted">Certificate Chain Trusted</string>
     <string name="truststore_removed">Trust Store removed</string>
     <string name="truststore_notfound">Trust Store not found</string>
+    <string name="general_settings">General Settings</string>
+    
 </resources>
