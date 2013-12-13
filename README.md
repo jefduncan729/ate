@@ -13,7 +13,7 @@ because Spring's framework didn't like Jersey's JAXB annotations.
 * Connection Manager - to manage connections to various servers
 * SSL Support - allows for easy SSL certificate trusting
 * Work locally - allows saving/loading topologies to/from files
-* Console - if you have a Terminal Emulator app on your device, you can SSH to your host(s) and start Gateways with a menu selection
+* Console - if you have a Terminal Emulator app on your device, you can SSH to your host(s) and/or start Gateways with a menu selection (currently works only with the jackpal.androidterm package)
 
 ### Dependencies ###
 * API Server's common.jar and server.jar
@@ -28,7 +28,8 @@ This worked fairly well, but the communication between the service and activitie
 of the work in one main activity with some AsyncTasks but I didn't like all the "listeners" I ended up having to implement.
 I finally decided to use an IntentService to do the async work. I use them a lot; they're nice because the async part is built right in and 
 there's no need to worry about AsyncTasks. Fragment objects are used for display and Activity objects for communication with the IntentService. 
-The Connection Manager is backed by a ContentProvider implementation and SQLite database.
+The Connection Manager is backed by a ContentProvider implementation and SQLite database. Oh, and Intent objects; they're used everywhere in 
+Android to communicate amongst components.
 
 ### Screenshots ###
 
@@ -43,3 +44,4 @@ The Connection Manager is backed by a ContentProvider implementation and SQLite 
 * Finish topology comparison functionality
 
 ### Known issues ###
+I'm sure there are some! :)
