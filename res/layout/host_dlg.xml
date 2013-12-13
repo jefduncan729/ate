@@ -17,6 +17,33 @@
         android:orientation="vertical"
 	    android:paddingBottom="@dimen/listitem_small_margin">
 	    
+	    <LinearLayout
+	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent"
+	        android:orientation="horizontal"
+			android:paddingBottom="@dimen/listitem_small_margin">	    
+		    <TextView
+		        android:id="@id/label_mgmt_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:gravity="fill_horizontal"
+		        android:text="@string/mgmt_port"
+		        android:labelFor="@id/edit_mgmt_port"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+	        <EditText
+		        android:id="@id/edit_mgmt_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:scrollHorizontally="true"
+		        android:inputType="number"
+		        android:gravity="fill_horizontal"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+		</LinearLayout>
+	    
  		<RelativeLayout
 	        android:layout_height="wrap_content"
 	        android:layout_width="match_parent"

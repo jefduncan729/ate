@@ -46,7 +46,7 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@id/label03"
+		        android:id="@id/label_host"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
@@ -73,7 +73,7 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@id/label04"
+		        android:id="@id/label_port"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
@@ -120,7 +120,7 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@id/label05"
+		        android:id="@id/label_user"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"
@@ -147,7 +147,7 @@
 	        android:orientation="horizontal"
 		    android:paddingBottom="@dimen/listitem_small_margin">	    
 		    <TextView
-		        android:id="@id/label06"
+		        android:id="@id/label_passwd"
 		        android:layout_height="wrap_content"
 		        android:layout_width="0dp"
 		        android:layout_weight="0.3"

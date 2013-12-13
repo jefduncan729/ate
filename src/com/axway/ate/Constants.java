@@ -29,6 +29,7 @@ public class Constants {
 	public static final String EXTRA_JSON_TOPOLOGY = EXTRA_BASE + "json_topology";
 	public static final String EXTRA_DELETE_FROM_DISK = EXTRA_BASE + "del_from_disk";
 	public static final String EXTRA_SERVICES_PORT = EXTRA_BASE + "svcs_port";
+	public static final String EXTRA_MGMT_PORT = EXTRA_BASE + "mgmt_port";
 	public static final String EXTRA_REFERRING_ITEM_TYPE = EXTRA_BASE + "ref_item_type";
 	public static final String EXTRA_REFERRING_ITEM_ID = EXTRA_BASE + "ref_id";
 	public static final String EXTRA_URL = EXTRA_BASE + "url";
@@ -36,6 +37,10 @@ public class Constants {
 	public static final String EXTRA_USE_SSL = EXTRA_BASE + "use_ssl";
 	public static final String EXTRA_NODE_MGR_GROUP = EXTRA_BASE + "nm_grp";
 	public static final String EXTRA_CONSOLE_HANDLE = EXTRA_BASE + "console_handle";
+	public static final String EXTRA_FROM_GROUP = EXTRA_BASE + "from_grp";
+	public static final String EXTRA_TO_GROUP = EXTRA_BASE + "to_grp";
+	public static final String EXTRA_LAYOUT = EXTRA_BASE + "layout";
+	public static final String EXTRA_COMPARE_RESULT = EXTRA_BASE + "compare_result";
 	
 	public static final String KEY_SHOW_NODE_MGRS = "showNodeMgrs";
 	public static final String KEY_RELOAD_AFTER_UPD = "reloadAfterUpdate";

@@ -22,10 +22,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -34,13 +32,14 @@ import com.axway.ate.Constants;
 import com.axway.ate.DomainHelper;
 import com.axway.ate.R;
 import com.axway.ate.ServerInfo;
-import com.axway.ate.activity.TopologyActivity;
 import com.axway.ate.rest.DefaultRestTemplate;
 import com.axway.ate.rest.SslRestTemplate;
 import com.axway.ate.ssl.TrustedHttpRequestFactory;
-import com.axway.ate.util.UiUtils;
+import com.axway.ate.util.TopologyCompareResults;
+import com.axway.ate.util.TopologyComparer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.vordel.api.topology.model.Topology;
 import com.vordel.api.topology.model.Topology.EntityType;
 
 public class RestService extends BaseIntentService {
@@ -50,11 +49,25 @@ public class RestService extends BaseIntentService {
 	public static final String ACTION_BASE = "com.axway.ate.";
 	public static final String ACTION_CHECK_CERT = ACTION_BASE + "check_cert";
 	public static final String ACTION_REMOVE_TRUST_STORE = ACTION_BASE + "remove_trust_store";
+	public static final String ACTION_MOVE_GATEWAY = ACTION_BASE + "move_gateway";
+	public static final String ACTION_COMPARE = ACTION_BASE + "compare";
+
+//	private static final int STAGE_ADD_HOST = 1;
+//	private static final int STAGE_ADD_NM_SVC = 2;
+//	private static final int STAGE_UPD_NM_GRP = 3;
 	
 	private ServerInfo srvrInfo;
 	private DomainHelper helper;
 	private boolean trustCert;
 	private String action;
+	private boolean movingSvc;
+	private JsonObject svcToMove;
+	private String fromGrp;
+	private String toGrp;
+//	private Group nodeMgrGrp;
+//	private Service nodeMgrSvc;
+//	private boolean stagedUpdate;
+//	private int updateStage;
 
 	public RestService() {
 		super(TAG);
@@ -62,6 +75,13 @@ public class RestService extends BaseIntentService {
 		trustCert = false;
 		helper = DomainHelper.getInstance();
 		action = null;
+		svcToMove = null;
+		fromGrp = null;
+		toGrp = null;
+//		nodeMgrGrp = null;
+//		nodeMgrSvc = null;
+//		stagedUpdate = false;
+//		updateStage = 0;
 	}
 
 	@Override
@@ -80,9 +100,25 @@ public class RestService extends BaseIntentService {
 			Log.e(TAG, "no server info passed");
 			return;
 		}
+		if (ACTION_COMPARE.equals(action)) {
+			doCompare(extras);
+			return;
+		}
 		HttpMethod method = HttpMethod.GET;
 		if (ACTION_CHECK_CERT.equals(action)) {
 			trustCert = extras.getBoolean(Constants.EXTRA_TRUST_CERT, false);
+		}
+		else if (ACTION_MOVE_GATEWAY.equals(action)) {
+			movingSvc = true;
+			fromGrp = extras.getString(Constants.EXTRA_FROM_GROUP);
+			toGrp = extras.getString(Constants.EXTRA_TO_GROUP);
+			if (TextUtils.isEmpty(fromGrp) || TextUtils.isEmpty(toGrp)) {
+				Log.e(TAG, "expecting fromGrp and toGrp");
+				return;
+			}
+			extras.putString(Constants.EXTRA_REFERRING_ITEM_ID, fromGrp);
+			extras.putBoolean(Constants.EXTRA_DELETE_FROM_DISK, false);
+			method = HttpMethod.DELETE;
 		}
 		else
 			method = HttpMethod.valueOf(action);
@@ -107,8 +143,14 @@ public class RestService extends BaseIntentService {
 					Log.e(TAG, "json parsing error");
 					return;
 				}
+//				if (HttpMethod.POST == method) {
+//					if (eType == EntityType.Host)
+//						setupStagedUpdate(extras);
+//				}
 				json = je.getAsJsonObject();
-				resp = doUpdate(makeUrl(eType, json, method, extras), json, method);
+				if (movingSvc)
+					svcToMove = json;
+				resp = doUpdate(eType, json, method, extras);
 			}
 			else if (HttpMethod.GET == method) {
 				String url = extras.getString(Constants.EXTRA_URL);
@@ -209,7 +251,9 @@ public class RestService extends BaseIntentService {
 		String endpoint = null;
 		String id = json.get("id").getAsString();
 		StringBuilder qStr = new StringBuilder();
-		boolean delFromDisk = extras.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false); 
+		boolean delFromDisk = false;
+		if (extras != null)
+			extras.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false); 
 		if (eType == EntityType.Host) {
 			if (method == HttpMethod.DELETE) {
 				params = new String[1];
@@ -245,10 +289,29 @@ public class RestService extends BaseIntentService {
 				params[0] = grpId;
 			}
 			if (method == HttpMethod.POST) {
-				int sp = extras.getInt(Constants.EXTRA_SERVICES_PORT, 8080);
+				int sp = 0;
+				if (extras != null)
+					sp = extras.getInt(Constants.EXTRA_SERVICES_PORT, 8080);
 				qStr.append("servicesPort=" + Integer.toString(sp));
 			}
 		}
+//		else if (eType == EntityType.NodeManager) {
+//			if (nodeMgrGrp == null)
+//				throw new IllegalStateException("expecting to find group for new nodemanager");
+//			endpoint = "topology/services";
+//			if (method == HttpMethod.DELETE) {
+//				params = new String[2];
+//				params[0] = nodeMgrGrp.getId();
+//				params[1] = id;
+//				if (delFromDisk) {
+//					qStr.append("deleteDiskInstance=true");
+//				}
+//			}
+//			else {
+//				params = new String[1];
+//				params[0] = nodeMgrGrp.getId();
+//			}
+//		}
 		String rv = srvrInfo.buildUrl(endpoint, params);
 		if (qStr.length() > 0)
 			rv = rv + "?" + qStr.toString();
@@ -264,7 +327,8 @@ public class RestService extends BaseIntentService {
 		return rv;
 	}
 	
-	private JsonObject doUpdate(String url, JsonObject json, HttpMethod method) throws ApiException {
+	private JsonObject doUpdate(EntityType eType, JsonObject json, HttpMethod method, Bundle extras) throws ApiException {
+		String url = makeUrl(eType, json, method, extras);
 		HttpAuthentication authHdr = new HttpBasicAuthentication(srvrInfo.getUser(), srvrInfo.getPasswd());
 		HttpHeaders reqHdrs = new HttpHeaders();
 		reqHdrs.setAuthorization(authHdr);
@@ -286,16 +350,25 @@ public class RestService extends BaseIntentService {
 			sc = resp.getStatusCode().value();
 			Log.d(TAG, "response status code: " + Integer.toString(sc));
 			if (sc == HttpStatus.SC_OK || sc == HttpStatus.SC_CREATED || sc == HttpStatus.SC_NO_CONTENT) {
-				JsonElement jsonResp = helper.parse(resp.getBody());
-				if (jsonResp != null) {
-					JsonObject jo = jsonResp.getAsJsonObject();
-					
-					if (jo.has("result")) {
-						rv = jo.getAsJsonObject("result");
-					}
-					else if (jo.has("errors")) {
-						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
-						throw excp;
+				if (sc == HttpStatus.SC_NO_CONTENT && movingSvc && svcToMove != null && toGrp != null) {
+					Bundle ex = new Bundle();
+					ex.putString(Constants.EXTRA_REFERRING_ITEM_ID, toGrp);
+					movingSvc = false;
+					doUpdate(EntityType.Gateway, svcToMove, HttpMethod.POST, ex);
+				}
+				else {
+					JsonElement jsonResp = helper.parse(resp.getBody());
+					if (jsonResp != null) {
+						JsonObject jo = jsonResp.getAsJsonObject();
+						if (jo.has("result")) {
+							rv = jo.getAsJsonObject("result");
+						}
+						else if (jo.has("errors")) {
+							ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
+							throw excp;
+						}
+	//					if (stagedUpdate)
+	//						handleStagedUpdate(rv);
 					}
 				}
 			}
@@ -319,6 +392,54 @@ public class RestService extends BaseIntentService {
 		}
 		return rv;
 	}
+
+//	private void setupStagedUpdate(Bundle extras) {
+//		String nmg = extras.getString(Constants.EXTRA_NODE_MGR_GROUP);
+//		if (!TextUtils.isEmpty(nmg)) {
+//			stagedUpdate = true;
+//			updateStage = STAGE_ADD_HOST;
+//			nodeMgrGrp = helper.groupFromJson(helper.parse(nmg).getAsJsonObject());
+//			if (nodeMgrGrp != null) {
+//				nodeMgrSvc = new Service();
+//				nodeMgrSvc.setEnabled(false);
+//				nodeMgrSvc.setManagementPort(extras.getInt(Constants.EXTRA_MGMT_PORT, 0));
+//				nodeMgrSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nodeMgrSvc.getManagementPort()));
+//				nodeMgrSvc.setScheme(extras.getBoolean(Constants.EXTRA_USE_SSL, false) ? "https" : "http");
+//				nodeMgrSvc.setType(ServiceType.nodemanager);
+//			}
+//		}
+//	}
+//	
+//	private void handleStagedUpdate(JsonObject json) {
+//		if (json == null)
+//			return;
+//		JsonObject sJson = null;
+//		switch (updateStage) {
+//			case STAGE_ADD_HOST:
+//				if (nodeMgrGrp != null && nodeMgrSvc != null) {
+//					nodeMgrSvc.setHostID(json.get("id").getAsString());
+//					sJson = helper.toJson(nodeMgrSvc);
+//					updateStage = STAGE_ADD_NM_SVC;
+//					doUpdate(makeUrl(EntityType.NodeManager, sJson, HttpMethod.POST, null), sJson, HttpMethod.POST);
+//				}
+//			break;
+//			case STAGE_ADD_NM_SVC:
+//				if (nodeMgrGrp != null) {
+//					nodeMgrSvc = helper.serviceFromJson(json);
+//					nodeMgrGrp.addService(nodeMgrSvc);
+//					JsonObject gjson = helper.toJson(nodeMgrGrp);
+//					updateStage = STAGE_UPD_NM_GRP;
+//					doUpdate(makeUrl(EntityType.Group, gjson, HttpMethod.PUT, null), gjson, HttpMethod.PUT);
+//				}
+//			break;
+//			case STAGE_UPD_NM_GRP:
+//				updateStage = 0;
+//				stagedUpdate = false;
+//				nodeMgrGrp = null;
+//				nodeMgrSvc = null;
+//			break;
+//		}
+//	}
 	
 	private JsonObject doGet(String url) throws ApiException {
 		HttpAuthentication authHdr = new HttpBasicAuthentication(srvrInfo.getUser(), srvrInfo.getPasswd());
@@ -375,5 +496,43 @@ public class RestService extends BaseIntentService {
 		}
 		else
 			showToast(getString(R.string.truststore_notfound));
+	}
+	
+	private void doCompare(Bundle data) {
+		if (data == null)
+			return;		
+		String jstr = data.getString(Constants.EXTRA_JSON_TOPOLOGY);
+		if (TextUtils.isEmpty(jstr))
+			return;
+		Topology cliTopo = helper.topologyFromJson(jstr);
+		Topology srvrTopo = null;
+		if (cliTopo == null)
+			return;
+		JsonObject json = null;
+		try {
+			json = doGet(srvrInfo.buildUrl("topology"));
+		}
+		catch (Exception e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+			return;
+		}
+		srvrTopo = helper.topologyFromJson(json);
+		if (srvrTopo == null)
+			return;
+		TopologyCompareResults rv = null;
+		try {
+			TopologyComparer comparer = new TopologyComparer(srvrTopo, cliTopo);
+			rv = comparer.compare();
+		}
+		catch (Exception e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+		}
+		if (rv == null)
+			return;
+		if (getResultReceiver() != null) {
+			data.putString(Constants.EXTRA_ACTION, ACTION_COMPARE);
+			data.putString(Constants.EXTRA_COMPARE_RESULT, rv.prettyPrint());
+			getResultReceiver().send(HttpStatus.SC_OK, data);
+		}
 	}
 }

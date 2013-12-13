@@ -27,6 +27,7 @@
     <item type="id" name="action_console"/>
     <item type="id" name="action_ssh_to_host"/>
     <item type="id" name="action_start_gateway"/>
+    <item type="id" name="action_move_gateway"/>
     
     <!-- Containers -->
     <item type="id" name="container01"/>
@@ -51,12 +52,17 @@
     <item type="id" name="nodemgr_list"/>
     
     <!-- Labels -->
-    <item type="id" name="label01"/>
-    <item type="id" name="label02"/>
-	<item type="id" name="label03"/>
-    <item type="id" name="label04"/>
-    <item type="id" name="label05"/>
-    <item type="id" name="label06"/>
+    <item type="id" name="label_name"/>
+    <item type="id" name="label_host"/>
+	<item type="id" name="label_group"/>
+    <item type="id" name="label_tags"/>
+    <item type="id" name="label_mgmt_port"/>
+    <item type="id" name="label_svcs_port"/>
+    <item type="id" name="label_port"/>
+	<item type="id" name="label_user"/>
+    <item type="id" name="label_passwd"/>
+	<item type="id" name="label_key"/>
+    <item type="id" name="label_value"/>
     
     <!-- Spacers -->
     <item type="id" name="spacer01"/>

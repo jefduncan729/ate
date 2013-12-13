@@ -31,8 +31,12 @@ import com.axway.ate.ServerInfo;
 import com.axway.ate.TopologyClient;
 import com.axway.ate.db.DbHelper.ConnMgrColumns;
 import com.axway.ate.fragment.AlertDialogFragment;
-import com.axway.ate.fragment.EditHostDialog;
-import com.axway.ate.fragment.EditHostDialog.EditHostListener;
+import com.axway.ate.fragment.GatewayDialog;
+import com.axway.ate.fragment.GatewayDialog.GatewayListener;
+import com.axway.ate.fragment.GroupDialog;
+import com.axway.ate.fragment.GroupDialog.GroupListener;
+import com.axway.ate.fragment.HostDialog;
+import com.axway.ate.fragment.HostDialog.HostListener;
 import com.axway.ate.fragment.SelectFileDialog;
 import com.axway.ate.fragment.SelectServerDialog;
 import com.axway.ate.fragment.TopologyListFragment;
@@ -47,7 +51,7 @@ import com.vordel.api.topology.model.Topology;
 import com.vordel.api.topology.model.Topology.EntityType;
 import com.vordel.api.topology.model.Topology.ServiceType;
 
-public class TopologyActivity extends BaseActivity implements TopologyClient, TopologyListFragment.Listener, SelectServerDialog.Listener, EditHostListener {
+public class TopologyActivity extends BaseActivity implements TopologyClient, TopologyListFragment.Listener, SelectServerDialog.Listener, HostListener, GroupListener, GatewayListener {
 	
 	private static final String TAG = TopologyActivity.class.getSimpleName();
 	
@@ -66,7 +70,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	
 	private ResultReceiver resRcvr;
 	
-	private Host selHost;
 	private Group selGrp;
 	
 	public TopologyActivity() {
@@ -76,7 +79,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		file = null;
 		helper = DomainHelper.getInstance();
 		selGrp = null;
-		selHost = null;
 		resRcvr = null;
 		outstandingIntent = null;
 		consoleAvailable = null;
@@ -146,6 +148,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		}
 		else if (RestService.ACTION_CHECK_CERT.equals(action)) {
 			loadFromServer();
+			return;
+		}
+		else if (RestService.ACTION_COMPARE.equals(action)) {
+			showProgress(false);
+			infoDialog("Compare Results", data.getString(Constants.EXTRA_COMPARE_RESULT));
 			return;
 		}
 		UiUtils.showToast(this, "Update successful");
@@ -256,35 +263,23 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		i = menu.findItem(R.id.action_save_to_disk);
 		if (i != null)
 			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_topo_details);
-		if (i != null)
-			i.setVisible(haveTopo);
 		i = menu.findItem(R.id.action_compare_topo);
 		if (i != null)
 			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_add_host);
+//		i = menu.findItem(R.id.action_add_host);
+//		if (i != null)
+//			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_add_group);
 		if (i != null)
 			i.setVisible(haveTopo);
 		i = menu.findItem(R.id.action_console);
 		if (i != null)
 			i.setVisible(isConsoleAvailable());
-//		if (isConsoleAvailable()) {
-//			//cool, no action needed
-//		}
-//		else {
-//			i = menu.findItem(R.id.action_ssh_to_host);
-//			if (i != null)
-//				i.setVisible(false);
-//			i = menu.findItem(R.id.action_ssh_to_host);
-//			if (i != null)
-//				i.setVisible(false);
-//		}
 	}
 
 	@Override
 	public boolean onMenuItemSelected(MenuItem menuItem) {
 		boolean rv = true;
-		Intent i = null;
 		switch (menuItem.getItemId()) {
 			case R.id.action_settings:
 				showSettings();
@@ -293,18 +288,13 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				confirmRemoveTrust();
 			break;
 			case R.id.action_add_host:
-//				i = new Intent();
-//				i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Host.name());
-//				add(i);
 				showHostDialog(null);
 			break;
 			case R.id.action_add_group:
-				i = new Intent();
-				i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Group.name());
-				add(i);
+				showGroupDialog(null);
 			break;
 			case R.id.action_add_gateway:
-				add(menuItem.getIntent());
+				showGatewayDialog(null, menuItem.getIntent());
 			break;
 			case R.id.action_load_from_disk:
 			case R.id.action_save_to_disk:
@@ -347,6 +337,17 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 					}
 				}
 			break;
+			case R.id.action_move_gateway:
+				if (menuItem.getIntent() != null) {
+					String id = menuItem.getIntent().getStringExtra(Constants.EXTRA_ITEM_ID);
+					String ids[] = id.split("/");
+					if (ids != null && ids.length == 2) {
+						Service s = topology.getService(ids[1]);
+						if (s != null)
+							moveGateway(s);
+					}
+				}
+			break;
 			default:
 				rv = false;
 		}
@@ -354,17 +355,21 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 
 	private void showHostDialog(Host h) {
-		EditHostDialog dlg = new EditHostDialog();
+		HostDialog dlg = new HostDialog();
 		Bundle args = new Bundle();
-		if (h == null)
+		if (h == null) {
+			h = new Host();
 			args.putInt(Constants.EXTRA_ACTION, R.id.action_add);
+		}
 		else {
 			args.putInt(Constants.EXTRA_ACTION, R.id.action_edit);
 			args.putString(Intent.EXTRA_UID, h.getId());
 			args.putString(Intent.EXTRA_TEXT, h.getName());
 		}
+		args.putString(Constants.EXTRA_JSON_ITEM, helper.toJson(h).toString());
 		dlg.setOnChangeListener(this);
 		dlg.setArguments(args);
+		dlg.setTopology(topology);
 		dlg.show(getFragmentManager(), "hostDlg");
 	}
 
@@ -374,14 +379,95 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		Host h = new Host();
 		h.setName(b.getString(Intent.EXTRA_TEXT));
-		switch (b.getInt(Constants.EXTRA_ACTION, 0)) {
-			case  R.id.action_add:
-				addHost(h, b.getBoolean(Constants.EXTRA_USE_SSL, false));
-			break;
-			case  R.id.action_edit:
-				h.setId(b.getString(Intent.EXTRA_UID));
-				updateHost(h);
-			break;
+		int act = b.getInt(Constants.EXTRA_ACTION, 0);
+		if (act == R.id.action_add) {
+			boolean ssl = b.getBoolean(Constants.EXTRA_USE_SSL, false);
+			int mp = b.getInt(Constants.EXTRA_MGMT_PORT, 0);
+			if (mp == 0)
+				return;
+			addHost(h, mp, ssl);
+		}
+		else if (act == R.id.action_edit) {
+			h.setId(b.getString(Intent.EXTRA_UID));
+			updateHost(h);
+		}
+	}
+
+	private void showGroupDialog(Group g) {
+		GroupDialog dlg = new GroupDialog();
+		Bundle args = new Bundle();
+		if (g == null) {
+			g = new Group();
+			args.putInt(Constants.EXTRA_ACTION, R.id.action_add);
+		}
+		else {
+			args.putInt(Constants.EXTRA_ACTION, R.id.action_edit);
+			args.putString(Intent.EXTRA_UID, g.getId());
+			args.putString(Intent.EXTRA_TEXT, g.getName());
+		}
+		args.putString(Constants.EXTRA_JSON_ITEM, helper.toJson(g).toString());
+		dlg.setOnChangeListener(this);
+		dlg.setArguments(args);
+		dlg.setTopology(topology);
+		dlg.show(getFragmentManager(), "grpDlg");
+	}
+
+	@Override
+	public void onGroupChanged(Bundle b) {
+		if (b == null)
+			return;
+		Group g = helper.groupFromJson(b.getString(Constants.EXTRA_JSON_ITEM));
+		int act = b.getInt(Constants.EXTRA_ACTION, 0);
+		if (act == R.id.action_add) {
+			addGroup(g);
+		}
+		else if (act == R.id.action_edit) {
+			updateGroup(g);
+		}
+	}
+
+	private void showGatewayDialog(Service s, Intent i) {
+		GatewayDialog dlg = new GatewayDialog();
+		Group g = null;
+		Bundle args = new Bundle();
+		if (s == null) {
+			String grpId = i.getStringExtra(Constants.EXTRA_REFERRING_ITEM_ID);
+			g = topology.getGroup(grpId);
+			s = new Service();
+			s.setType(ServiceType.gateway);
+			args.putInt(Constants.EXTRA_ACTION, R.id.action_add);
+		}
+		else {
+			g = topology.getGroupForService(s.getId());
+			args.putInt(Constants.EXTRA_ACTION, R.id.action_edit);
+			args.putString(Intent.EXTRA_UID, s.getId());
+			args.putString(Intent.EXTRA_TEXT, s.getName());
+		}
+		if (g == null) {
+			Log.e(TAG, "no group provided");
+			return;
+		}
+		selGrp = g;
+		args.putString(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
+		args.putString(Constants.EXTRA_JSON_ITEM, helper.toJson(s).toString());
+		dlg.setOnChangeListener(this);
+		dlg.setArguments(args);
+		dlg.setTopology(topology);
+		dlg.show(getFragmentManager(), "gtwyDlg");
+	}
+
+	@Override
+	public void onGatewayChanged(Bundle b) {
+		if (b == null)
+			return;
+		Service s = helper.serviceFromJson(b.getString(Constants.EXTRA_JSON_ITEM));
+		int act = b.getInt(Constants.EXTRA_ACTION, 0);
+		if (act == R.id.action_add) {
+			addService(s, b.getInt(Constants.EXTRA_SERVICES_PORT, 0));
+		}
+		else if (act == R.id.action_edit) {
+			s.setId(b.getString(Intent.EXTRA_UID));
+			updateService(s);
 		}
 	}
 	
@@ -393,8 +479,14 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		if (si == null) {
 			selectServer(R.id.action_compare_topo);
 		}
-//		else
-//			service.compareTopology(si, getTopology());
+		else {
+			Intent i = new Intent(this, RestService.class);
+			i.setAction(RestService.ACTION_COMPARE);
+			i.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
+			i.putExtra(Constants.EXTRA_SERVER_INFO, si.toBundle());
+			i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+			startService(i);
+		}
 	}
 	
 	private void showConnMgr() {
@@ -574,53 +666,10 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		});
 	}
 	
-	private void add(Intent i) {
-		if (i == null)
-			return;
-		Intent ai = new Intent(this, EditActivity.class);
-		String typ = i.getStringExtra(Constants.EXTRA_ITEM_TYPE);
-		EntityType eType = EntityType.valueOf(typ);
-		String jsonStr = null;
-		switch (eType) {
-			case Gateway:
-				Service s = new Service();
-				jsonStr = helper.toJson(s).toString();
-				String ref = i.getStringExtra(Constants.EXTRA_REFERRING_ITEM_TYPE);
-				String refId = i.getStringExtra(Constants.EXTRA_REFERRING_ITEM_ID);
-				if (!TextUtils.isEmpty(refId)) {
-					EntityType refType = EntityType.valueOf(ref);
-					if (refType == EntityType.Host)
-						selHost = topology.getHost(refId);
-					if (refType == EntityType.Group)
-						selGrp = topology.getGroup(refId);
-				}
-			break;
-			case Group:
-				Group g = new Group();
-				jsonStr = helper.toJson(g).toString();
-			break;
-			case Host:
-//				Host h = new Host();
-//				jsonStr = helper.toJson(h).toString();
-			break;
-			case NodeManager:
-				//node managers are not added via UI
-				return;
-		}
-		
-		if (ai != null) {
-			ai.putExtra(Constants.EXTRA_ACTION, R.id.action_add);
-			ai.putExtra(Constants.EXTRA_JSON_ITEM, jsonStr);
-			ai.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
-			ai.putExtras(i.getExtras());
-			startActivityForResult(ai, R.id.action_add);
-		}
-	}
-	
 	private void updateTopologyView() {
 		if (topoListFrag == null)
 			return;
-		topoListFrag.update(getTopology(), getTopologySource());
+		topoListFrag.update(getTopology(), getTopologySource(), isConsoleAvailable());
 	}
 	
 	private String getTopologySource()  {
@@ -629,27 +678,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		else if (file != null)
 			return file.getName();
 		return null;
-	}
-	
-	private void edit(Object o) {
-		if (o == null)
-			return;
-		if (o instanceof Host) {
-			showHostDialog((Host)o);
-			return;
-		}
-		Intent i = new Intent(this, EditActivity.class);
-		if (o instanceof Group) {
-			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Group)o).toString());
-			i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Group.name());
-		}
-		else if (o instanceof Service) {
-			i.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson((Service)o).toString());			
-			i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Gateway.name());
-		}
-		i.putExtra(Constants.EXTRA_ACTION, R.id.action_edit);
-		i.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
-		startActivityForResult(i, R.id.action_edit);
 	}
 
 	private void confirmRemoveTrust() {
@@ -672,10 +700,10 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	@Override
 	public void onTopologyItemSelected(EntityType itemType, String id) {
 		if (itemType == EntityType.Host) {
-			edit(topology.getHost(id));
+			showHostDialog(topology.getHost(id));
 		}
 		else if (itemType == EntityType.Group) {
-			edit(topology.getGroup(id));
+			showGroupDialog(topology.getGroup(id));
 		}
 		else if (itemType == EntityType.NodeManager) {
 			topologyDetails();
@@ -686,31 +714,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				return;
 			String gid = ids[0];
 			String sid = ids[1];
-			Group g = topology.getGroup(gid);
-			if (g == null)
+			selGrp = topology.getGroup(gid);
+			if (selGrp == null)
 				return;
-			Service s = g.getService(sid);
-			edit(s);
-		}
-	}
-
-	private void modifyService(Intent data) {
-		int action = data.getIntExtra(Constants.EXTRA_ACTION, 0);
-		if (action == 0)
-			return;
-		String ref = data.getStringExtra(Constants.EXTRA_REFERRING_ITEM_TYPE);
-		String refId = data.getStringExtra(Constants.EXTRA_REFERRING_ITEM_ID);
-		if (action == R.id.action_edit) {
-			String sid = data.getStringExtra(Constants.EXTRA_ITEM_ID);
-			Service s = topology.getService(sid);
-			edit(s);
-		}
-		else {
-			Intent i = new Intent();
-			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, ref);
-			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, refId);
-			i.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Gateway.name());
-			add(i);
+			Service s = selGrp.getService(sid);
+			showGatewayDialog(s, null);
 		}
 	}
 	
@@ -719,52 +727,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		if (requestCode == R.id.action_console) {
 			if (data != null)
 				consoleHandle = data.getStringExtra("jackpal.androidterm.window_handle");
-		}
-		else if (requestCode == R.id.action_add || requestCode == R.id.action_edit) {
-			if (resultCode == Activity.RESULT_OK) {
-				if (data == null)
-					throw new IllegalStateException("edit activity did not return any data");
-				if (!TextUtils.isEmpty(data.getStringExtra(Constants.EXTRA_REFERRING_ITEM_ID))) {
-					//this is request to add/update a Service
-					modifyService(data);
-					return;
-				}
-				String jsonStr = data.getStringExtra(Constants.EXTRA_JSON_ITEM);
-				JsonElement je = helper.parse(jsonStr);
-				if (je == null)
-					return;
-				boolean add = (requestCode == R.id.action_add);
-				EntityType et = EntityType.valueOf(data.getStringExtra(Constants.EXTRA_ITEM_TYPE));
-				switch (et) {
-					case Host:
-//						Host h = helper.hostFromJson(je.getAsJsonObject());
-//						if (add)
-//							addHost(h);
-//						else
-//							updateHost(h);
-					break;
-					case Group:
-						Group g = (Group)helper.groupFromJson(je.getAsJsonObject());
-						if (add)
-							addGroup(g);
-						else
-							updateGroup(g);
-					break;
-					case Gateway:
-						Service s = (Service)helper.serviceFromJson(je.getAsJsonObject());
-						if (add) {
-							int svcsPort = data.getIntExtra(Constants.EXTRA_SERVICES_PORT, -1);
-							if (svcsPort == -1)
-								throw new IllegalStateException("must provide services port for new gateway");
-							addService(s, svcsPort);
-						}
-						else
-							updateService(s);
-					break;
-					case NodeManager:
-					break;
-				}
-			}
 		}
 		else
 			super.onActivityResult(requestCode, resultCode, data);
@@ -944,7 +906,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 	
 	@Override
-	public void addHost(Host h, boolean useSsl) throws ApiException {
+	public void addHost(Host h, int mgmtPort, boolean useSsl) throws ApiException {
 		if (topology == null || h == null)
 			return;
 		Group g = topology.getGroupForService(topology.adminNodeManager().getId());
@@ -952,6 +914,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.POST, EntityType.Host, helper.toJson(h));
 		i.putExtra(Constants.EXTRA_USE_SSL, useSsl);
+		i.putExtra(Constants.EXTRA_MGMT_PORT, mgmtPort);
 		i.putExtra(Constants.EXTRA_NODE_MGR_GROUP, helper.toJson(g).toString());
 		asyncModify(i);
 	}
@@ -971,13 +934,13 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		Group tg = topology.getGroup(selGrp.getId());
 		if (tg == null)
-			throw new IllegalStateException("expecting to find group for service: " + s.getId());
+			throw new ApiException("expecting to find group for service: " + s.getId());
 		tg.addService(s);
 		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.POST, EntityType.Gateway, helper.toJson(s));
 		i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, tg.getId());
 		i.putExtra(Constants.EXTRA_SERVICES_PORT, svcsPort);
-		asyncModify(i);	//HttpMethod.POST, EntityType.Gateway, helper.toJson(s), tg);
+		asyncModify(i);
 	}
 
 	@Override
@@ -1011,7 +974,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		Group g = topology.getGroupForService(s.getId());
 		if (g == null)
-			throw new IllegalStateException("expecting to find group for service: " + s.getId());
+			throw new ApiException("expecting to find group for service: " + s.getId());
 		Service ts = topology.getService(s.getId());
 		if (ts != null) {
 			ts.setName(s.getName());
@@ -1024,7 +987,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			Intent i = createModifyIntent(HttpMethod.PUT, EntityType.Gateway, helper.toJson(s));
 			i.putExtra(Constants.EXTRA_REFERRING_ITEM_TYPE, EntityType.Group.name());
 			i.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
-			asyncModify(i);	//HttpMethod.PUT, EntityType.Gateway, helper.toJson(s), g);
+			asyncModify(i);
 		}
 	}
 
@@ -1069,7 +1032,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		Group g = topology.getGroupForService(s.getId());
 		if (g == null)
-			throw new IllegalStateException("expecting to find group for service: " + s.getId());
+			throw new ApiException("expecting to find group for service: " + s.getId());
 		g.removeService(s.getId());
 		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.DELETE, EntityType.Gateway, helper.toJson(s));
@@ -1094,8 +1057,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		}
 		fromGrp.removeService(svc.getId());
 		toGrp.addService(svc);
-		updateGroup(fromGrp);
-		updateGroup(toGrp);
+		Intent i = createModifyIntent(HttpMethod.DELETE, EntityType.Gateway, helper.toJson(svc));
+		i.setAction(RestService.ACTION_MOVE_GATEWAY);
+		i.putExtra(Constants.EXTRA_FROM_GROUP, fromGrp.getId());
+		i.putExtra(Constants.EXTRA_TO_GROUP, toGrp.getId());
+		asyncModify(i);
 	}
 	
 	@Override
@@ -1107,13 +1073,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		Bundle args = new Bundle();
 		args.putString(Intent.EXTRA_TITLE, getString(R.string.cert_not_trusted));
 		StringBuilder sb = new StringBuilder();
-//		int i = 1;
-//	    for (Certificate c: cp.getCertificates()) {
-//	    	if (c.getType() == "X.509") {
-//	    		X509Certificate c509 = (X509Certificate)c;
-//	    		sb.append("[").append(i++).append("]: ").append(c509.getSubjectDN().toString()).append("\n");
-//	    	}
-//	    }
 	    sb.append(msg).append("\n").append(getString(R.string.add_to_truststore));
 		args.putString(Intent.EXTRA_TEXT,  sb.toString());
 		AlertDialogFragment dlgFrag = new AlertDialogFragment();
@@ -1219,5 +1178,26 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		cmd.append(" -g \"").append(g.getName()).append("\"");
 		cmd.append(" -d");
 		runScriptInConsole(cmd.toString());
+	}
+	
+	private void moveGateway(Service s) {
+		Collection<Group> grps = topology.getGroups();
+		Group fromGrp = topology.getGroupForService(s.getId());
+		Group nmGrp = topology.getGroupForService(topology.adminNodeManager().getId());
+		Group toGrp = null;
+		if (grps.size() == 3) {
+			for (Group g: grps) {
+				if (!g.getId().equals(fromGrp.getId()) && !g.getId().equals(nmGrp.getId())) {
+					toGrp = g;
+					break;
+				}
+			}
+			if (fromGrp == null || toGrp == null)
+				return;
+			moveService(s, fromGrp, toGrp);
+		}
+		else {
+			//showSelectGroupDialog();
+		}
 	}
 }

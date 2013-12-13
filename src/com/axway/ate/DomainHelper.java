@@ -151,6 +151,15 @@ public class DomainHelper {
 				try {bw.close();} catch (IOException e){}
 		}		
 	}
+
+	public Topology topologyFromJson(String jsonStr) {
+		if (TextUtils.isEmpty(jsonStr))
+			return null;
+		JsonElement e = parse(jsonStr);
+		if (e == null)
+			return null;
+		return topologyFromJson(e.getAsJsonObject());
+	}
 	
 	public Topology topologyFromJson(JsonObject json) {
 		Topology rv = null;
@@ -246,6 +255,15 @@ public class DomainHelper {
 			rv.add("uniqueIdCounters", countersToJson(t.getUniqueIdCounters()));
 		return rv;
 	}
+
+	public Group groupFromJson(String jsonStr) {
+		if (TextUtils.isEmpty(jsonStr))
+			return null;
+		JsonElement e = parse(jsonStr);
+		if (e == null)
+			return null;
+		return groupFromJson(e.getAsJsonObject());
+	}
 	
 	public Group groupFromJson(JsonObject json) {
 		Group rv = null;
@@ -291,7 +309,16 @@ public class DomainHelper {
 		rv.add("tags", tagsToJson(g.getTags()));
 		return rv;
 	}
-	
+
+	public Service serviceFromJson(String jsonStr) {
+		if (TextUtils.isEmpty(jsonStr))
+			return null;
+		JsonElement e = parse(jsonStr);
+		if (e == null)
+			return null;
+		return serviceFromJson(e.getAsJsonObject());
+	}
+
 	public Service serviceFromJson(JsonObject json) {
 		Service rv = null;
 		if (json == null)
@@ -359,6 +386,15 @@ public class DomainHelper {
 			rv.put(e.getKey(), e.getValue().getAsString());
 		}
 		return rv;
+	}
+
+	public Host hostFromJson(String jsonStr) {
+		if (TextUtils.isEmpty(jsonStr))
+			return null;
+		JsonElement e = parse(jsonStr);
+		if (e == null)
+			return null;
+		return hostFromJson(e.getAsJsonObject());
 	}
 	
 	public Host hostFromJson(JsonObject json) {

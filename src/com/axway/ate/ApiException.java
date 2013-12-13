@@ -16,6 +16,12 @@ public class ApiException extends RuntimeException {
 		
 	}
 
+	public ApiException(String msg) {
+		super(msg);
+		errors = null;
+		statusCode = 0;
+	}
+	
 	public ApiException(Throwable t) {
 		super(t);	
 		errors = null;

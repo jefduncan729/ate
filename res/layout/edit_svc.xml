@@ -9,164 +9,159 @@
     android:orientation="vertical" >
 <!-- 
  -->
-    
-    <include layout="@layout/edit_name"/>
-    
     <LinearLayout
         android:id="@id/container01"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-		android:paddingBottom="@dimen/listitem_small_margin">	    
-	    <TextView
-	        android:id="@id/label02"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:gravity="fill_horizontal"
-	        android:text="@string/mgmt_port"
-	        android:labelFor="@id/edit_mgmt_port"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-        <EditText
-	        android:id="@id/edit_mgmt_port"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:scrollHorizontally="true"
-	        android:inputType="number"
-	        android:gravity="fill_horizontal"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-	</LinearLayout>
-    
-    <LinearLayout
-        android:id="@id/container02"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-		android:paddingBottom="@dimen/listitem_small_margin">	    
-	    <TextView
-	        android:id="@id/label03"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:gravity="fill_horizontal"
-	        android:text="@string/svcs_port"
-	        android:labelFor="@id/edit_svcs_port"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-        <EditText
-	        android:id="@id/edit_svcs_port"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:scrollHorizontally="true"
-	        android:inputType="number"
-	        android:gravity="fill_horizontal"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-	</LinearLayout>
-    
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
         android:orientation="vertical"
-	    android:paddingBottom="@dimen/listitem_small_margin">
-<!-- 
-	    <TextView
-	        android:id="@id/label3"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:gravity="fill_horizontal"
-	        android:text="@string/empty_string"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-	        android:gravity="fill_horizontal"
- -->
- 		<RelativeLayout
-	        android:layout_height="wrap_content"
-	        android:layout_width="match_parent"
-		> 		    
-        <CheckBox
-	        android:id="@id/edit_use_ssl"
-	        android:layout_height="wrap_content"
-	        android:layout_width="wrap_content"
-	        android:text="@string/use_ssl"
-	        android:layout_centerHorizontal="true"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
-        </RelativeLayout>
-	</LinearLayout>
-
-
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-	    android:paddingBottom="@dimen/listitem_small_margin">	    
-	    <TextView
-	        android:id="@id/label04"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:gravity="fill_horizontal"
-	        android:text="@string/host"
-	        android:labelFor="@id/edit_host"
-	        android:paddingTop="@dimen/listitem_small_margin"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
+		android:paddingBottom="@dimen/listitem_small_margin">	    
+	    
+	    <include layout="@layout/edit_name"/>
+	    
 	    <LinearLayout
 	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:orientation="vertical"
-	        >
-		<AutoCompleteTextView 
-		    android:id = "@id/edit_host"
+	        android:layout_width="match_parent"
+	        android:orientation="horizontal"
+			android:paddingBottom="@dimen/listitem_small_margin">	    
+		    <TextView
+		        android:id="@id/label_mgmt_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:gravity="fill_horizontal"
+		        android:text="@string/mgmt_port"
+		        android:labelFor="@id/edit_mgmt_port"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+	        <EditText
+		        android:id="@id/edit_mgmt_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:scrollHorizontally="true"
+		        android:inputType="number"
+		        android:gravity="fill_horizontal"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+		</LinearLayout>
+	    
+	    <LinearLayout
+	        android:id="@id/container02"
 	        android:layout_height="wrap_content"
 	        android:layout_width="match_parent"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		    />	        
-	    </LinearLayout>
-	</LinearLayout>
-   
-    <LinearLayout
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:orientation="horizontal"
-	    android:paddingBottom="@dimen/listitem_small_margin">	    
-	    <TextView
-	        android:id="@id/label06"
-	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
-	        android:gravity="fill_horizontal"
-	        android:text="@string/group"
-	        android:labelFor="@id/edit_group"
-	        android:paddingTop="@dimen/listitem_small_margin"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		/>
+	        android:orientation="horizontal"
+			android:paddingBottom="@dimen/listitem_small_margin">	    
+		    <TextView
+		        android:id="@id/label_svcs_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:gravity="fill_horizontal"
+		        android:text="@string/svcs_port"
+		        android:labelFor="@id/edit_svcs_port"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+	        <EditText
+		        android:id="@id/edit_svcs_port"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:scrollHorizontally="true"
+		        android:inputType="number"
+		        android:gravity="fill_horizontal"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+		</LinearLayout>
+	    
 	    <LinearLayout
 	        android:layout_height="wrap_content"
-	        android:layout_width="0dp"
-	        android:layout_weight="0.5"
+	        android:layout_width="match_parent"
 	        android:orientation="vertical"
-	        >
-		<AutoCompleteTextView 
-		    android:id = "@id/edit_group"
+		    android:paddingBottom="@dimen/listitem_small_margin">
+
+	 		<RelativeLayout
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+			> 		    
+		        <CheckBox
+			        android:id="@id/edit_use_ssl"
+			        android:layout_height="wrap_content"
+			        android:layout_width="wrap_content"
+			        android:text="@string/use_ssl"
+			        android:layout_centerHorizontal="true"
+			        android:textAppearance="?android:attr/textAppearanceMedium" 
+				/>
+	        </RelativeLayout>
+		</LinearLayout>
+	
+	
+	    <LinearLayout
 	        android:layout_height="wrap_content"
 	        android:layout_width="match_parent"
-	        android:textAppearance="?android:attr/textAppearanceMedium" 
-		    />	        
-	    </LinearLayout>
+	        android:orientation="horizontal"
+		    android:paddingBottom="@dimen/listitem_small_margin">	    
+		    <TextView
+		        android:id="@id/label_host"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:gravity="fill_horizontal"
+		        android:text="@string/host"
+		        android:labelFor="@id/edit_host"
+		        android:paddingTop="@dimen/listitem_small_margin"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+		    <LinearLayout
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:orientation="vertical"
+		        >
+			<AutoCompleteTextView 
+			    android:id = "@id/edit_host"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			    />	        
+		    </LinearLayout>
+		</LinearLayout>
+	   
+	    <LinearLayout
+	        android:layout_height="wrap_content"
+	        android:layout_width="match_parent"
+	        android:orientation="horizontal"
+		    android:paddingBottom="@dimen/listitem_small_margin">	    
+		    <TextView
+		        android:id="@id/label_group"
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:gravity="fill_horizontal"
+		        android:text="@string/group"
+		        android:labelFor="@id/edit_group"
+		        android:paddingTop="@dimen/listitem_small_margin"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			/>
+		    <LinearLayout
+		        android:layout_height="wrap_content"
+		        android:layout_width="0dp"
+		        android:layout_weight="0.5"
+		        android:orientation="vertical"
+		        >
+			<EditText 
+			    android:id = "@id/edit_group"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:inputType="text"
+		        android:textAppearance="?android:attr/textAppearanceMedium" 
+			    />	        
+		    </LinearLayout>
+		</LinearLayout>
 	</LinearLayout>
-    	        
+	    	        
     <LinearLayout
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_weight="0.5"
         android:orientation="vertical"
         android:paddingLeft="@dimen/listitem_small_margin"
         android:paddingTop="@dimen/listitem_small_margin"
@@ -177,7 +172,7 @@
         	android:layout_width="match_parent"
         	android:orientation="horizontal">
 			<TextView
-		        android:id="@id/label05"
+		        android:id="@id/label_tags"
 			    android:layout_width="0dp"
 		    	android:layout_height="wrap_content"
 				android:layout_weight="0.92"

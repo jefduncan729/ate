@@ -27,6 +27,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 
 	private Topology t;
 	private String src;
+	private boolean haveConsole;
 	private Listener listener;
 
 	public interface Listener {
@@ -89,9 +90,10 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		return listener.onMenuItemSelected(item);
 	}
 	
-	public void update(Topology in, String src) {
+	public void update(Topology in, String src, boolean haveConsole) {
 		t = in;
 		this.src = src;
+		this.haveConsole = haveConsole;
 		refreshAdapter();
 	}
 	
@@ -119,25 +121,26 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		if (e == null)
 			return;
 		Intent iAdd = null;
-		Intent iDel = null;
-		Intent iDelDisk = null;
 		Intent iSsh = null;
 		Intent iStart = null;
-		iDel = new Intent();
+		Intent iMove = null;
+		Intent iDel = new Intent();
 		iDel.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDel.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
-		iDelDisk = new Intent();
+		Intent iDelDisk = new Intent();
 		iDelDisk.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDelDisk.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
 		iDelDisk.putExtra(Intent.EXTRA_DATA_REMOVED, true);
 		int p=0;
 		switch (e.itemType) {
 			case Host:
-				menu.add(0, R.id.action_delete, p++, R.string.action_delete);
-				menu.add(0, R.id.action_ssh_to_host, p++, R.string.action_ssh_to_host);
-				iSsh = new Intent();
-				iSsh.putExtra(Constants.EXTRA_ITEM_ID, e.id);
-				iSsh.putExtra(Constants.EXTRA_ITEM_NAME, e.name);
+				menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
+				if (haveConsole) {
+					iSsh = new Intent();
+					iSsh.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+					iSsh.putExtra(Constants.EXTRA_ITEM_NAME, e.name);
+					menu.add(0, R.id.action_ssh_to_host, p++, R.string.action_ssh_to_host).setIntent(iSsh);
+				}
 			break;
 			case Group:
 				iAdd = new Intent();
@@ -145,17 +148,22 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 				iAdd.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.Gateway.name());
 				iAdd.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 				if (e.data == 0) {
-					menu.add(0, R.id.action_delete, p++, R.string.action_delete);
-					menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk);
+					menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
+					menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk).setIntent(iDelDisk);
 				}
-				menu.add(0, R.id.action_add_gateway, p++, "Add " + EntityType.Gateway.name());
+				menu.add(0, R.id.action_add_gateway, p++, "Add " + EntityType.Gateway.name()).setIntent(iAdd);
 			break;
 			case Gateway:
-				menu.add(0, R.id.action_delete, p++, R.string.action_delete);
-				menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk);
-				menu.add(0, R.id.action_start_gateway, p++, R.string.action_start_gateway);
-				iStart = new Intent();
-				iStart.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+				iMove = new Intent();
+				iMove.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+				menu.add(0, R.id.action_move_gateway, p++, R.string.action_move_gateway).setIntent(iMove);
+				if (haveConsole) {
+					iStart = new Intent();
+					iStart.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+					menu.add(0, R.id.action_start_gateway, p++, R.string.action_start_gateway).setIntent(iStart);
+				}
+				menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
+				menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk).setIntent(iDelDisk);
 			break;
 			case NodeManager:
 			break;
@@ -163,25 +171,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		if (menu.size() == 0)
 			return;
 		menu.setHeaderTitle(e.name);
-		MenuItem mi = menu.findItem(R.id.action_add_gateway);
-		if (mi != null)
-			mi.setIntent(iAdd);
-		mi = menu.findItem(R.id.action_delete);
-		if (mi != null)
-			mi.setIntent(iDel);
-		mi = menu.findItem(R.id.action_delete_disk);
-		if (mi != null)
-			mi.setIntent(iDelDisk);
-		if (iSsh != null) {
-			mi = menu.findItem(R.id.action_ssh_to_host);
-			if (mi != null)
-				mi.setIntent(iSsh);
-		}
-		if (iStart != null) {
-			mi = menu.findItem(R.id.action_start_gateway);
-			if (mi != null)
-				mi.setIntent(iStart);
-		}
 	}
 
 	@Override
