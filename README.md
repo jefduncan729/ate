@@ -5,8 +5,8 @@ Android Topology Editor is an Android (4.1 and above) application which employs 
 
 In my initial attempt to create this tool I tried to integrate the Sun Jersey client jars into my Android environment. 
 However, I ultimately found that Android's Java implementation did not provide the necessary support for Jersey. In the end,
-I chose Spring's Android framework for REST API support and I'm quite happy with it. Although, I did roll my own Json marshalling 
-because Spring's framework didn't like Jersey's JAXB annotations.
+I chose Spring's Android framework for REST API support and I'm quite happy with it (for example, it was a breeze to add custom
+SSL support). Although, I did roll my own Json marshalling because Spring's framework didn't like Jersey's JAXB annotations.
 
 ### Features ###
 
