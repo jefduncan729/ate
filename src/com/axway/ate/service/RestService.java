@@ -60,8 +60,9 @@ public class RestService extends BaseIntentService {
 	private String action;
 	private boolean movingSvc;
 	private JsonObject svcToMove;
-	private String fromGrp;
-	private String toGrp;
+	private String fromGrpId;
+	private String toGrpId;
+	private String hostId;
 	
 	public RestService() {
 		super(TAG);
@@ -70,8 +71,9 @@ public class RestService extends BaseIntentService {
 		helper = DomainHelper.getInstance();
 		action = null;
 		svcToMove = null;
-		fromGrp = null;
-		toGrp = null;
+		fromGrpId = null;
+		toGrpId = null;
+		hostId = null;
 	}
 
 	@Override
@@ -100,13 +102,13 @@ public class RestService extends BaseIntentService {
 		}
 		else if (ACTION_MOVE_GATEWAY.equals(action)) {
 			movingSvc = true;
-			fromGrp = extras.getString(Constants.EXTRA_FROM_GROUP);
-			toGrp = extras.getString(Constants.EXTRA_TO_GROUP);
-			if (TextUtils.isEmpty(fromGrp) || TextUtils.isEmpty(toGrp)) {
+			fromGrpId = extras.getString(Constants.EXTRA_FROM_GROUP);
+			toGrpId = extras.getString(Constants.EXTRA_TO_GROUP);
+			if (TextUtils.isEmpty(fromGrpId) || TextUtils.isEmpty(toGrpId)) {
 				Log.e(TAG, "expecting fromGrp and toGrp");
 				return;
 			}
-			extras.putString(Constants.EXTRA_REFERRING_ITEM_ID, fromGrp);
+			extras.putString(Constants.EXTRA_REFERRING_ITEM_ID, fromGrpId);
 			extras.putBoolean(Constants.EXTRA_DELETE_FROM_DISK, false);
 			method = HttpMethod.DELETE;
 		}
@@ -136,6 +138,11 @@ public class RestService extends BaseIntentService {
 				json = je.getAsJsonObject();
 				if (movingSvc)
 					svcToMove = json;
+//				if (HttpMethod.DELETE == method) {
+//					if (eType == EntityType.NodeManager) {
+//						hostId = extras.getString(Constants.EXTRA_HOST_ID);
+//					}
+//				}
 				resp = doUpdate(eType, json, method, extras);
 			}
 			else if (HttpMethod.GET == method) {
@@ -319,9 +326,9 @@ public class RestService extends BaseIntentService {
 			sc = resp.getStatusCode().value();
 			Log.d(TAG, "response status code: " + Integer.toString(sc));
 			if (sc == HttpStatus.SC_OK || sc == HttpStatus.SC_CREATED || sc == HttpStatus.SC_NO_CONTENT) {
-				if (sc == HttpStatus.SC_NO_CONTENT && movingSvc && svcToMove != null && toGrp != null) {
+				if (sc == HttpStatus.SC_NO_CONTENT && movingSvc && svcToMove != null && toGrpId != null) {
 					Bundle ex = new Bundle();
-					ex.putString(Constants.EXTRA_REFERRING_ITEM_ID, toGrp);
+					ex.putString(Constants.EXTRA_REFERRING_ITEM_ID, toGrpId);
 					movingSvc = false;
 					doUpdate(EntityType.Gateway, svcToMove, HttpMethod.POST, ex);
 				}

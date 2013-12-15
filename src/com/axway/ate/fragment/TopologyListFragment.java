@@ -17,6 +17,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.axway.ate.Constants;
+import com.axway.ate.DomainHelper;
 import com.axway.ate.R;
 import com.axway.ate.adapter.TopologyAdapter;
 import com.vordel.api.topology.model.Topology;
@@ -29,6 +30,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	private String src;
 	private boolean haveConsole;
 	private Listener listener;
+	private DomainHelper helper;
 
 	public interface Listener {
 		public void onTopologyItemSelected(EntityType itemType, String id);
@@ -40,12 +42,21 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		super();
 		t = null;
 		listener = null;
+		src = null;
+		haveConsole = false;
+		helper = DomainHelper.getInstance();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		Bundle args = getArguments();
+		if (args != null) {
+			t = helper.topologyFromJson(args.getString(Constants.EXTRA_JSON_TOPOLOGY));
+			src = args.getString(Constants.EXTRA_TOPO_SOURCE);
+			haveConsole = args.getBoolean(Constants.EXTRA_HAVE_CONSOLE);
+		}
 	}
 	
 	@Override
@@ -127,10 +138,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		Intent iDel = new Intent();
 		iDel.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDel.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
-		Intent iDelDisk = new Intent();
-		iDelDisk.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
-		iDelDisk.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
-		iDelDisk.putExtra(Constants.EXTRA_DELETE_FROM_DISK, true);
 		int p=0;
 		switch (e.itemType) {
 			case Host:
@@ -149,7 +156,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 				iAdd.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 				if (e.data == 0) {
 					menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
-					menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk).setIntent(iDelDisk);
 				}
 				menu.add(0, R.id.action_add_gateway, p++, "Add " + EntityType.Gateway.name()).setIntent(iAdd);
 			break;
@@ -163,7 +169,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 					menu.add(0, R.id.action_start_gateway, p++, R.string.action_start_gateway).setIntent(iStart);
 				}
 				menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
-				menu.add(0, R.id.action_delete_disk, p++, R.string.action_delete_disk).setIntent(iDelDisk);
 			break;
 			case NodeManager:
 			break;
@@ -182,9 +187,30 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		if (listener == null)
-			super.onPrepareOptionsMenu(menu);
-		else
+		boolean haveTopo = (t != null);
+		MenuItem i = menu.findItem(R.id.action_save_to_anm);
+		if (i != null)
+			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_save_to_disk);
+		if (i != null)
+			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_compare_topo);
+		if (i != null)
+			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_add_host);
+		if (i != null)
+			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_add_group);
+		if (i != null)
+			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_console);
+		if (i != null)
+			i.setVisible(haveConsole);
+		if (listener != null)
 			listener.onPrepareMenu(menu);
+//		if (listener == null)
+//			super.onPrepareOptionsMenu(menu);
+//		else
+//			listener.onPrepareMenu(menu);
 	}
 }

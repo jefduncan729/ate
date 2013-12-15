@@ -11,7 +11,7 @@
     <string name="action_add_group">Add Group</string>
     <string name="action_add_gateway">Add API Server</string>
     <string name="action_delete">Delete</string>
-    <string name="action_delete_disk">Delete + Delete Disk Files</string>
+    <string name="action_delete_disk">Delete Disk Files</string>
     <string name="action_edit">Edit</string>
     <string name="action_enable">Enable</string>
     <string name="action_disable">Disable</string>

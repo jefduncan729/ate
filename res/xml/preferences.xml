@@ -2,13 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
    <PreferenceCategory
             android:title="@string/general_settings">
-            
+<!--             
         <CheckBoxPreference
             android:key="showNodeMgrs"
             android:title="Show NodeManagers"
             android:summary="Show NodeManagers in the topology view"
 		/>
-         
+ -->         
         <CheckBoxPreference
             android:key="reloadAfterUpdate"
             android:title="Reload after each update"

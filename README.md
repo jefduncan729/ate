@@ -46,6 +46,6 @@ Android to communicate amongst components.
 
 ### Known issues ###
 * Does moving a Gateway from one Group to another make sense? (I'm thinking not)
-* So far unable to query for an existing Gateway's Services Port. Can add 'servicesPort' param on the POST and it works fine, but for an existing Gateway how to know the Services Port?
+* So far unable to query for an existing Gateway's Services Port. Adding 'servicesPort' param on the POST works fine, but for an existing Gateway how to know the Services Port?
 
 I'm sure there are some others! :)
