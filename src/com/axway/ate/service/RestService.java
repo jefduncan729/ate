@@ -39,8 +39,10 @@ import com.axway.ate.util.TopologyCompareResults;
 import com.axway.ate.util.TopologyComparer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.vordel.api.topology.model.Service;
 import com.vordel.api.topology.model.Topology;
 import com.vordel.api.topology.model.Topology.EntityType;
+import com.vordel.api.topology.model.Topology.ServiceType;
 
 public class RestService extends BaseIntentService {
 	
@@ -60,7 +62,7 @@ public class RestService extends BaseIntentService {
 	private JsonObject svcToMove;
 	private String fromGrp;
 	private String toGrp;
-
+	
 	public RestService() {
 		super(TAG);
 		srvrInfo = null;
@@ -255,7 +257,7 @@ public class RestService extends BaseIntentService {
 			}
 			endpoint = "topology/groups";
 		}
-		else if (eType == EntityType.Gateway) {
+		else if (eType == EntityType.Gateway || eType == EntityType.NodeManager) {
 			String grpId = extras.getString(Constants.EXTRA_REFERRING_ITEM_ID);
 			if (TextUtils.isEmpty(grpId))
 				throw new IllegalStateException("expecting to find group for service: " + id);
@@ -272,7 +274,7 @@ public class RestService extends BaseIntentService {
 				params = new String[1];
 				params[0] = grpId;
 			}
-			if (method == HttpMethod.POST) {
+			if (method == HttpMethod.POST && eType == EntityType.Gateway) {
 				int sp = 0;
 				if (extras != null)
 					sp = extras.getInt(Constants.EXTRA_SERVICES_PORT, 8080);

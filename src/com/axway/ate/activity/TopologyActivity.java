@@ -67,6 +67,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	private Intent outstandingIntent;
 	private Boolean haveConsole;
 	private String consoleHandle;
+	private Intent hostNodeMgrIntent;
 	
 	private ResultReceiver resRcvr;
 	
@@ -83,6 +84,7 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		outstandingIntent = null;
 		haveConsole = null;
 		consoleHandle = null;
+		hostNodeMgrIntent = null;
 	}
 
 	private ResultReceiver getResultReceiver() {
@@ -170,6 +172,19 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				if (th != null) {
 					th.setId(h.getId());
 					updateTopologyView();
+				}
+				if (hostNodeMgrIntent != null) {
+					UiUtils.showToast(this, "Adding NodeManager for host " + h.getName());
+					Service nmSvc = new Service();
+					nmSvc.setHostID(h.getId());
+					nmSvc.setType(ServiceType.nodemanager);
+					nmSvc.setEnabled(true);
+					nmSvc.setScheme(hostNodeMgrIntent.getBooleanExtra(Constants.EXTRA_USE_SSL, true) ? Constants.HTTPS_SCHEME : Constants.HTTP_SCHEME);
+					nmSvc.setManagementPort(hostNodeMgrIntent.getIntExtra(Constants.EXTRA_MGMT_PORT, 0));
+					nmSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nmSvc.getManagementPort()));
+					hostNodeMgrIntent.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson(nmSvc).toString());
+					asyncModify(hostNodeMgrIntent);
+					hostNodeMgrIntent = null;
 				}
 			}
 			else if (EntityType.Group == typ) {
@@ -266,9 +281,9 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		i = menu.findItem(R.id.action_compare_topo);
 		if (i != null)
 			i.setVisible(haveTopo);
-//		i = menu.findItem(R.id.action_add_host);
-//		if (i != null)
-//			i.setVisible(haveTopo);
+		i = menu.findItem(R.id.action_add_host);
+		if (i != null)
+			i.setVisible(haveTopo);
 		i = menu.findItem(R.id.action_add_group);
 		if (i != null)
 			i.setVisible(haveTopo);
@@ -571,8 +586,8 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 	
 	private void delete(Intent i) {
-		Topology t = getTopology();
-		if (i == null || t == null)
+//		Topology t = getTopology();
+		if (i == null || topology == null)
 			return;
 		final String id = i.getStringExtra(Constants.EXTRA_REFERRING_ITEM_ID);
 		if (TextUtils.isEmpty(id))
@@ -585,14 +600,14 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		String name = null;
 		Object obj = null;
 		if (eType == EntityType.Host) {
-			Host h = t.getHost(id);
+			Host h = topology.getHost(id);
 			if (h != null) {
 				obj = h;
 				name = h.getName(); 
 			}
 		}
 		else if (eType == EntityType.Group) {
-			Group g = t.getGroup(id);
+			Group g = topology.getGroup(id);
 			if (g != null) {
 				obj = g;
 				name = g.getName();
@@ -605,10 +620,10 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				return;
 			String gid = ids[0];
 			String sid = ids[1];
-			Group g = t.getGroup(gid);
+			Group g = topology.getGroup(gid);
 			if (g == null)
 				return;
-			Service s = t.getService(sid);
+			Service s = topology.getService(sid);
 			if (s != null) {
 				obj = s;
 				name = s.getName();
@@ -624,14 +639,12 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		if (EntityType.Host == typ) {
 			Host h = topology.getHost(id);
 			if (h != null) {
-				topology.removeHost(h);
 				removeHost(h);
 			}
 		}
 		else if (EntityType.Group == typ) {
 			Group g = topology.getGroup(id);
 			if (g != null) {
-				topology.removeGroup(g);
 				removeGroup(g, delFromDisk);
 			}
 		}
@@ -910,9 +923,14 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		topology.addHost(h);
 		updateTopologyView();
 		Intent i = createModifyIntent(HttpMethod.POST, EntityType.Host, helper.toJson(h));
-		i.putExtra(Constants.EXTRA_USE_SSL, useSsl);
-		i.putExtra(Constants.EXTRA_MGMT_PORT, mgmtPort);
-		i.putExtra(Constants.EXTRA_NODE_MGR_GROUP, helper.toJson(g).toString());
+		hostNodeMgrIntent = new Intent(this, RestService.class);
+		hostNodeMgrIntent.setAction(HttpMethod.POST.name());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
+		hostNodeMgrIntent.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.NodeManager.name());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_USE_SSL, useSsl);
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_MGMT_PORT, mgmtPort);
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
 		asyncModify(i);
 	}
 
@@ -997,16 +1015,32 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		Collection<Service> svcs = topology.getServicesOnHost(th.getId(), ServiceType.nodemanager);
 		boolean isAnm = false;
+		Service nmSvc = null;
 		for (Service s: svcs) {
 			if (Topology.isAdminNodeManager(s)) {
 				isAnm = true;
 				break;
 			}
+			else
+				nmSvc = s;
 		}
 		if (isAnm) {
 			UiUtils.showToast(this, "Cannot delete host for Admin Node Manager");
 			return;
 		}
+		if (nmSvc == null) {
+			Log.e(TAG, "no nodemanger service found for host: " + th.getName());
+			return;
+		}
+		Group g = topology.getGroupForService(nmSvc.getId());
+		hostNodeMgrIntent = new Intent(this, RestService.class);
+		hostNodeMgrIntent.setAction(HttpMethod.DELETE.name());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
+		hostNodeMgrIntent.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_ITEM_TYPE, EntityType.NodeManager.name());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, g.getId());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_ITEM_ID, nmSvc.getId());
+		hostNodeMgrIntent.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson(nmSvc).toString());
 		topology.removeHost(th);
 		updateTopologyView();
 		asyncModify(createModifyIntent(HttpMethod.DELETE, EntityType.Host, helper.toJson(th)));

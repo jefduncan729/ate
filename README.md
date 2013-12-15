@@ -8,8 +8,6 @@ However, I ultimately found that Android's Java implementation did not provide t
 I chose Spring's Android framework for REST API support and I'm quite happy with it (for example, it was a breeze to add custom
 SSL support). Although, I did roll my own Json marshalling because Spring's framework didn't like Jersey's JAXB annotations.
 
-After working with the app for a while, I've decided it doesn't make sense to add hosts via the app so I removed that menu item.
-
 ### Features ###
 
 * Connection Manager - to manage connections to various servers
