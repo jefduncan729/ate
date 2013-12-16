@@ -75,6 +75,11 @@ public class BaseActivity extends Activity implements OnClickListener {
 			frag.dismiss();
 	}
 	
+	protected boolean progressDialogShowing() {
+		DialogFragment frag = (DialogFragment)getFragmentManager().findFragmentByTag(TAG_PROG_DLG);
+		return (frag != null);
+	}
+	
 	protected void confirmDialog(DialogInterface.OnClickListener onYes) {
 		confirmDialog(getString(R.string.confirm_msg), onYes);
 	}

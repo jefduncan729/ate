@@ -117,12 +117,12 @@ public class TopologyActivity extends BaseActivity
 	}
 	
 	private void onServiceResult(int code, Bundle data) {
-		dismissProgressDialog();
 		outstandingIntent = null;
 		if (code == HttpStatus.SC_OK) {
 			processResult(data);
 		}
 		else {
+			dismissProgressDialog();
 			EntityType et = null;
 			if (data != null) {
 				et = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
@@ -167,73 +167,40 @@ public class TopologyActivity extends BaseActivity
 			infoDialog("Compare Results", data.getString(Constants.EXTRA_COMPARE_RESULT));
 			return;
 		}
-//		if (getPrefs().getBoolean(Constants.KEY_RELOAD_AFTER_UPD, true)) {
-			loadFromServer();
-			return;
-//		}
-/*			
 		if (HttpMethod.POST.name().equals(action)) {
-			//for POSTs we need to update the id of the new item; for PUT/DELETE the topology view has already been updated
 			EntityType typ = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
 			String jstr = data.getString(Constants.EXTRA_JSON_ITEM);
 			if (EntityType.Host == typ) {
+				//if adding a Host, add the nodemgr service
 				Host h = helper.hostFromJson(helper.parse(jstr).getAsJsonObject());
 				Host th = topology.getHostByName(h.getName());
-				if (th != null) {
-					th.setId(h.getId());
-					updateTopologyView();
-				}
+				if (th == null)
+					return;
 				if (hostNodeMgrIntent != null) {
-					UiUtils.showToast(this, "Adding NodeManager for host " + h.getName());
-					Service nmSvc = new Service();
-					nmSvc.setHostID(h.getId());
-					nmSvc.setType(ServiceType.nodemanager);
-					nmSvc.setEnabled(true);
-					nmSvc.setScheme(hostNodeMgrIntent.getBooleanExtra(Constants.EXTRA_USE_SSL, true) ? Constants.HTTPS_SCHEME : Constants.HTTP_SCHEME);
-					nmSvc.setManagementPort(hostNodeMgrIntent.getIntExtra(Constants.EXTRA_MGMT_PORT, 0));
-					nmSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nmSvc.getManagementPort()));
+//					UiUtils.showToast(this, "Adding NodeManager for host " + th.getName());
+					Service nmSvc = helper.createNodeMgr(h, hostNodeMgrIntent.getBooleanExtra(Constants.EXTRA_USE_SSL, true), hostNodeMgrIntent.getIntExtra(Constants.EXTRA_MGMT_PORT, 0));	//new Service();
 					hostNodeMgrIntent.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson(nmSvc).toString());
 					asyncModify(hostNodeMgrIntent);
 					hostNodeMgrIntent = null;
-				}
-			}
-			else if (EntityType.Group == typ) {
-				Group g = helper.groupFromJson(helper.parse(jstr).getAsJsonObject());
-				Group tg = topology.getGroupByName(g.getName());
-				if (tg != null) {
-					tg.setId(g.getId());
-					tg.setTags(g.getTags());
-					updateTopologyView();
-				}
-			}
-			else if (EntityType.Gateway == typ) {
-				Service s = helper.serviceFromJson(helper.parse(jstr).getAsJsonObject());
-				Group g = topology.getGroup(data.getString(Constants.EXTRA_REFERRING_ITEM_ID));
-				if (g == null) {
-					Log.e(TAG, "expecting group for service " + s.getId());
 					return;
-				}
-				Service ts = g.getServiceByName(s.getName());
-				if (ts != null) {
-					ts.setId(s.getId());
-					updateTopologyView();
 				}
 			}
 		}
 		else if (HttpMethod.DELETE.name().equals(action)) {
 			EntityType typ = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
 			if (EntityType.NodeManager == typ) {
+				//if deleting a nodemgr, delete the host
 				String id = data.getString(Constants.EXTRA_HOST_ID);
 				Host h = topology.getHost(id);
 				if (h == null)
 					return;
-				UiUtils.showToast(this, "Removing host " + h.getName());
+				//UiUtils.showToast(this, "Removing host " + h.getName());
 				asyncModify(createModifyIntent(HttpMethod.DELETE, EntityType.Host, helper.toJson(h)));
-				topology.removeHost(h);
-				updateTopologyView();
+				return;
 			}
 		}
-*/		
+		dismissProgressDialog();
+		loadFromServer();
 	}
 	
 	@Override
@@ -912,6 +879,10 @@ public class TopologyActivity extends BaseActivity
 		Group g = topology.getGroupForService(topology.adminNodeManager().getId());
 		topology.addHost(h);
 		if (srvrInfo == null) {
+			h.setId(topology.generateID(EntityType.Host));
+			Service nmSvc = helper.createNodeMgr(h, useSsl, mgmtPort);
+			nmSvc.setId(topology.generateID(EntityType.NodeManager));
+			g.addService(nmSvc);
 			updateTopologyView();
 			return;
 		}		
@@ -933,6 +904,7 @@ public class TopologyActivity extends BaseActivity
 			return;
 		topology.addGroup(g);
 		if (srvrInfo == null) {
+			g.setId(topology.generateID(EntityType.Group));
 			updateTopologyView();
 			return;
 		}
@@ -948,6 +920,7 @@ public class TopologyActivity extends BaseActivity
 			throw new ApiException("expecting to find group for service: " + s.getId());
 		tg.addService(s);
 		if (srvrInfo == null) {
+			s.setId(topology.generateID(EntityType.Gateway));
 			updateTopologyView();
 			return;
 		}
@@ -1035,6 +1008,11 @@ public class TopologyActivity extends BaseActivity
 			return;
 		}
 		if (srvrInfo == null) {
+			if (nmSvc != null) {
+				Group g = topology.getGroupForService(nmSvc.getId());
+				if (g != null)
+					g.removeService(nmSvc.getId());
+			}
 			topology.removeHost(th);
 			updateTopologyView();
 			return;
@@ -1054,7 +1032,7 @@ public class TopologyActivity extends BaseActivity
 			hostNodeMgrIntent.putExtra(Constants.EXTRA_ITEM_ID, nmSvc.getId());
 			hostNodeMgrIntent.putExtra(Constants.EXTRA_JSON_ITEM, helper.toJson(nmSvc).toString());
 			hostNodeMgrIntent.putExtra(Constants.EXTRA_HOST_ID, th.getId());
-			UiUtils.showToast(this, "Removing Node Manager service from host " + th.getName());
+			//UiUtils.showToast(this, "Removing Node Manager service from host " + th.getName());
 			asyncModify(hostNodeMgrIntent);
 		}
 	}
@@ -1083,7 +1061,9 @@ public class TopologyActivity extends BaseActivity
 		if (g == null)
 			throw new ApiException("expecting to find group for service: " + s.getId());
 		g.removeService(s.getId());
-		if (srvrInfo == null) { 
+		if (srvrInfo == null) {
+			if (g.getServices().size() == 0)
+				topology.removeGroup(g);
 			updateTopologyView();
 			return;
 		}
@@ -1129,16 +1109,17 @@ public class TopologyActivity extends BaseActivity
 	private void asyncModify(Intent i) {
 		if (i == null || i.getExtras() == null)
 			return;
-//		UiUtils.showToast(this, "");
-		String action = i.getAction();
-		String msg = null;
-		if (HttpMethod.POST.name().equals(action))
-			msg = "Adding...";
-		else if (HttpMethod.PUT.name().equals(action))
-			msg = "Updating...";
-		else if (HttpMethod.DELETE.name().equals(action))
-			msg = "Deleting...";
-		showProgressDialog(msg);
+		if (!progressDialogShowing()) {
+			String action = i.getAction();
+			String msg = null;
+			if (HttpMethod.POST.name().equals(action))
+				msg = "Adding...";
+			else if (HttpMethod.PUT.name().equals(action))
+				msg = "Updating...";
+			else if (HttpMethod.DELETE.name().equals(action))
+				msg = "Deleting...";
+			showProgressDialog(msg);
+		}
 		outstandingIntent = i;
 		startService(i);
 	}

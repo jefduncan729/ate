@@ -482,4 +482,15 @@ public class DomainHelper {
 		}
 		return sb.toString();
 	}
+	
+	public Service createNodeMgr(Host h, boolean ssl, int mgmtPort) {
+		Service nmSvc = new Service();
+		nmSvc.setHostID(h.getId());
+		nmSvc.setType(ServiceType.nodemanager);
+		nmSvc.setEnabled(true);
+		nmSvc.setScheme(ssl ? Constants.HTTPS_SCHEME : Constants.HTTP_SCHEME);
+		nmSvc.setManagementPort(mgmtPort);
+		nmSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nmSvc.getManagementPort()));
+		return nmSvc;
+	}
 }

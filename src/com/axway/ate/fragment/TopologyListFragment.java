@@ -30,6 +30,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	protected String src;
 	protected boolean haveConsole;
 	protected Listener listener;
+	protected Menu optsMenu;
 //	protected DomainHelper helper;
 
 	public interface Listener {
@@ -86,9 +87,8 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-//		MenuItem item = menu.findItem(R.id.action_conn_mgr);
-//		if (item == null)
-			inflater.inflate(R.menu.main, menu);
+		inflater.inflate(R.menu.main, menu);
+		optsMenu = menu;
 	}
 
 	@Override
@@ -175,6 +175,10 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		setEmptyText("No topology loaded");
 	}
 
+	protected void updateOptionsMenu() {
+		onPrepareOptionsMenu(optsMenu);
+	}
+	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		boolean haveTopo = (t != null);
