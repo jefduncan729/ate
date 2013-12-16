@@ -23,6 +23,7 @@
         />
  
         <service android:name=".service.RestService" android:exported="false" />
+        <service android:name=".service.CertificateService" android:exported="false" />
         
         <activity
             android:name=".activity.SettingsActivity"

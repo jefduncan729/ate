@@ -55,13 +55,13 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
-    
+<!--     
     <item
         android:id="@id/action_remove_trust"
         android:orderInCategory="110"
         android:showAsAction="never"
         android:title="@string/action_remove_trust"/>
-    
+ -->    
     <item
         android:id="@id/action_console"
         android:orderInCategory="120"

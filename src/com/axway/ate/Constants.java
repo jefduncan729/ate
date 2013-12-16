@@ -15,6 +15,9 @@ public class Constants {
     public static final int STATUS_INACTIVE = 0;
     public static final int STATUS_ACTIVE = 1;
 
+    public static final int FLAG_CERT_NOT_TRUSTED = 0;
+    public static final int FLAG_CERT_TRUSTED = 1;
+
 	public static final String HTTP_SCHEME = "http";
 	public static final String HTTPS_SCHEME = HTTP_SCHEME + "s";
 
@@ -54,4 +57,6 @@ public class Constants {
 	public static final int FLAG_RELOAD_AFTER_UPD = 0x0010;
 			
 	public static final int CERT_NOT_TRUSTED = 1001;
+	public static final int CERT_TRUSTED = 1002;
+	public static final int TRUST_STORE_REMOVED = 1003;
 }

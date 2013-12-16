@@ -32,16 +32,17 @@ import com.axway.ate.db.DbHelper.ConnMgrColumns;
 public class ConnMgrFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener{
 	private static final String TAG = ConnMgrFragment.class.getSimpleName();
 
-	public interface Listener {
+	public interface ConnMgrListener {
 		public void onDelete(Uri uri, String name);
 		public void onAdd();
 		public void onEdit(Uri uri);
 		public void onStatusChange(Uri uri, int newStatus);
 		public void onCheckCert(Uri uri);
+		public void onRemoveTrustStore();
 	}
 	
 	private CursorAdapter adapter;
-	private Listener listener;
+	private ConnMgrListener listener;
 	private Uri ctxUri;
 	private String ctxName;
 
@@ -64,8 +65,8 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		if (activity instanceof Listener)
-			listener = (Listener)activity;
+		if (activity instanceof ConnMgrListener)
+			listener = (ConnMgrListener)activity;
 	}
 
 	@Override
@@ -91,6 +92,10 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 				if (listener != null)
 					listener.onAdd();
 			break;
+			case R.id.action_remove_trust:
+				if (listener != null)
+					listener.onRemoveTrustStore();
+			break;			
 			default:
 				rv = super.onOptionsItemSelected(item); 
 		}
@@ -212,8 +217,11 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		private String buildDetails(Cursor cursor) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("SSL: ");
-			if (cursor.getInt(ConnMgrColumns.IDX_USE_SSL) == 1)
+			if (cursor.getInt(ConnMgrColumns.IDX_USE_SSL) == 1) {
 				sb.append("yes");
+				boolean trusted = (cursor.getInt(ConnMgrColumns.IDX_FLAG) == Constants.FLAG_CERT_TRUSTED);
+				sb.append(" (cert").append(trusted ? " " : " NOT ").append("trusted)");
+			}
 			else
 				sb.append("no");
 			String usr = cursor.getString(ConnMgrColumns.IDX_USER);

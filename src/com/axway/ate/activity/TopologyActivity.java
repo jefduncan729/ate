@@ -43,6 +43,7 @@ import com.axway.ate.fragment.HostDialog.HostListener;
 import com.axway.ate.fragment.SelectFileDialog;
 import com.axway.ate.fragment.SelectServerDialog;
 import com.axway.ate.fragment.TopologyListFragment;
+import com.axway.ate.fragment.TopologyLoaderFragment;
 import com.axway.ate.service.RestService;
 import com.axway.ate.util.UiUtils;
 import com.google.gson.JsonElement;
@@ -54,14 +55,14 @@ import com.vordel.api.topology.model.Topology;
 import com.vordel.api.topology.model.Topology.EntityType;
 import com.vordel.api.topology.model.Topology.ServiceType;
 
-public class TopologyActivity extends BaseActivity implements TopologyClient, TopologyListFragment.Listener, SelectServerDialog.Listener, HostListener, GroupListener, GatewayListener, DeleteListener {
+public class TopologyActivity extends BaseActivity implements TopologyClient, TopologyLoaderFragment.Listener, SelectServerDialog.Listener, HostListener, GroupListener, GatewayListener, DeleteListener {
 	
 	private static final String TAG = TopologyActivity.class.getSimpleName();
 	
 	private View ctr01;
 	private ProgressBar prog01;
 	
-	private TopologyListFragment topoListFrag;
+	private TopologyLoaderFragment topoListFrag;
 	
 	private ServerInfo srvrInfo;
 	private File file;
@@ -113,9 +114,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 				et = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
 			}
 			switch (code) {
-				case Constants.CERT_NOT_TRUSTED:
-					onCertNotTrusted(data.getString(Intent.EXTRA_BUG_REPORT));
-				break;
 				case HttpStatus.SC_BAD_REQUEST: {
 					String msg = "Invalid data passed to server";
 					if (EntityType.Gateway == et)
@@ -142,20 +140,27 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		}
 	}
 
+	@Override
+	public void onTopologyLoaded(Topology t) {
+		topology = t;
+		if (t == null)
+			;	//networkError("Have you trusted your AdminNodeManager's certificate via the Connection Manager?", "Error");
+	}
+	
 	private void processResult(Bundle data) {
 		String action = data.getString(Constants.EXTRA_ACTION);
-		if (HttpMethod.GET.name().equals(action)) {
-			String jstr = data.getString(Constants.EXTRA_JSON_ITEM);
-			topology = helper.topologyFromJson(helper.parse(jstr).getAsJsonObject());
-			showProgress(false);
-			updateTopologyView();
-			return;
-		}
-		else if (RestService.ACTION_CHECK_CERT.equals(action)) {
-			loadFromServer();
-			return;
-		}
-		else if (RestService.ACTION_COMPARE.equals(action)) {
+//		if (HttpMethod.GET.name().equals(action)) {
+//			String jstr = data.getString(Constants.EXTRA_JSON_ITEM);
+//			topology = helper.topologyFromJson(helper.parse(jstr).getAsJsonObject());
+//			showProgress(false);
+//			updateTopologyView();
+//			return;
+//		}
+//		if (RestService.ACTION_CHECK_CERT.equals(action)) {
+//			loadFromServer();
+//			return;
+//		}
+		if (RestService.ACTION_COMPARE.equals(action)) {
 			showProgress(false);
 			infoDialog("Compare Results", data.getString(Constants.EXTRA_COMPARE_RESULT));
 			return;
@@ -280,11 +285,11 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (topology == null) {
+//		if (topology == null) {
 			loadTopology();
-		}
-		else
-			updateTopologyView();
+//		}
+//		else
+//			updateTopologyView();
 	}
 
 	@Override
@@ -316,9 +321,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		switch (menuItem.getItemId()) {
 			case R.id.action_settings:
 				showSettings();
-			break;
-			case R.id.action_remove_trust:
-				confirmRemoveTrust();
 			break;
 			case R.id.action_add_host:
 				showHostDialog(null);
@@ -560,14 +562,16 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 			return;
 		file = null;
 		topology = null;
+		updateTopologyView();
 //		showProgress(true);
-		Intent i = new Intent(this, RestService.class);
-		i.setAction(HttpMethod.GET.name());
-		i.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
-		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
-		i.putExtra(Constants.EXTRA_URL, srvrInfo.buildUrl("topology"));
-		outstandingIntent = i;
-		startService(i);
+//		Intent i = new Intent(this, RestService.class);
+//		i.setAction(HttpMethod.GET.name());
+//		i.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
+//		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+//		i.putExtra(Constants.EXTRA_URL, srvrInfo.buildUrl("topology"));
+//		outstandingIntent = i;
+//		startService(i);
+		
 	}
 	
 	private void selectServer(int action) {
@@ -692,15 +696,13 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	}
 	
 	private void updateTopologyView() {
-		topoListFrag = new TopologyListFragment();
+		topoListFrag = new TopologyLoaderFragment();
 		Bundle args = new Bundle();
-		args.putString(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
 		args.putString(Constants.EXTRA_TOPO_SOURCE, getTopologySource());
 		args.putBoolean(Constants.EXTRA_HAVE_CONSOLE, isConsoleAvailable());
+		args.putBundle(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
 		topoListFrag.setArguments(args);
 		getFragmentManager().beginTransaction().replace(R.id.container01, topoListFrag, "topoFrag").commit();
-		
-//		topoListFrag.update(getTopology(), getTopologySource(), isConsoleAvailable());
 	}
 	
 	private String getTopologySource()  {
@@ -709,23 +711,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 		else if (file != null)
 			return file.getName();
 		return null;
-	}
-
-	private void confirmRemoveTrust() {
-		confirmDialog("Touch OK to remove trusted certificate store.",new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				removeTrustStore();
-			}
-		});
-	}
-
-	private void removeTrustStore() {
-		Intent i = new Intent(this, RestService.class);
-		i.setAction(RestService.ACTION_REMOVE_TRUST_STORE);
-		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
-		outstandingIntent = i;
-		startService(i);		
 	}
 	
 	@Override
@@ -1123,41 +1108,6 @@ public class TopologyActivity extends BaseActivity implements TopologyClient, To
 	@Override
 	public Topology getTopology() {
 		return topology;
-	}
-
-	private void onCertNotTrusted(final String msg) {	//final CertPath cp) {
-		Bundle args = new Bundle();
-		args.putString(Intent.EXTRA_TITLE, getString(R.string.cert_not_trusted));
-		StringBuilder sb = new StringBuilder();
-	    sb.append(msg).append("\n").append(getString(R.string.add_to_truststore));
-		args.putString(Intent.EXTRA_TEXT,  sb.toString());
-		AlertDialogFragment dlgFrag = new AlertDialogFragment();
-		dlgFrag.setOnPositive(new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {				
-				addCertsToTrustStore();
-			}
-		});
-		dlgFrag.setOnNegative(new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		}, R.string.action_exit);
-		dlgFrag.setArguments(args);
-		FragmentManager fm = getFragmentManager();
-		dlgFrag.show(fm.beginTransaction(), "yesnoDlg");
-	}
-
-	private void addCertsToTrustStore() {
-		Intent i = new Intent(this, RestService.class);
-		i.setAction(RestService.ACTION_CHECK_CERT);
-		i.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
-		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
-		i.putExtra(Constants.EXTRA_URL, srvrInfo.buildUrl("topology"));
-		i.putExtra(Constants.EXTRA_TRUST_CERT, true);
-		outstandingIntent = i;
-		startService(i);
 	}
 	
 	private void asyncModify(Intent i) {

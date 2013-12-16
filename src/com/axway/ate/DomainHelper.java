@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidatorException;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;

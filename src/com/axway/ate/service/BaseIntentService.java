@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 abstract public class BaseIntentService extends IntentService {
 	
+	public static final String ACTION_BASE = "com.axway.ate.";
+
 	private SharedPreferences prefs;
 	private NotificationManager notificationMgr;
 	private Handler handler;
