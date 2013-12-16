@@ -134,9 +134,13 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
 	public void onItemClick(AdapterView<?> listView, View view, int pos, long id) {
 		selectedFile = (String)listView.getItemAtPosition(pos);
 		if (listener != null && selectedFile != null) {
-			listener.onFileSelected(selectedFile);
-			if (action == R.id.action_load_from_disk)
+			if (action == R.id.action_load_from_disk) {
+				listener.onFileSelected(selectedFile);
 				dismiss();
+			}
+			else if (action == R.id.action_save_to_disk) {
+				editFname.setText(selectedFile);
+			}
 		}
 	}
 }
