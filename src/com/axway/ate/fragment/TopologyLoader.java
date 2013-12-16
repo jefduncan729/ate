@@ -1,5 +1,7 @@
 package com.axway.ate.fragment;
 
+import java.io.File;
+
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpAuthentication;
 import org.springframework.http.HttpBasicAuthentication;
@@ -54,10 +56,19 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 	}
 	
 	private Topology performLoad() {
-		Topology rv = null;
 		ServerInfo info = ServerInfo.fromBundle(args.getBundle(Constants.EXTRA_SERVER_INFO));
-		if (info == null)
-			return rv;
+		if (info != null)
+			return loadFromServer(info);
+		File file = new File(args.getString(Constants.EXTRA_FILENAME));
+		if (file.exists()) {
+			return DomainHelper.getInstance().loadFromFile(file);
+		}
+		Log.e(TAG, "no serverinfo and no filename");
+		return null;
+	}
+
+	private Topology loadFromServer(ServerInfo info) {
+		Topology rv = null;
 		String url = info.buildUrl("topology");
 		RestTemplate restTmpl;
 		if (info.isSsl())

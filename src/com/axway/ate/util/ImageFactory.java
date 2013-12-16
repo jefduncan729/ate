@@ -12,7 +12,7 @@ import android.util.SparseArray;
 import com.axway.ate.R;
 import com.vordel.api.topology.model.Topology.EntityType;
 
-public class BitmapFactory {
+public class ImageFactory {
 
 	private static final boolean DRAW_RECT = true;
 
@@ -20,23 +20,23 @@ public class BitmapFactory {
 	private static final int DIMEN_IMGSIZE = 0;
 	private static final int DIMEN_IMGFONTSIZE = DIMEN_IMGSIZE + 1;
 	
-	private static BitmapFactory instance = null;
+	private static ImageFactory instance = null;
 //	private Map<Integer, Bitmap> bitmaps;
 	private SparseArray<Bitmap> bitmaps;
 	private int[] colors;
 	private float[] dimens;
 	private float scale;
 	
-	public BitmapFactory() {
+	public ImageFactory() {
 		super();
 		bitmaps = new SparseArray<Bitmap>();	//new HashMap<Integer, Bitmap>();
 		colors = null;
 		dimens = null;
 	}
 	
-	public static BitmapFactory getInstance(Context ctx) {
+	public static ImageFactory getInstance(Context ctx) {
 		if (instance == null) {
-			instance = new BitmapFactory();
+			instance = new ImageFactory();
 			Resources res = ctx.getResources();
 			instance.loadColors(res);
 			instance.loadDimens(res);

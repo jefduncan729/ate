@@ -26,13 +26,14 @@ import com.vordel.api.topology.model.Topology.EntityType;
 public class TopologyListFragment extends ListFragment implements OnItemClickListener {
 	private static final String TAG = TopologyListFragment.class.getSimpleName();
 
-	private Topology t;
-	private String src;
-	private boolean haveConsole;
-	private Listener listener;
-	private DomainHelper helper;
+	protected Topology t;
+	protected String src;
+	protected boolean haveConsole;
+	protected Listener listener;
+//	protected DomainHelper helper;
 
 	public interface Listener {
+		public void onTopologyLoaded(Topology t);
 		public void onTopologyItemSelected(EntityType itemType, String id);
 		public boolean onMenuItemSelected(MenuItem item);
 		public void onPrepareMenu(Menu menu);
@@ -44,7 +45,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		listener = null;
 		src = null;
 		haveConsole = false;
-		helper = DomainHelper.getInstance();
+//		helper = DomainHelper.getInstance();
 	}
 
 	@Override
@@ -53,7 +54,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		setHasOptionsMenu(true);
 		Bundle args = getArguments();
 		if (args != null) {
-			t = helper.topologyFromJson(args.getString(Constants.EXTRA_JSON_TOPOLOGY));
 			src = args.getString(Constants.EXTRA_TOPO_SOURCE);
 			haveConsole = args.getBoolean(Constants.EXTRA_HAVE_CONSOLE);
 		}
@@ -65,11 +65,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		return rv;
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		refreshAdapter();
-	}
 
 	@Override
 	public void onItemClick(AdapterView<?> adapter, View view, int pos, long id) {
@@ -91,7 +86,9 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.main, menu);
+//		MenuItem item = menu.findItem(R.id.action_conn_mgr);
+//		if (item == null)
+			inflater.inflate(R.menu.main, menu);
 	}
 
 	@Override
@@ -101,14 +98,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		return listener.onMenuItemSelected(item);
 	}
 	
-	public void update(Topology in, String src, boolean haveConsole) {
-		t = in;
-		this.src = src;
-		this.haveConsole = haveConsole;
-		refreshAdapter();
-	}
-	
-	private void refreshAdapter() {
+	protected void refreshAdapter() {
 		if (t == null)
 			setListAdapter(null);
 		else {
@@ -208,9 +198,5 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 			i.setVisible(haveConsole);
 		if (listener != null)
 			listener.onPrepareMenu(menu);
-//		if (listener == null)
-//			super.onPrepareOptionsMenu(menu);
-//		else
-//			listener.onPrepareMenu(menu);
 	}
 }

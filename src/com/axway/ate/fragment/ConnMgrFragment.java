@@ -9,6 +9,7 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.axway.ate.Constants;
@@ -32,6 +34,11 @@ import com.axway.ate.db.DbHelper.ConnMgrColumns;
 public class ConnMgrFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener{
 	private static final String TAG = ConnMgrFragment.class.getSimpleName();
 
+	private static final int[] DRAWABLE_IDS = { R.drawable.non_ssl, R.drawable.ssl_trusted, R.drawable.ssl_not_trusted };
+	private static final int IDX_NON_SSL = 0;
+	private static final int IDX_TRUSTED = 1;
+	private static final int IDX_NOT_TRUSTED = 2;
+	
 	public interface ConnMgrListener {
 		public void onDelete(Uri uri, String name);
 		public void onAdd();
@@ -45,6 +52,7 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 	private ConnMgrListener listener;
 	private Uri ctxUri;
 	private String ctxName;
+	private Drawable[] drawables;
 
 	public ConnMgrFragment() {
 		super();
@@ -52,6 +60,7 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		ctxUri = null;
 		ctxName = null;
 		listener = null;
+		drawables = null;
 	}
 	
 	@Override
@@ -67,6 +76,9 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		super.onAttach(activity);
 		if (activity instanceof ConnMgrListener)
 			listener = (ConnMgrListener)activity;
+		drawables = new Drawable[DRAWABLE_IDS.length];
+		for (int i = 0; i < DRAWABLE_IDS.length; i++)
+			drawables[i] = activity.getResources().getDrawable(DRAWABLE_IDS[i]);
 	}
 
 	@Override
@@ -182,11 +194,13 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		private class ViewHolder {
 			TextView txt01;
 			TextView txt02;
+			ImageView img01;
 			
 			public ViewHolder() {
 				super();
 				txt01 = null;
 				txt02 = null;
+				img01 = null;
 			}
 		}
 		
@@ -212,6 +226,19 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 			if (holder.txt02 != null) {
 				holder.txt02.setText(buildDetails(cursor));
 			}
+			if (holder.img01 != null) {
+				int id = -1;
+				if (cursor.getInt(ConnMgrColumns.IDX_USE_SSL) == 1) {
+					if (cursor.getInt(ConnMgrColumns.IDX_FLAG) == Constants.FLAG_CERT_NOT_TRUSTED)
+						id = IDX_NOT_TRUSTED;
+					else
+						id = IDX_TRUSTED;
+				}
+				else
+					id = IDX_NON_SSL;
+				if (id != -1)
+					holder.img01.setImageDrawable(drawables[id]);
+			}
 		}
 
 		private String buildDetails(Cursor cursor) {
@@ -232,10 +259,11 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		
 		@Override
 		public View newView(Context context, Cursor cursor, ViewGroup parent) {
-			View rv = getActivity().getLayoutInflater().inflate(android.R.layout.simple_list_item_2, null);
+			View rv = getActivity().getLayoutInflater().inflate(R.layout.listitem_2, null);
 			ViewHolder holder = new ViewHolder();
 			holder.txt01 = (TextView)rv.findViewById(android.R.id.text1);
 			holder.txt02 = (TextView)rv.findViewById(android.R.id.text2);
+			holder.img01 = (ImageView)rv.findViewById(android.R.id.icon);
 			rv.setTag(holder);
 			return rv;
 		}

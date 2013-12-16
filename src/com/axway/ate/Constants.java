@@ -47,6 +47,7 @@ public class Constants {
 	public static final String EXTRA_TOPO_SOURCE = EXTRA_BASE + "topo_src";
 	public static final String EXTRA_HAVE_CONSOLE = EXTRA_BASE + "have_console";
 	public static final String EXTRA_HOST_ID = EXTRA_BASE + "host_id";
+	public static final String EXTRA_FILENAME = EXTRA_BASE + "filename";
 	
 	public static final String KEY_SHOW_NODE_MGRS = "showNodeMgrs";
 	public static final String KEY_RELOAD_AFTER_UPD = "reloadAfterUpdate";

@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.axway.ate.Constants;
 import com.axway.ate.R;
-import com.axway.ate.util.BitmapFactory;
+import com.axway.ate.util.ImageFactory;
 import com.vordel.api.topology.model.Group;
 import com.vordel.api.topology.model.Host;
 import com.vordel.api.topology.model.Service;
@@ -27,7 +27,7 @@ public class TopologyAdapter extends BaseAdapter {
 	private Topology t;
 	private LayoutInflater inflater;
 	private List<Entry> entries;
-	private BitmapFactory bmpFactory;
+	private ImageFactory bmpFactory;
 	private String source;
 	private int flags;
 	
@@ -36,7 +36,7 @@ public class TopologyAdapter extends BaseAdapter {
 		t = item;
 		this.source = source;
 		inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		bmpFactory = BitmapFactory.getInstance(ctx);
+		bmpFactory = ImageFactory.getInstance(ctx);
 		createEntries();
 	}
 	
