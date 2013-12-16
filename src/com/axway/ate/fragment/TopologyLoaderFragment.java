@@ -30,12 +30,6 @@ public class TopologyLoaderFragment extends TopologyListFragment implements OnIt
 		View rv = inflater.inflate(android.R.layout.list_content, null);
 		return rv;
 	}
-//
-//	@Override
-//	public void onViewCreated(View view, Bundle savedInstanceState) {
-//		super.onViewCreated(view, savedInstanceState);
-//		setEmptyText("No topology loaded\n(visit Connection Manager)");
-//	}
 
 	@Override
 	public Loader<Topology> onCreateLoader(int id, Bundle args) {

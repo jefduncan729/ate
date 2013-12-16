@@ -699,16 +699,6 @@ public class TopologyActivity extends BaseActivity
 			showGatewayDialog(s, null);
 		}
 	}
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == R.id.action_console) {
-			if (data != null)
-				consoleHandle = data.getStringExtra("jackpal.androidterm.window_handle");
-		}
-		else
-			super.onActivityResult(requestCode, resultCode, data);
-	}
 
 	private void networkError(String msg, String title) {
 		AlertDialogFragment dlg = new AlertDialogFragment();
@@ -1131,11 +1121,29 @@ public class TopologyActivity extends BaseActivity
 		return haveConsole.booleanValue();
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == R.id.action_console) {
+			if (resultCode != Activity.RESULT_OK)
+				return;
+			Log.d(TAG, "consoleActivity result: " + Integer.toString(resultCode));
+			if (data != null) {
+				consoleHandle = data.getStringExtra("jackpal.androidterm.window_handle");
+			}
+			Log.d(TAG, "consoleHandle:" + consoleHandle);
+		}
+		else
+			super.onActivityResult(requestCode, resultCode, data);
+	}
+	
 	private void launchConsole() {
 		Intent i = null;
 		try {
 			i = getPackageManager().getLaunchIntentForPackage("jackpal.androidterm");
 			if (i != null) {
+				Log.d(TAG, "consoleHandle: " + consoleHandle);
+				i = new Intent("jackpal.androidterm.RUN_SCRIPT");
+				i.putExtra("jackpal.androidterm.iInitialCommand", "pwd");
 				if (consoleHandle != null)
 					i.putExtra("jackpal.androidterm.window_handle", consoleHandle);
 				startActivityForResult(i, R.id.action_console);

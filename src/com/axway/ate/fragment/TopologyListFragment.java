@@ -97,15 +97,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 			return super.onOptionsItemSelected(item);
 		return listener.onMenuItemSelected(item);
 	}
-	
-	protected void refreshAdapter() {
-		if (t == null)
-			setListAdapter(null);
-		else {
-			getListView().setOnItemClickListener(this);
-			setListAdapter(new TopologyAdapter(getActivity(), t, src));
-		}
-	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
