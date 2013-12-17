@@ -60,4 +60,10 @@ public class Constants {
 	public static final int CERT_NOT_TRUSTED = 1001;
 	public static final int CERT_TRUSTED = 1002;
 	public static final int TRUST_STORE_REMOVED = 1003;
+	
+	public static final String JACKPAL_TERMINAL_PACKAGE = "jackpal.androidterm";
+	public static final String JACKPAL_EXTRA_WINDOW_HANDLE = "jackpal.androidterm.window_handle";
+	public static final String JACKPAL_EXTRA_INITIAL_CMD = "jackpal.androidterm.iInitialCommand";
+	public static final String JACKPAL_ACTION_RUN_SCRIPT = "jackpal.androidterm.RUN_SCRIPT";
+	public static final String JACKPAL_ACTION_NEW_WINDOW = "jackpal.androidterm.OPEN_NEW_WINDOW";
 }

@@ -15,6 +15,7 @@ import android.widget.Toast;
 abstract public class BaseIntentService extends IntentService {
 	
 	public static final String ACTION_BASE = "com.axway.ate.";
+	public static final String ACTION_KILL_RES_RCVR = "killResRcvr";
 
 	private SharedPreferences prefs;
 	private NotificationManager notificationMgr;
@@ -96,7 +97,10 @@ abstract public class BaseIntentService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		resRcvr = intent.getParcelableExtra(Intent.EXTRA_RETURN_RESULT);
+		if (ACTION_KILL_RES_RCVR.equals(intent.getAction()))
+			resRcvr = null;
+		else
+			resRcvr = intent.getParcelableExtra(Intent.EXTRA_RETURN_RESULT);
 	}
 	
 	protected ResultReceiver getResultReceiver() {

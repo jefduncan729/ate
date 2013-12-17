@@ -1,7 +1,5 @@
 package com.axway.ate.service;
 
-import java.security.cert.CertPath;
-
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpAuthentication;
 import org.springframework.http.HttpBasicAuthentication;
@@ -130,52 +128,10 @@ public class RestService extends BaseIntentService {
 				getResultReceiver().send(HttpStatus.SC_OK, extras);
 		}
 		else {
-//			int sc = 0;
-//			CertPath cp = helper.isCertValidationErr(excp);
-//			if (cp == null) {
 			int sc = excp.getStatusCode();
 			if (sc == 0)
 				sc = HttpStatus.SC_INTERNAL_SERVER_ERROR;
 			extras.putString(Intent.EXTRA_BUG_REPORT, excp.getLocalizedMessage());
-//			else {
-//				Log.d(TAG, "certPath not trusted: " + cp.toString());
-//				sc = Constants.CERT_NOT_TRUSTED;
-//				if (trustCert) {
-//					Log.d(TAG, "adding to trust store");
-//					try {
-//						TrustedHttpRequestFactory.trustCerts(this, cp);
-//						showToast(getString(R.string.cert_trusted));
-//						sc = HttpStatus.SC_OK;
-//					} 
-//					catch (KeyStoreException e) {
-//						Log.e(TAG, e.getLocalizedMessage(), e);
-//					} 
-//					catch (NoSuchAlgorithmException e) {
-//						Log.e(TAG, e.getLocalizedMessage(), e);
-//					} 
-//					catch (CertificateException e) {
-//						Log.e(TAG, e.getLocalizedMessage(), e);
-//					} 
-//					catch (IOException e) {
-//						Log.e(TAG, e.getLocalizedMessage(), e);
-//					}
-//				}
-//				if (sc == Constants.CERT_NOT_TRUSTED) {
-//					StringBuilder sb = new StringBuilder();
-//					int i = 1;
-//				    for (Certificate c: cp.getCertificates()) {
-//				    	if (c.getType() == "X.509") {
-//				    		X509Certificate c509 = (X509Certificate)c;
-//				    		sb.append("[").append(i++).append("]: ").append(c509.getSubjectDN().toString()).append("\n");
-//				    	}
-//				    }
-//					extras.putString(Intent.EXTRA_BUG_REPORT, sb.toString());
-//				}
-//				if (getResultReceiver() == null) {
-//					showToast(getString(sc == Constants.CERT_NOT_TRUSTED ? R.string.cert_not_trusted : R.string.cert_trusted));
-//					return;
-//				}
-//			}
 			if (getResultReceiver() != null)
 				getResultReceiver().send(sc, extras);
 		}
@@ -308,53 +264,53 @@ public class RestService extends BaseIntentService {
 		}
 		return rv;
 	}
-//	
-//	private JsonObject doGet(String url) throws ApiException {
-//		HttpAuthentication authHdr = new HttpBasicAuthentication(srvrInfo.getUser(), srvrInfo.getPasswd());
-//		HttpHeaders reqHdrs = new HttpHeaders();
-//		reqHdrs.setAuthorization(authHdr);
-//		HttpEntity<?> reqEntity = new HttpEntity<String>("", reqHdrs);
-//		JsonObject rv = null;
-//		int sc = 0;
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
-//		Log.d(TAG, sb.toString());
-//		try {
-//			ResponseEntity<String> resp = getRestTemplate(srvrInfo).exchange(url,  HttpMethod.GET, reqEntity, String.class);
-//			sc = resp.getStatusCode().value();
-//			Log.d(TAG, "response status code: " + Integer.toString(sc));
-//			if (sc == HttpStatus.SC_OK) {
-//				JsonElement jsonResp = helper.parse(resp.getBody());
-//				if (jsonResp != null) {
-//					JsonObject jo = jsonResp.getAsJsonObject();
-//					if (jo.has("result")) {
-//						rv = jo.getAsJsonObject("result");
-//					}
-//					else if (jo.has("errors")) {
-//						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
-//						throw excp;
-//					}
-//				}
-//			}
-//		}
-//		catch (ResourceAccessException e) {
-//			throw new ApiException(e);
-//		}
-//		catch (HttpClientErrorException e) {
-//			switch (e.getStatusCode().value()) {
-//				case HttpStatus.SC_UNAUTHORIZED:
-//				case HttpStatus.SC_NOT_FOUND:
-//				case HttpStatus.SC_FORBIDDEN:
-//					throw new ApiException(e.getStatusCode().value());
-//				default:
-//					throw new ApiException(e);
-//			}
-//		}
-//		catch (Exception e) {
-//			throw new ApiException(e);
-//		}
-//		return rv;
-//	}
+	
+	private JsonObject doGet(String url) throws ApiException {
+		HttpAuthentication authHdr = new HttpBasicAuthentication(srvrInfo.getUser(), srvrInfo.getPasswd());
+		HttpHeaders reqHdrs = new HttpHeaders();
+		reqHdrs.setAuthorization(authHdr);
+		HttpEntity<?> reqEntity = new HttpEntity<String>("", reqHdrs);
+		JsonObject rv = null;
+		int sc = 0;
+		StringBuilder sb = new StringBuilder();
+		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
+		Log.d(TAG, sb.toString());
+		try {
+			ResponseEntity<String> resp = getRestTemplate(srvrInfo).exchange(url,  HttpMethod.GET, reqEntity, String.class);
+			sc = resp.getStatusCode().value();
+			Log.d(TAG, "response status code: " + Integer.toString(sc));
+			if (sc == HttpStatus.SC_OK) {
+				JsonElement jsonResp = helper.parse(resp.getBody());
+				if (jsonResp != null) {
+					JsonObject jo = jsonResp.getAsJsonObject();
+					if (jo.has("result")) {
+						rv = jo.getAsJsonObject("result");
+					}
+					else if (jo.has("errors")) {
+						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
+						throw excp;
+					}
+				}
+			}
+		}
+		catch (ResourceAccessException e) {
+			throw new ApiException(e);
+		}
+		catch (HttpClientErrorException e) {
+			switch (e.getStatusCode().value()) {
+				case HttpStatus.SC_UNAUTHORIZED:
+				case HttpStatus.SC_NOT_FOUND:
+				case HttpStatus.SC_FORBIDDEN:
+					throw new ApiException(e.getStatusCode().value());
+				default:
+					throw new ApiException(e);
+			}
+		}
+		catch (Exception e) {
+			throw new ApiException(e);
+		}
+		return rv;
+	}
 	
 	private void doCompare(Bundle data) {
 		if (data == null)
@@ -368,7 +324,7 @@ public class RestService extends BaseIntentService {
 			return;
 		JsonObject json = null;
 		try {
-			json = null;	//doGet(srvrInfo.buildUrl("topology"));
+			json = doGet(srvrInfo.buildUrl("topology"));
 		}
 		catch (Exception e) {
 			Log.e(TAG, e.getLocalizedMessage(), e);

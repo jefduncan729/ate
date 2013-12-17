@@ -46,6 +46,7 @@ import com.axway.ate.fragment.SelectServerDialog;
 import com.axway.ate.fragment.TopologyFileFragment;
 import com.axway.ate.fragment.TopologyListFragment;
 import com.axway.ate.fragment.TopologyLoaderFragment;
+import com.axway.ate.service.BaseIntentService;
 import com.axway.ate.service.RestService;
 import com.axway.ate.util.UiUtils;
 import com.google.gson.JsonElement;
@@ -67,6 +68,13 @@ public class TopologyActivity extends BaseActivity
 		DeleteListener {
 	
 	private static final String TAG = TopologyActivity.class.getSimpleName();
+	private static final String TAG_HOST_DLG = "hostDlg";
+	private static final String TAG_GROUP_DLG = "grpDlg";
+	private static final String TAG_GATEWAY_DLG = "gatewayDlg";
+	private static final String TAG_SEL_SRVR_DLG = "selSrvrDlg";
+	private static final String TAG_SEL_FILE_DLG = "selFileDlg";
+	private static final String TAG_DEL_DLG = "delDlg";
+	private static final String TAG_TOPOLOGY_FRAG = "topoFrag";
 	
 	private View ctr01;
 	private ProgressBar prog01;
@@ -129,27 +137,27 @@ public class TopologyActivity extends BaseActivity
 			}
 			switch (code) {
 				case HttpStatus.SC_BAD_REQUEST: {
-					String msg = "Invalid data passed to server";
+					String msg = getString(R.string.invalid_data);
 					if (EntityType.Gateway == et)
-						msg = "Most likely, the services port is in use";
+						msg = getString(R.string.svc_port_in_use);
 					else if (EntityType.Host == et)
 						;
 					else if (EntityType.Group == et)
 						;
-					networkError(msg, "Bad Request");
+					networkError(msg, getString(R.string.bad_request));
 				}
 				break;
 				case HttpStatus.SC_NOT_FOUND:
-					UiUtils.showToast(this, "Not found");
+					UiUtils.showToast(this, getString(R.string.not_found));
 				break;
 				case HttpStatus.SC_UNAUTHORIZED:
-					networkError("Please check your connection settings.", "Not Authorized");
+					networkError(getString(R.string.check_conn), getString(R.string.unauthorized));
 				break;
 				case HttpStatus.SC_FORBIDDEN:
-					networkError("Please check your connection settings.", "Access Denied");
+					networkError(getString(R.string.check_conn), getString(R.string.access_denied));
 				break;
 				default:
-					alertDialog("Error", "Status Code: " + Integer.toString(code) + "\n" + data.getString(Intent.EXTRA_BUG_REPORT), null);
+					alertDialog(getString(R.string.error), "Status Code: " + Integer.toString(code) + "\n" + data.getString(Intent.EXTRA_BUG_REPORT), null);
 			}
 		}
 	}
@@ -164,6 +172,7 @@ public class TopologyActivity extends BaseActivity
 	private void processResult(Bundle data) {
 		String action = data.getString(Constants.EXTRA_ACTION);
 		if (RestService.ACTION_COMPARE.equals(action)) {
+			dismissProgressDialog();
 			infoDialog("Compare Results", data.getString(Constants.EXTRA_COMPARE_RESULT));
 			return;
 		}
@@ -347,7 +356,7 @@ public class TopologyActivity extends BaseActivity
 		dlg.setOnChangeListener(this);
 		dlg.setArguments(args);
 		dlg.setTopology(topology);
-		dlg.show(getFragmentManager(), "hostDlg");
+		dlg.show(getFragmentManager(), TAG_HOST_DLG);
 	}
 
 	@Override
@@ -386,7 +395,7 @@ public class TopologyActivity extends BaseActivity
 		dlg.setOnChangeListener(this);
 		dlg.setArguments(args);
 		dlg.setTopology(topology);
-		dlg.show(getFragmentManager(), "grpDlg");
+		dlg.show(getFragmentManager(), TAG_GROUP_DLG);
 	}
 
 	@Override
@@ -430,7 +439,7 @@ public class TopologyActivity extends BaseActivity
 		dlg.setOnChangeListener(this);
 		dlg.setArguments(args);
 		dlg.setTopology(topology);
-		dlg.show(getFragmentManager(), "gtwyDlg");
+		dlg.show(getFragmentManager(), TAG_GATEWAY_DLG);
 	}
 
 	@Override
@@ -455,6 +464,7 @@ public class TopologyActivity extends BaseActivity
 			selectServer(R.id.action_compare_topo);
 		}
 		else {
+			showProgressDialog("Comparing...");
 			Intent i = new Intent(this, RestService.class);
 			i.setAction(RestService.ACTION_COMPARE);
 			i.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
@@ -481,7 +491,7 @@ public class TopologyActivity extends BaseActivity
 		}
 		c.close();
 		if (c == null || c.getCount() == 0)
-			alertDialog("Please add or enable a connection via the Connection Manager");
+			alertDialog(getString(R.string.add_conn));
 		return rv;
 	}
 
@@ -516,14 +526,14 @@ public class TopologyActivity extends BaseActivity
 			ft.remove(topoFileFrag);
 			topoFileFrag = null;
 		}
-		ft.replace(R.id.container01, topoLdrFrag, "topoFrag").commit();		
+		ft.replace(R.id.container01, topoLdrFrag, TAG_TOPOLOGY_FRAG).commit();		
 	}
 
 	private void loadFromFile(File f) {
 		if (f == null)
 			return;
 		if (!f.exists()) {
-			UiUtils.showToast(this, "File not found");
+			UiUtils.showToast(this, getString(R.string.file_not_found));
 			return;
 		}
 		file = f;
@@ -541,7 +551,7 @@ public class TopologyActivity extends BaseActivity
 			srvrInfo = null;
 			topoLdrFrag = null;
 		}
-		ft.replace(R.id.container01, topoFileFrag, "topoFrag").commit();
+		ft.replace(R.id.container01, topoFileFrag, TAG_TOPOLOGY_FRAG).commit();
 	}
 	
 	private void updateTopologyView() {
@@ -568,7 +578,7 @@ public class TopologyActivity extends BaseActivity
 		dlg.setAction(action);
 		dlg.setListener(this);
 		dlg.setServerInfoList(list);
-		dlg.show(getFragmentManager(), "selSrvrDlg");
+		dlg.show(getFragmentManager(), TAG_SEL_SRVR_DLG);
 	}
 	
 	private void topologyDetails() {
@@ -581,7 +591,7 @@ public class TopologyActivity extends BaseActivity
 		sb.append("\nlast updated: ").append(DomainHelper.getInstance().formatDatetime(t.getTimestamp()));
 		sb.append("\nversion: ").append(t.getVersion());
 		sb.append("\n");
-		infoDialog("Topology Details", sb.toString());
+		infoDialog(getString(R.string.topo_details), sb.toString());
 	}
 	
 	private void delete(Intent i) {
@@ -667,12 +677,12 @@ public class TopologyActivity extends BaseActivity
 		Bundle args = new Bundle();
 		args.putString(Constants.EXTRA_ITEM_TYPE, typ.name());
 		args.putString(Constants.EXTRA_ITEM_ID, id);
-		StringBuilder msg = new StringBuilder("Touch OK to delete ");
+		StringBuilder msg = new StringBuilder(getString(R.string.touch_to_del));
 		msg.append(typ.name()).append(" '").append(name).append("'");
 		args.putString(Intent.EXTRA_TEXT, msg.toString());
 		dlg.setArguments(args);
 		dlg.setListener(this);
-		dlg.show(getFragmentManager(), "delDlg");
+		dlg.show(getFragmentManager(), TAG_DEL_DLG);
 	}
 	
 	@Override
@@ -705,7 +715,7 @@ public class TopologyActivity extends BaseActivity
 		Bundle args = new Bundle();
 		
 		if (TextUtils.isEmpty(title))
-			title = "Connection Error";
+			title = getString(R.string.conn_error);
 		args.putString(Intent.EXTRA_TITLE, title);
 		args.putString(Intent.EXTRA_TEXT, msg);
 		dlg.setOnNegative(new DialogInterface.OnClickListener() {
@@ -739,13 +749,11 @@ public class TopologyActivity extends BaseActivity
 			for (File f: files) {
 				if (f.getName().endsWith(Constants.TOPOLOGY_FILE_EXT))
 					jsonFiles.add(f.getName());
-				else if (f.getName().endsWith(".json"))
-					f.delete();
 			}
 		}
 		if (jsonFiles.size() == 0) {
 			if (action == R.id.action_load_from_disk) {
-				UiUtils.showToast(this, "No saved topology files");
+				UiUtils.showToast(this, getString(R.string.no_saved_files));
 				return;
 			}
 		}
@@ -765,7 +773,7 @@ public class TopologyActivity extends BaseActivity
 					saveToDisk(fname);
 			}
 		});
-		dlg.show(getFragmentManager(), "selFileDlg");
+		dlg.show(getFragmentManager(), TAG_SEL_FILE_DLG);
 	}
 	
 	protected void loadFromDisk(String fname) {
@@ -782,7 +790,7 @@ public class TopologyActivity extends BaseActivity
 			return;
 		helper.saveToFile(f, topology);
 		if (!Constants.SAMPLE_FILE.equals(f.getName()))
-			UiUtils.showToast(this, "Saved to file: " + f.getName());
+			UiUtils.showToast(this, getString(R.string.saved_file, f.getName()));
 		dirty = false;
 	}
 	
@@ -793,7 +801,7 @@ public class TopologyActivity extends BaseActivity
 			fname = fname + Constants.TOPOLOGY_FILE_EXT;
 		final File f = new File(getFilesDir(), fname);
 		if (f.exists()) {
-			confirmDialog(f.getName() + " exists. Overwrite?", new DialogInterface.OnClickListener() {
+			confirmDialog(getString(R.string.overwrite, f.getName()), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					saveToFile(f);
@@ -817,7 +825,7 @@ public class TopologyActivity extends BaseActivity
 	@Override
 	public void onBackPressed() {
 		if (isDirty()) {
-			confirmDialog("Touch OK to discard unsaved changes.", new DialogInterface.OnClickListener() {
+			confirmDialog(getString(R.string.confirm_discard), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					onExitConfirmed();
@@ -825,7 +833,7 @@ public class TopologyActivity extends BaseActivity
 			});
 		}
 		else if (outstandingIntent != null) {		
-			confirmDialog("There is currently a background task running which will be killed if you exit. Touch OK to exit anyway.", new DialogInterface.OnClickListener() {
+			confirmDialog(getString(R.string.outstanding_intent), new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					onExitConfirmed();
@@ -1101,14 +1109,14 @@ public class TopologyActivity extends BaseActivity
 			return;
 		if (!progressDialogShowing()) {
 			String action = i.getAction();
-			String msg = null;
+			int msgId = 0;
 			if (HttpMethod.POST.name().equals(action))
-				msg = "Adding...";
+				msgId = R.string.adding;
 			else if (HttpMethod.PUT.name().equals(action))
-				msg = "Updating...";
+				msgId = R.string.updating;
 			else if (HttpMethod.DELETE.name().equals(action))
-				msg = "Deleting...";
-			showProgressDialog(msg);
+				msgId = R.string.deleting;
+			showProgressDialog(getString(msgId));
 		}
 		outstandingIntent = i;
 		startService(i);
@@ -1128,7 +1136,7 @@ public class TopologyActivity extends BaseActivity
 				return;
 			Log.d(TAG, "consoleActivity result: " + Integer.toString(resultCode));
 			if (data != null) {
-				consoleHandle = data.getStringExtra("jackpal.androidterm.window_handle");
+				consoleHandle = data.getStringExtra(Constants.JACKPAL_EXTRA_WINDOW_HANDLE);
 			}
 			Log.d(TAG, "consoleHandle:" + consoleHandle);
 		}
@@ -1139,13 +1147,13 @@ public class TopologyActivity extends BaseActivity
 	private void launchConsole() {
 		Intent i = null;
 		try {
-			i = getPackageManager().getLaunchIntentForPackage("jackpal.androidterm");
+			i = getPackageManager().getLaunchIntentForPackage(Constants.JACKPAL_TERMINAL_PACKAGE);
 			if (i != null) {
 				Log.d(TAG, "consoleHandle: " + consoleHandle);
-				i = new Intent("jackpal.androidterm.RUN_SCRIPT");
-				i.putExtra("jackpal.androidterm.iInitialCommand", "pwd");
+				i = new Intent(Constants.JACKPAL_ACTION_RUN_SCRIPT);
+				i.putExtra(Constants.JACKPAL_EXTRA_INITIAL_CMD, "pwd");
 				if (consoleHandle != null)
-					i.putExtra("jackpal.androidterm.window_handle", consoleHandle);
+					i.putExtra(Constants.JACKPAL_EXTRA_WINDOW_HANDLE, consoleHandle);
 				startActivityForResult(i, R.id.action_console);
 			}
 		} 
@@ -1157,13 +1165,13 @@ public class TopologyActivity extends BaseActivity
 	private void runScriptInConsole(String script) {
 		Intent i = null;
 		try {
-			i = getPackageManager().getLaunchIntentForPackage("jackpal.androidterm");
+			i = getPackageManager().getLaunchIntentForPackage(Constants.JACKPAL_TERMINAL_PACKAGE);
 			if (i != null) {
-				i = new Intent("jackpal.androidterm.RUN_SCRIPT");
+				i = new Intent(Constants.JACKPAL_ACTION_RUN_SCRIPT);
 				i.addCategory(Intent.CATEGORY_DEFAULT);				
-				i.putExtra("jackpal.androidterm.iInitialCommand", script);
+				i.putExtra(Constants.JACKPAL_EXTRA_INITIAL_CMD, script);
 				if (consoleHandle != null)
-					i.putExtra("jackpal.androidterm.window_handle", consoleHandle);
+					i.putExtra(Constants.JACKPAL_EXTRA_WINDOW_HANDLE, consoleHandle);
 				startActivityForResult(i, R.id.action_console);
 			}
 		} 
@@ -1176,26 +1184,27 @@ public class TopologyActivity extends BaseActivity
 		if (h == null)
 			return;
 		if (consoleHandle == null) {
-			UiUtils.showToast(this, "Please open a console before SSHing to a host");
+			UiUtils.showToast(this, getString(R.string.open_console2));
 			return;
 		}
-		String cmd = "ssh root@" + h.getName();
-		runScriptInConsole(cmd);
+//		String cmd = "ssh root@" + h.getName();
+		runScriptInConsole(getString(R.string.ssh_cmd, "root", h.getName()));
 	}
 	
 	private void startGateway(Service s) {
 		if (consoleHandle == null) {
-			UiUtils.showToast(this, "Please open a console and SSH to a host before starting a gateway");
+			UiUtils.showToast(this, getString(R.string.open_console2));
 			return;
 		}
 		Group g = topology.getGroupForService(s.getId());
 		if (g == null)
 			return;
-		StringBuilder cmd = new StringBuilder("startinstance -n ");
-		cmd.append("\"").append(s.getName()).append("\"");
-		cmd.append(" -g \"").append(g.getName()).append("\"");
-		cmd.append(" -d");
-		runScriptInConsole(cmd.toString());
+//		StringBuilder cmd = new StringBuilder("startinstance -n ");
+//		cmd.append("\"").append(s.getName()).append("\"");
+//		cmd.append(" -g \"").append(g.getName()).append("\"");
+//		cmd.append(" -d");
+//		runScriptInConsole(cmd.toString());
+		runScriptInConsole(getString(R.string.startinstance_cmd, s.getName(), g.getName()));
 	}
 	
 	private void moveGateway(Service s) {
@@ -1227,5 +1236,13 @@ public class TopologyActivity extends BaseActivity
 		EntityType typ = EntityType.valueOf(data.getString(Constants.EXTRA_ITEM_TYPE));
 		boolean delFromDisk = data.getBoolean(Constants.EXTRA_DELETE_FROM_DISK, false);
 		performDelete(typ, id, delFromDisk);
+	}
+
+	@Override
+	protected void onDestroy() {
+		Intent i = new Intent(this, RestService.class);
+		i.setAction(BaseIntentService.ACTION_KILL_RES_RCVR);
+		startService(i);
+		super.onDestroy();
 	}
 }

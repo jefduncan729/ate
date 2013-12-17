@@ -51,6 +51,7 @@
     <string name="groups">Groups</string>
     <string name="service">Service</string>
     <string name="services">Services</string>
+    <string name="topo_details">Topology Details</string>
     <string name="nodemgr">Node Manager</string>
     <string name="admin_nodemgr">Admin Node Manager</string>
 	<string name="nodemgrs">Node Managers</string>
@@ -68,7 +69,8 @@
 	<string name="def_progress">Please wait</string>    
     <string name="info">Information</string>
 	<string name="alert">Alert</string>
-    <string name="confirm">Confirm</string>
+	<string name="error">Error</string>
+	<string name="confirm">Confirm</string>
     <string name="confirm_msg">Are you sure?</string>
     <string name="filename">Filename</string>
     <string name="available_files">Files available</string>
@@ -78,5 +80,28 @@
     <string name="truststore_removed">Trust Store removed</string>
     <string name="truststore_notfound">Trust Store not found</string>
     <string name="general_settings">General Settings</string>
+    <string name="touch_to_del">Touch OK to delete </string>
     
+    <string name="invalid_data">Invalid data passed to server</string>
+    <string name="svc_port_in_use">Most likely, the services port is in use</string>
+    <string name="bad_request">Bad Request</string>
+    <string name="not_found">Not Found</string>
+    <string name="file_not_found">File Not Found</string>
+    <string name="unauthorized">Not Authorized</string>
+    <string name="access_denied">Access Denied</string>
+    <string name="check_conn">Please check your connection settings.</string>
+    <string name="add_conn">Please add or enable a connection via the Connection Manager</string>    
+    <string name="conn_error">Connection Error</string>
+    <string name="no_saved_files">No saved topology files</string>
+    <string name="saved_file">Saved to file {1}</string>
+    <string name="overwrite">{1} exists. Overwrite?</string>
+    <string name="confirm_discard">Touch OK to discard unsaved changes.</string>
+    <string name="outstanding_intent">There is currently a background task running which will be killed if you exit. Touch OK to exit anyway.</string>
+    <string name="adding">Adding&#8230;</string>
+    <string name="deleting">Deleting&#8230;</string>
+    <string name="updating">Updating&#8230;</string>
+    <string name="open_console1">Please open a console before SSHing to a host</string>
+    <string name="open_console2">Please open a console and SSH to a host before starting a gateway</string>
+	<string name="startinstance_cmd">startinstance -n "{1}" -g "{2}" -d</string>    
+	<string name="ssh_cmd">ssh {1}@{2}</string>    
 </resources>
