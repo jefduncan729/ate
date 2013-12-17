@@ -1,7 +1,5 @@
 ATE - Android Topology Editor
 ===
-
-<a href="ate.apk">Installable Package (it is unsigned so your device must allow 'Install from unknown sources')</a>
 Android Topology Editor is an Android (4.1 and above) application which employs API Server's management REST API to view and edit API Server topologies.
 
 In my initial attempt to create this tool I tried to integrate the Sun Jersey client jars into my Android environment. 
