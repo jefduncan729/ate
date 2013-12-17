@@ -464,14 +464,20 @@ public class TopologyActivity extends BaseActivity
 			selectServer(R.id.action_compare_topo);
 		}
 		else {
-			showProgressDialog("Comparing...");
-			Intent i = new Intent(this, RestService.class);
-			i.setAction(RestService.ACTION_COMPARE);
-			i.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
-			i.putExtra(Constants.EXTRA_SERVER_INFO, si.toBundle());
-			i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
-			startService(i);
+			performCompare(si);
 		}
+	}
+
+	private void performCompare(ServerInfo si)  {
+		if (si == null)
+			return;
+		showProgressDialog("Comparing...");
+		Intent i = new Intent(this, RestService.class);
+		i.setAction(RestService.ACTION_COMPARE);
+		i.putExtra(Constants.EXTRA_JSON_TOPOLOGY, helper.toJson(topology).toString());
+		i.putExtra(Constants.EXTRA_SERVER_INFO, si.toBundle());
+		i.putExtra(Intent.EXTRA_RETURN_RESULT, getResultReceiver());
+		startService(i);
 	}
 	
 	private void showConnMgr() {
@@ -507,7 +513,6 @@ public class TopologyActivity extends BaseActivity
 			loadFromFile(file);
 			return;
 		}
-//		if (srvrInfo == null)
 		srvrInfo = getOnlyServerInfo();
 		if (srvrInfo == null)
 			selectServer(R.id.action_load_from_anm);
@@ -592,13 +597,11 @@ public class TopologyActivity extends BaseActivity
 		if (info == null)
 			return;
 		if (action == R.id.action_load_from_anm) {
-//			showProgress(true);
 			srvrInfo = info;
 			loadFromServer();
 		}
 		else if (action == R.id.action_compare_topo) {
-//			showProgress(true);
-//			service.compareTopology(info, getTopology());
+			performCompare(info);
 		}
 	}
 	
