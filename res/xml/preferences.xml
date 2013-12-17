@@ -8,14 +8,14 @@
             android:title="Show NodeManagers"
             android:summary="Show NodeManagers in the topology view"
 		/>
- -->         
+          
         <CheckBoxPreference
             android:key="reloadAfterUpdate"
             android:title="Reload after each update"
             android:summary="Reload the topology after each update"
 		/>
         
-<!-- 
+
         <EditTextPreference
 			android:key="adminNodeMgrHost"
 			android:title="Host/IP where the admin node manager is running"
@@ -44,8 +44,7 @@
                 android:title="Connect at startup?"
                 android:summary="Attempt a connection to the Admin Node Manager at startup"
                 android:dialogTitle="Connect at startup?" />
- -->                
-<!--
+                
         <EditTextPreference
                 android:key="interval"
                 android:title="@string/title_srch_ival"

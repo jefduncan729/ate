@@ -80,7 +80,7 @@
     <string name="truststore_removed">Trust Store removed</string>
     <string name="truststore_notfound">Trust Store not found</string>
     <string name="general_settings">General Settings</string>
-    <string name="touch_to_del">Touch OK to delete </string>
+    <string name="touch_to_del">Touch OK to delete %1$s \'%2$s\'</string>
     
     <string name="invalid_data">Invalid data passed to server</string>
     <string name="svc_port_in_use">Most likely, the services port is in use</string>
@@ -93,8 +93,8 @@
     <string name="add_conn">Please add or enable a connection via the Connection Manager</string>    
     <string name="conn_error">Connection Error</string>
     <string name="no_saved_files">No saved topology files</string>
-    <string name="saved_file">Saved to file {1}</string>
-    <string name="overwrite">{1} exists. Overwrite?</string>
+    <string name="saved_file">Saved to file %1$s</string>
+    <string name="overwrite">%1$s exists. Overwrite?</string>
     <string name="confirm_discard">Touch OK to discard unsaved changes.</string>
     <string name="outstanding_intent">There is currently a background task running which will be killed if you exit. Touch OK to exit anyway.</string>
     <string name="adding">Adding&#8230;</string>
@@ -102,6 +102,6 @@
     <string name="updating">Updating&#8230;</string>
     <string name="open_console1">Please open a console before SSHing to a host</string>
     <string name="open_console2">Please open a console and SSH to a host before starting a gateway</string>
-	<string name="startinstance_cmd">startinstance -n "{1}" -g "{2}" -d</string>    
-	<string name="ssh_cmd">ssh {1}@{2}</string>    
+	<string name="startinstance_cmd">startinstance -n \"%1$s\" -g \"%2$s\" -d</string>    
+	<string name="ssh_cmd">ssh %1$s@%2$s</string>    
 </resources>

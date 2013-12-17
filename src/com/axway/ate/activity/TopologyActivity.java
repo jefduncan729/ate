@@ -491,7 +491,13 @@ public class TopologyActivity extends BaseActivity
 		}
 		c.close();
 		if (c == null || c.getCount() == 0)
-			alertDialog(getString(R.string.add_conn));
+			alertDialog(getString(R.string.add_conn), new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					showConnMgr();
+				}
+			});
 		return rv;
 	}
 
@@ -501,10 +507,10 @@ public class TopologyActivity extends BaseActivity
 			loadFromFile(file);
 			return;
 		}
+//		if (srvrInfo == null)
+		srvrInfo = getOnlyServerInfo();
 		if (srvrInfo == null)
-			srvrInfo = getOnlyServerInfo();
-		if (srvrInfo == null)
-			selectServer(R.id.action_save_to_anm);
+			selectServer(R.id.action_load_from_anm);
 		else
 			loadFromServer();
 	}
@@ -579,6 +585,21 @@ public class TopologyActivity extends BaseActivity
 		dlg.setListener(this);
 		dlg.setServerInfoList(list);
 		dlg.show(getFragmentManager(), TAG_SEL_SRVR_DLG);
+	}
+
+	@Override
+	public void onServerSelected(ServerInfo info, int action) {
+		if (info == null)
+			return;
+		if (action == R.id.action_load_from_anm) {
+//			showProgress(true);
+			srvrInfo = info;
+			loadFromServer();
+		}
+		else if (action == R.id.action_compare_topo) {
+//			showProgress(true);
+//			service.compareTopology(info, getTopology());
+		}
 	}
 	
 	private void topologyDetails() {
@@ -677,9 +698,9 @@ public class TopologyActivity extends BaseActivity
 		Bundle args = new Bundle();
 		args.putString(Constants.EXTRA_ITEM_TYPE, typ.name());
 		args.putString(Constants.EXTRA_ITEM_ID, id);
-		StringBuilder msg = new StringBuilder(getString(R.string.touch_to_del));
-		msg.append(typ.name()).append(" '").append(name).append("'");
-		args.putString(Intent.EXTRA_TEXT, msg.toString());
+//		StringBuilder msg = new StringBuilder(getString(R.string.touch_to_del, typ.name(), name));
+//		msg.append(typ.name()).append(" '").append(name).append("'");
+		args.putString(Intent.EXTRA_TEXT, getString(R.string.touch_to_del, typ.name(), name));
 		dlg.setArguments(args);
 		dlg.setListener(this);
 		dlg.show(getFragmentManager(), TAG_DEL_DLG);
@@ -842,21 +863,6 @@ public class TopologyActivity extends BaseActivity
 		}
 		else
 			super.onBackPressed();
-	}
-
-	@Override
-	public void onServerSelected(ServerInfo info, int action) {
-		if (info == null)
-			return;
-		if (action == R.id.action_load_from_anm) {
-//			showProgress(true);
-			srvrInfo = info;
-			loadFromServer();
-		}
-		else if (action == R.id.action_compare_topo) {
-//			showProgress(true);
-//			service.compareTopology(info, getTopology());
-		}
 	}
 	
 	private Intent createModifyIntent(HttpMethod method, EntityType etype, JsonObject json) {		
@@ -1140,6 +1146,9 @@ public class TopologyActivity extends BaseActivity
 			}
 			Log.d(TAG, "consoleHandle:" + consoleHandle);
 		}
+		else if (requestCode == R.id.action_conn_mgr) {
+			srvrInfo = null;
+		}
 		else
 			super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -1151,9 +1160,12 @@ public class TopologyActivity extends BaseActivity
 			if (i != null) {
 				Log.d(TAG, "consoleHandle: " + consoleHandle);
 				i = new Intent(Constants.JACKPAL_ACTION_RUN_SCRIPT);
-				i.putExtra(Constants.JACKPAL_EXTRA_INITIAL_CMD, "pwd");
-				if (consoleHandle != null)
+				String cmd = "pwd";
+				if (consoleHandle != null) {
+					cmd = "";
 					i.putExtra(Constants.JACKPAL_EXTRA_WINDOW_HANDLE, consoleHandle);
+				}
+				i.putExtra(Constants.JACKPAL_EXTRA_INITIAL_CMD, cmd);
 				startActivityForResult(i, R.id.action_console);
 			}
 		} 
@@ -1184,7 +1196,7 @@ public class TopologyActivity extends BaseActivity
 		if (h == null)
 			return;
 		if (consoleHandle == null) {
-			UiUtils.showToast(this, getString(R.string.open_console2));
+			UiUtils.showToast(this, getString(R.string.open_console1));
 			return;
 		}
 //		String cmd = "ssh root@" + h.getName();

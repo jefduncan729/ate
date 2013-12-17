@@ -37,6 +37,11 @@ public class RestService extends BaseIntentService {
 	public static final String ACTION_MOVE_GATEWAY = ACTION_BASE + "move_gateway";
 	public static final String ACTION_COMPARE = ACTION_BASE + "compare";
 
+	public static final String TOPOLOGY_ENDPOINT = "topology";
+	public static final String HOSTS_ENDPOINT = TOPOLOGY_ENDPOINT + "/hosts";
+	public static final String GROUPS_ENDPOINT = TOPOLOGY_ENDPOINT + "/groups";
+	public static final String SERVICES_ENDPOINT = TOPOLOGY_ENDPOINT + "/services";
+	
 	private ServerInfo srvrInfo;
 	private DomainHelper helper;
 	private String action;
@@ -150,7 +155,7 @@ public class RestService extends BaseIntentService {
 				params = new String[1];
 				params[0] = id;
 			}
-			endpoint = "topology/hosts";
+			endpoint = HOSTS_ENDPOINT;
 		}
 		else if (eType == EntityType.Group) {
 			if (method == HttpMethod.DELETE) {
@@ -160,13 +165,13 @@ public class RestService extends BaseIntentService {
 					qStr.append("deleteDiskGroup=true");
 				}
 			}
-			endpoint = "topology/groups";
+			endpoint = GROUPS_ENDPOINT;
 		}
 		else if (eType == EntityType.Gateway || eType == EntityType.NodeManager) {
 			String grpId = extras.getString(Constants.EXTRA_REFERRING_ITEM_ID);
 			if (TextUtils.isEmpty(grpId))
 				throw new IllegalStateException("expecting to find group for service: " + id);
-			endpoint = "topology/services";
+			endpoint = SERVICES_ENDPOINT;
 			if (method == HttpMethod.DELETE) {
 				params = new String[2];
 				params[0] = grpId;
@@ -273,7 +278,7 @@ public class RestService extends BaseIntentService {
 		JsonObject rv = null;
 		int sc = 0;
 		StringBuilder sb = new StringBuilder();
-		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
+		sb.append(HttpMethod.GET).append(" ").append(url);
 		Log.d(TAG, sb.toString());
 		try {
 			ResponseEntity<String> resp = getRestTemplate(srvrInfo).exchange(url,  HttpMethod.GET, reqEntity, String.class);
@@ -324,7 +329,7 @@ public class RestService extends BaseIntentService {
 			return;
 		JsonObject json = null;
 		try {
-			json = doGet(srvrInfo.buildUrl("topology"));
+			json = doGet(srvrInfo.buildUrl(TOPOLOGY_ENDPOINT));
 		}
 		catch (Exception e) {
 			Log.e(TAG, e.getLocalizedMessage(), e);
