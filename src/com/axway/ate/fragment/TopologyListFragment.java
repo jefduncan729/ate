@@ -17,7 +17,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
 import com.axway.ate.Constants;
-import com.axway.ate.DomainHelper;
 import com.axway.ate.R;
 import com.axway.ate.adapter.TopologyAdapter;
 import com.vordel.api.topology.model.Topology;
@@ -30,14 +29,18 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	protected String src;
 	protected boolean haveConsole;
 	protected Listener listener;
-	protected Menu optsMenu;
-//	protected DomainHelper helper;
 
 	public interface Listener {
 		public void onTopologyLoaded(Topology t);
 		public void onTopologyItemSelected(EntityType itemType, String id);
-		public boolean onMenuItemSelected(MenuItem item);
-		public void onPrepareMenu(Menu menu);
+		public void onDelete(Intent i);
+		public void onSshToHost(Intent i);
+		public void onAddGateway(Intent i);
+		public void onStartGateway(Intent i);
+		public void onAddHost(Intent i);
+		public void onAddGroup(Intent i);
+		public void onSaveToDisk(Intent i);
+		public void onCompare(Intent i);
 	}
 	
 	public TopologyListFragment() {
@@ -46,7 +49,6 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		listener = null;
 		src = null;
 		haveConsole = false;
-//		helper = DomainHelper.getInstance();
 	}
 
 	@Override
@@ -87,22 +89,60 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.main, menu);
-		optsMenu = menu;
+		inflater.inflate(R.menu.topo, menu);
+//		optsMenu = menu;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (listener == null)
 			return super.onOptionsItemSelected(item);
-		return listener.onMenuItemSelected(item);
+		boolean rv = true;
+		Intent i = item.getIntent();
+		switch (item.getItemId()) {
+			case R.id.action_add_host:
+				listener.onAddHost(i);
+			break;
+			case R.id.action_add_group:
+				listener.onAddGroup(i);
+			break;
+			case R.id.action_save_to_disk:
+				listener.onSaveToDisk(i);
+			break;
+			case R.id.action_compare_topo:
+				listener.onCompare(i);
+			break;
+			default:
+				rv = false;
+		}
+		return rv;
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		if (listener == null)
 			return false;
-		return listener.onMenuItemSelected(item);
+		Intent i = item.getIntent();
+		if (i == null)
+			return false;
+		boolean rv = true;
+		switch (item.getItemId()) {
+			case R.id.action_delete:
+				listener.onDelete(i);
+			break;
+			case R.id.action_ssh_to_host:
+				listener.onSshToHost(i);
+			break;
+			case R.id.action_add_gateway:
+				listener.onAddGateway(i);
+			break;
+			case R.id.action_start_gateway:
+				listener.onStartGateway(i);
+			break;
+			default:
+				rv = false;
+		}
+		return rv;
 	}
 
 	@Override
@@ -115,7 +155,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		Intent iAdd = null;
 		Intent iSsh = null;
 		Intent iStart = null;
-		Intent iMove = null;
+//		Intent iMove = null;
 		Intent iDel = new Intent();
 		iDel.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDel.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
@@ -141,9 +181,9 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 				menu.add(0, R.id.action_add_gateway, p++, "Add " + EntityType.Gateway.name()).setIntent(iAdd);
 			break;
 			case Gateway:
-				iMove = new Intent();
-				iMove.putExtra(Constants.EXTRA_ITEM_ID, e.id);
-				menu.add(0, R.id.action_move_gateway, p++, R.string.action_move_gateway).setIntent(iMove);
+//				iMove = new Intent();
+//				iMove.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+//				menu.add(0, R.id.action_move_gateway, p++, R.string.action_move_gateway).setIntent(iMove);
 				if (haveConsole) {
 					iStart = new Intent();
 					iStart.putExtra(Constants.EXTRA_ITEM_ID, e.id);
@@ -165,18 +205,13 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		getListView().setOnCreateContextMenuListener(this);
 		setEmptyText("No topology loaded");
 	}
-
-	protected void updateOptionsMenu() {
-		onPrepareOptionsMenu(optsMenu);
-	}
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
+		if (menu == null)
+			return;
 		boolean haveTopo = (t != null);
-		MenuItem i = menu.findItem(R.id.action_save_to_anm);
-		if (i != null)
-			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_save_to_disk);
+		MenuItem i = menu.findItem(R.id.action_save_to_disk);
 		if (i != null)
 			i.setVisible(haveTopo);
 		i = menu.findItem(R.id.action_compare_topo);
@@ -188,10 +223,5 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		i = menu.findItem(R.id.action_add_group);
 		if (i != null)
 			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_console);
-		if (i != null)
-			i.setVisible(haveConsole);
-		if (listener != null)
-			listener.onPrepareMenu(menu);
 	}
 }

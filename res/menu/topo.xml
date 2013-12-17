@@ -2,16 +2,31 @@
 
     <item
         android:id="@+id/action_add_host"
-        android:orderInCategory="10"
+        android:orderInCategory="5"
         android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_host"
         android:title="@string/action_add_host"/>
 
     <item
         android:id="@+id/action_add_group"
         android:orderInCategory="10"
         android:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_grp"
         android:title="@string/action_add_group"/>
     
+    <item
+        android:id="@id/action_save_to_disk"
+        android:orderInCategory="25"
+        android:showAsAction="never"
+        android:title="@string/action_save_to_disk"/>
+    
+    <item
+        android:id="@id/action_compare_topo"
+        android:orderInCategory="30"
+        android:showAsAction="never"
+        android:title="@string/action_compare_topo"/>
+    
+<!--     
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -29,5 +44,5 @@
         android:orderInCategory="110"
         android:showAsAction="never"
         android:title="@string/action_remove_trust"/>
-    
+-->    
 </menu>

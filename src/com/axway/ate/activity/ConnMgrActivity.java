@@ -76,6 +76,7 @@ public class ConnMgrActivity extends BaseActivity implements ConnMgrListener {
 	private void onCertTrusted(Bundle resultData) {
 		if (resultData == null)
 			return;
+		UiUtils.showToast(this, R.string.cert_trusted);
 		Uri uri = resultData.getParcelable(Intent.EXTRA_UID);
 		setCertTrusted(uri, true);
 		refreshFrag();

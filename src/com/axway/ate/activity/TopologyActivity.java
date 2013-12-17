@@ -14,6 +14,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +44,8 @@ import com.axway.ate.fragment.HostDialog;
 import com.axway.ate.fragment.HostDialog.HostListener;
 import com.axway.ate.fragment.SelectFileDialog;
 import com.axway.ate.fragment.SelectServerDialog;
+import com.axway.ate.fragment.SshUserDialog;
+import com.axway.ate.fragment.SshUserDialog.SshUserListener;
 import com.axway.ate.fragment.TopologyFileFragment;
 import com.axway.ate.fragment.TopologyListFragment;
 import com.axway.ate.fragment.TopologyLoaderFragment;
@@ -65,7 +68,7 @@ public class TopologyActivity extends BaseActivity
 		HostListener, 
 		GroupListener, 
 		GatewayListener, 
-		DeleteListener {
+		DeleteListener, SshUserListener {
 	
 	private static final String TAG = TopologyActivity.class.getSimpleName();
 	private static final String TAG_HOST_DLG = "hostDlg";
@@ -74,6 +77,8 @@ public class TopologyActivity extends BaseActivity
 	private static final String TAG_SEL_SRVR_DLG = "selSrvrDlg";
 	private static final String TAG_SEL_FILE_DLG = "selFileDlg";
 	private static final String TAG_DEL_DLG = "delDlg";
+	private static final String TAG_SSHUSER_DLG = "sshUserDlg";
+	
 	private static final String TAG_TOPOLOGY_FRAG = "topoFrag";
 	
 	private View ctr01;
@@ -262,84 +267,6 @@ public class TopologyActivity extends BaseActivity
 		loadTopology();
 	}
 
-	@Override
-	public void onPrepareMenu(Menu menu) {
-	}
-
-	@Override
-	public boolean onMenuItemSelected(MenuItem menuItem) {
-		boolean rv = true;
-		switch (menuItem.getItemId()) {
-			case R.id.action_settings:
-				showSettings();
-			break;
-			case R.id.action_add_host:
-				showHostDialog(null);
-			break;
-			case R.id.action_add_group:
-				showGroupDialog(null);
-			break;
-			case R.id.action_add_gateway:
-				showGatewayDialog(null, menuItem.getIntent());
-			break;
-			case R.id.action_load_from_disk:
-			case R.id.action_save_to_disk:
-				showSelectFileDialog(menuItem.getItemId());
-			break;
-			case R.id.action_load_from_anm:
-				file = null;
-				loadTopology();
-			break;
-			case R.id.action_delete:
-			case R.id.action_delete_disk:
-				delete(menuItem.getIntent());
-			break;
-			case R.id.action_topo_details:
-				topologyDetails();
-			break;
-			case R.id.action_conn_mgr:
-				showConnMgr();
-			break;
-			case R.id.action_compare_topo:
-				compareTopology();
-			break;
-			case R.id.action_console:
-				launchConsole();
-			break;
-			case R.id.action_ssh_to_host:
-				if (menuItem.getIntent() != null) {
-					Host h = topology.getHost(menuItem.getIntent().getStringExtra(Constants.EXTRA_ITEM_ID));
-					sshToHost(h);
-				}
-			break;
-			case R.id.action_start_gateway:
-				if (menuItem.getIntent() != null) {
-					String id = menuItem.getIntent().getStringExtra(Constants.EXTRA_ITEM_ID);
-					String ids[] = id.split("/");
-					if (ids != null && ids.length == 2) {
-						Service s = topology.getService(ids[1]);
-						if (s != null)
-							startGateway(s);
-					}
-				}
-			break;
-			case R.id.action_move_gateway:
-				if (menuItem.getIntent() != null) {
-					String id = menuItem.getIntent().getStringExtra(Constants.EXTRA_ITEM_ID);
-					String ids[] = id.split("/");
-					if (ids != null && ids.length == 2) {
-						Service s = topology.getService(ids[1]);
-						if (s != null)
-							moveGateway(s);
-					}
-				}
-			break;
-			default:
-				rv = false;
-		}
-		return rv;
-	}
-
 	private void showHostDialog(Host h) {
 		HostDialog dlg = new HostDialog();
 		Bundle args = new Bundle();
@@ -497,13 +424,7 @@ public class TopologyActivity extends BaseActivity
 		}
 		c.close();
 		if (c == null || c.getCount() == 0)
-			alertDialog(getString(R.string.add_conn), new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					showConnMgr();
-				}
-			});
+			alertDialog(getString(R.string.add_conn));
 		return rv;
 	}
 
@@ -513,7 +434,8 @@ public class TopologyActivity extends BaseActivity
 			loadFromFile(file);
 			return;
 		}
-		srvrInfo = getOnlyServerInfo();
+		if (srvrInfo == null)
+			srvrInfo = getOnlyServerInfo();
 		if (srvrInfo == null)
 			selectServer(R.id.action_load_from_anm);
 		else
@@ -701,8 +623,6 @@ public class TopologyActivity extends BaseActivity
 		Bundle args = new Bundle();
 		args.putString(Constants.EXTRA_ITEM_TYPE, typ.name());
 		args.putString(Constants.EXTRA_ITEM_ID, id);
-//		StringBuilder msg = new StringBuilder(getString(R.string.touch_to_del, typ.name(), name));
-//		msg.append(typ.name()).append(" '").append(name).append("'");
 		args.putString(Intent.EXTRA_TEXT, getString(R.string.touch_to_del, typ.name(), name));
 		dlg.setArguments(args);
 		dlg.setListener(this);
@@ -1202,8 +1122,11 @@ public class TopologyActivity extends BaseActivity
 			UiUtils.showToast(this, getString(R.string.open_console1));
 			return;
 		}
-//		String cmd = "ssh root@" + h.getName();
-		runScriptInConsole(getString(R.string.ssh_cmd, "root", h.getName()));
+		String username = getSshUser();
+		if (username == null)
+			sshUserDialog(h.getName());
+		else
+			runScriptInConsole(getString(R.string.ssh_cmd, username, h.getName()));
 	}
 	
 	private void startGateway(Service s) {
@@ -1214,11 +1137,6 @@ public class TopologyActivity extends BaseActivity
 		Group g = topology.getGroupForService(s.getId());
 		if (g == null)
 			return;
-//		StringBuilder cmd = new StringBuilder("startinstance -n ");
-//		cmd.append("\"").append(s.getName()).append("\"");
-//		cmd.append(" -g \"").append(g.getName()).append("\"");
-//		cmd.append(" -d");
-//		runScriptInConsole(cmd.toString());
 		runScriptInConsole(getString(R.string.startinstance_cmd, s.getName(), g.getName()));
 	}
 	
@@ -1259,5 +1177,149 @@ public class TopologyActivity extends BaseActivity
 		i.setAction(BaseIntentService.ACTION_KILL_RES_RCVR);
 		startService(i);
 		super.onDestroy();
+	}
+
+	private String getSshUser() {
+		String rv = null;
+		if (getPrefs().getBoolean(Constants.KEY_REMEMBER_USER, false))
+			rv = getPrefs().getString(Constants.KEY_SSHUSER, null);
+		return rv;
+	}
+	
+	private void sshUserDialog(String hostname) {
+		SshUserDialog dlg = new SshUserDialog();
+		String username = null;
+		boolean remember = getPrefs().getBoolean(Constants.KEY_REMEMBER_USER, false); 
+		if (remember)
+			username = getPrefs().getString(Constants.KEY_SSHUSER, null);
+		Bundle args = new Bundle();
+		args.putString(Constants.KEY_SSHUSER, username);
+		args.putBoolean(Constants.KEY_REMEMBER_USER, remember);
+		args.putString(Constants.EXTRA_HOST_ID, hostname);
+		dlg.setArguments(args);
+		dlg.setListener(this);
+		dlg.show(getFragmentManager(), TAG_SSHUSER_DLG);
+	}
+
+	@Override
+	public void onUserSelected(Bundle data) {
+		if (data == null)
+			return;
+		String username = data.getString(Constants.KEY_SSHUSER);
+		String hostname = data.getString(Constants.EXTRA_HOST_ID);
+		if (TextUtils.isEmpty(username))
+			return;
+		if (data.getBoolean(Constants.KEY_REMEMBER_USER, false)) {
+			SharedPreferences.Editor e = getPrefs().edit();
+			e.putString(Constants.KEY_SSHUSER, username);
+			e.putBoolean(Constants.KEY_REMEMBER_USER, true);
+			e.commit();
+		}
+		runScriptInConsole(getString(R.string.ssh_cmd, username, hostname));
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menuItem) {
+		boolean rv = true;
+		switch (menuItem.getItemId()) {
+			case R.id.action_settings:
+				showSettings();
+			break;
+			case R.id.action_load_from_disk:
+				showSelectFileDialog(menuItem.getItemId());
+			break;
+			case R.id.action_load_from_anm:
+				file = null;
+				loadTopology();
+			break;
+			case R.id.action_conn_mgr:
+				showConnMgr();
+			break;
+			case R.id.action_console:
+				launchConsole();
+			break;
+			case R.id.action_forget_sshuser:
+				forgetSshUser();
+			break;
+			default:
+				rv = false;
+		}
+		return rv;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem i = menu.findItem(R.id.action_console);
+		if (i != null)
+			i.setVisible(isConsoleAvailable());
+		i = menu.findItem(R.id.action_forget_sshuser);
+		if (i != null)
+			i.setVisible(!TextUtils.isEmpty(getPrefs().getString(Constants.KEY_SSHUSER, null)));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public void onDelete(Intent i) {
+		delete(i);
+	}
+
+	@Override
+	public void onSshToHost(Intent i) {
+		if (i == null)
+			return;
+		Host h = topology.getHost(i.getStringExtra(Constants.EXTRA_ITEM_ID));
+		sshToHost(h);
+	}
+
+	@Override
+	public void onAddGateway(Intent i) {
+		showGatewayDialog(null, i);
+	}
+
+	@Override
+	public void onStartGateway(Intent i) {
+		if (i == null)
+			return;
+		String id = i.getStringExtra(Constants.EXTRA_ITEM_ID);
+		String ids[] = id.split("/");
+		if (ids != null && ids.length == 2) {
+			Service s = topology.getService(ids[1]);
+			if (s != null)
+				startGateway(s);
+		}
+	}
+
+	@Override
+	public void onAddHost(Intent i) {
+		showHostDialog(null);
+	}
+
+	@Override
+	public void onAddGroup(Intent i) {
+		showGroupDialog(null);
+	}
+
+	@Override
+	public void onSaveToDisk(Intent i) {
+		showSelectFileDialog(R.id.action_save_to_disk);
+	}
+
+	@Override
+	public void onCompare(Intent i) {
+		compareTopology();
+	}
+
+	private void forgetSshUser() {
+		SharedPreferences.Editor e = getPrefs().edit();
+		e.remove(Constants.KEY_SSHUSER);
+		e.putBoolean(Constants.KEY_REMEMBER_USER, false);
+		e.commit();
+		UiUtils.showToast(this, R.string.sshuser_forgotten);
 	}
 }

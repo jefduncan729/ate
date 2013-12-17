@@ -81,6 +81,9 @@
     <string name="truststore_notfound">Trust Store not found</string>
     <string name="general_settings">General Settings</string>
     <string name="touch_to_del">Touch OK to delete %1$s \'%2$s\'</string>
+    <string name="remember_user">Remember username?</string>
+    <string name="forget_sshuser">Forget SSH username</string>
+    <string name="sshuser_forgotten">SSH username forgotten</string>
     
     <string name="invalid_data">Invalid data passed to server</string>
     <string name="svc_port_in_use">Most likely, the services port is in use</string>

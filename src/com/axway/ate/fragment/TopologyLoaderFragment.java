@@ -47,7 +47,7 @@ public class TopologyLoaderFragment extends TopologyListFragment implements OnIt
 			getListView().setOnItemClickListener(this);
 			setListAdapter(new TopologyAdapter(getActivity(), t, src));
 		}
-		updateOptionsMenu();
+//		updateOptionsMenu();
 	}
 
 	@Override

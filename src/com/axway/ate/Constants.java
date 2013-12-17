@@ -51,6 +51,8 @@ public class Constants {
 	
 	public static final String KEY_SHOW_NODE_MGRS = "showNodeMgrs";
 	public static final String KEY_RELOAD_AFTER_UPD = "reloadAfterUpdate";
+	public static final String KEY_REMEMBER_USER = "rememberUser";
+	public static final String KEY_SSHUSER = "sshUser";
 	
 	public static final boolean DEF_SHOW_NODE_MGRS = false;
 	

@@ -60,13 +60,11 @@ public class CertificateService extends BaseIntentService {
 			boolean trusted = false;
 			try {
 				attemptGet(srvrInfo);
+				trusted = true;
 			}
 			catch (ApiException excp) {
 				cp = isCertValidationErr(excp);
-				if (cp == null) {
-					showToast(getString(R.string.cert_trusted));
-				}
-				else {
+				if (cp != null) {
 					Log.d(TAG, "certPath not trusted: " + cp.toString());
 					if (trustCert) {
 						Log.d(TAG, "adding to trust store");
@@ -89,11 +87,12 @@ public class CertificateService extends BaseIntentService {
 					}
 				}
 			}
-			if (cp != null) {
-				if (trusted) {
-					getResultReceiver().send(Constants.CERT_TRUSTED, extras);
-					return;
-				}
+			if (getResultReceiver() == null)
+				return;
+			if (trusted) {
+				getResultReceiver().send(Constants.CERT_TRUSTED, extras);
+			}
+			else {
 				StringBuilder sb = new StringBuilder();
 				int i = 1;
 			    for (Certificate c: cp.getCertificates()) {
@@ -103,8 +102,7 @@ public class CertificateService extends BaseIntentService {
 			    	}
 			    }
 				extras.putString(Intent.EXTRA_BUG_REPORT, sb.toString());
-				if (getResultReceiver() != null)
-					getResultReceiver().send(Constants.CERT_NOT_TRUSTED, extras);
+				getResultReceiver().send(Constants.CERT_NOT_TRUSTED, extras);
 			}
 		}
 	}
