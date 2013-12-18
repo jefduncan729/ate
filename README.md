@@ -32,6 +32,7 @@ Android to communicate amongst components.
 
 ### Screenshots ###
 
+<img src="res/raw/home_screen.png" alt="Home screen" title="Home screen" height="480px" width="300px"/>&nbsp;
 <img src="res/raw/cert_not_trusted.png" alt="Certificate not trusted" title="Certificate not trusted" height="480px" width="300px"/>&nbsp;
 <img src="res/raw/topology_activity.png" alt="Topology Activity" title="Topology Activity" height="480px" width="300px"/>&nbsp;
 <img src="res/raw/connection_mgr.png" alt="Connection Manager" title="Connection Manager" height="480px" width="300px"/>&nbsp;
@@ -39,12 +40,6 @@ Android to communicate amongst components.
 <img src="res/raw/edit_gateway.png" alt="Edit Gateway" title="Edit Gateway" height="480px" width="300px"/>&nbsp;
 <img src="res/raw/console.png" alt="Console" title="Console" height="480px" width="300px"/>&nbsp;
 
-### Wishlist ###
-* Finish moving string constants into res/strings.xml
-* Implement customizable SSH user for 'SSH to host' command (currently uses root)
-
-### Known issues ###
+### Discussion ###
 * Does moving a Gateway from one Group to another make sense? (I'm thinking not)
 * So far unable to query for an existing Gateway's Services Port. Adding 'servicesPort' param on the POST works fine, but for an existing Gateway how to know the Services Port?
-
-I'm sure there are some others! :)
