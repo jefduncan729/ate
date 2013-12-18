@@ -21,7 +21,7 @@ public interface TopologyClient {
 
 	public void moveService(Service s, Group fromGrp, Group toGrp) throws ApiException;
 	
-	public void loadTopology() throws ApiException;
+//	public void loadTopology() throws ApiException;
 	
-	public Topology getTopology();
+//	public Topology getTopology();
 }

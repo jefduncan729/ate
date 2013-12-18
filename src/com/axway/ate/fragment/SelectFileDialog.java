@@ -79,9 +79,9 @@ public class SelectFileDialog extends DialogFragment implements OnItemClickListe
     	ctr01 = dlgView.findViewById(R.id.container01);
     	ctr02 = dlgView.findViewById(R.id.container02);
     	if (action == R.id.action_save_to_disk)
-    		t = "Save Topology To File";
+    		t = "Save To File";
     	else if (action == R.id.action_load_from_disk)
-    		t = "Load Topology From File";
+    		t = "Open Topology File";
     	if (action == R.id.action_load_from_disk) {
     		ctr01.setVisibility(View.GONE);
     		editFname = null;

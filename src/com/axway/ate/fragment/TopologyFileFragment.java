@@ -32,10 +32,9 @@ public class TopologyFileFragment extends TopologyListFragment implements OnItem
 		refreshAdapter();
 	}
 	
-	public void update(Topology in, String src, boolean haveConsole) {
+	public void update(Topology in, String src) {
 		t = in;
 		this.src = src;
-		this.haveConsole = haveConsole;
 		refreshAdapter();
 	}
 	

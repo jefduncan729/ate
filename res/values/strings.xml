@@ -19,7 +19,7 @@
     <string name="enabled">Enabled</string>
     <string name="action_add_tag">Add Tag</string>
     <string name="action_save">Save</string>
-    <string name="action_save_to_disk">Save Topology to file</string>
+    <string name="action_save_to_disk">Save to file</string>
     <string name="action_load_from_disk">Load Topology from file</string>
     <string name="action_save_to_anm">Post Topology to server</string>
     <string name="action_load_from_anm">Load Topology from server</string>
@@ -84,6 +84,8 @@
     <string name="remember_user">Remember username?</string>
     <string name="forget_sshuser">Forget SSH username</string>
     <string name="sshuser_forgotten">SSH username forgotten</string>
+    <string name="local_files">Open file</string>
+    <string name="connect_anm">Connect</string>
     
     <string name="invalid_data">Invalid data passed to server</string>
     <string name="svc_port_in_use">Most likely, the services port is in use</string>

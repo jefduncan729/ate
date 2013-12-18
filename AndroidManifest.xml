@@ -48,12 +48,7 @@
         </activity>
  -->        
         <activity
-            android:name=".activity.EditActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/hosts" >
-        </activity>
-        <activity
-            android:name=".activity.TopologyActivity"
+            android:name=".activity.HomeActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,9 +56,22 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.EditActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/hosts" >
+        </activity>
+        <activity
             android:name=".activity.ConnMgrActivity"
             android:label="@string/action_conn_mgr" >
         </activity>
-    </application>
+        <activity
+            android:name=".activity.TopologyRestActivity"
+            android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".activity.TopologyFileActivity"
+            android:label="@string/app_name" >
+        </activity>
+	</application>
 
 </manifest>

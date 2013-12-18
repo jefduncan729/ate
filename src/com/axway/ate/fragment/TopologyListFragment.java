@@ -58,7 +58,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		Bundle args = getArguments();
 		if (args != null) {
 			src = args.getString(Constants.EXTRA_TOPO_SOURCE);
-			haveConsole = args.getBoolean(Constants.EXTRA_HAVE_CONSOLE);
+			haveConsole = args.getBoolean(Constants.EXTRA_HAVE_CONSOLE, false);
 		}
 	}
 	
@@ -204,24 +204,5 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		super.onViewCreated(view, savedInstanceState);
 		getListView().setOnCreateContextMenuListener(this);
 		setEmptyText("No topology loaded");
-	}
-	
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		if (menu == null)
-			return;
-		boolean haveTopo = (t != null);
-		MenuItem i = menu.findItem(R.id.action_save_to_disk);
-		if (i != null)
-			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_compare_topo);
-		if (i != null)
-			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_add_host);
-		if (i != null)
-			i.setVisible(haveTopo);
-		i = menu.findItem(R.id.action_add_group);
-		if (i != null)
-			i.setVisible(haveTopo);
 	}
 }

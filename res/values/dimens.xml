@@ -9,4 +9,5 @@
 	<dimen name="listitem_small_margin">4dp</dimen>
     <dimen name="listitem_image_size">56dp</dimen>
 	<dimen name="listitem_image_fontsize">30dp</dimen>
+    <dimen name="launcher_image_size">96dp</dimen>
 </resources>
