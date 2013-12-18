@@ -13,12 +13,12 @@ import android.widget.TextView;
 public class HomeAdapter extends BaseAdapter {
 	
 	private static final String TAG = HomeAdapter.class.getSimpleName();
-	private static final int[] DRAWABLE_IDS = { R.drawable.internet, R.drawable.folder, R.drawable.server, R.drawable.preferences };
-	private static final int[] STRING_IDS = { R.string.connect_anm, R.string.local_files, R.string.action_conn_mgr, R.string.action_settings };
+	private static final int[] DRAWABLE_IDS = { R.drawable.server, R.drawable.internet, R.drawable.folder};	//, R.drawable.preferences };
+	private static final int[] STRING_IDS = { R.string.action_conn_mgr, R.string.connect_anm, R.string.local_files};	//, R.string.action_settings };
 	
-	public static final int IDX_SERVER = 0;
-	public static final int IDX_LOCAL = 1;
-	public static final int IDX_CONN_MGR = 2;
+	public static final int IDX_CONN_MGR = 0;
+	public static final int IDX_SERVER = 1;
+	public static final int IDX_LOCAL = 2;
 	public static final int IDX_SETTINGS = 3;
 
 	private LayoutInflater inflater;
