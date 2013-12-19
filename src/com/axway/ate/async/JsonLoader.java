@@ -1,6 +1,4 @@
-package com.axway.ate.fragment;
-
-import java.io.File;
+package com.axway.ate.async;
 
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpAuthentication;
@@ -26,24 +24,23 @@ import com.axway.ate.rest.DefaultRestTemplate;
 import com.axway.ate.rest.SslRestTemplate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.vordel.api.topology.model.Topology;
 
-public class TopologyLoader extends AsyncTaskLoader<Topology>{
+public class JsonLoader extends AsyncTaskLoader<JsonObject>{
 
-	private static final String TAG = TopologyLoader.class.getSimpleName();
+	private static final String TAG = JsonLoader.class.getSimpleName();
 
-	private Topology topology;
+	private JsonObject jsonObj;
 	private Bundle args;
 	
-	public TopologyLoader(Context context, Bundle args) {
+	public JsonLoader(Context context, Bundle args) {
 		super(context);
-		topology = null;
+		jsonObj = null;
 		this.args = args;
 	}
 
 	@Override
-	public Topology loadInBackground() {
-		Topology rv = null;
+	public JsonObject loadInBackground() {
+		JsonObject rv = null;
 		if (args == null)
 			return rv;
 		try {
@@ -55,21 +52,17 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 		return rv;
 	}
 	
-	private Topology performLoad() {
+	private JsonObject performLoad() {
 		ServerInfo info = ServerInfo.fromBundle(args.getBundle(Constants.EXTRA_SERVER_INFO));
 		if (info != null)
 			return loadFromServer(info);
-		File file = new File(args.getString(Constants.EXTRA_FILENAME));
-		if (file.exists()) {
-			return DomainHelper.getInstance().loadFromFile(file);
-		}
-		Log.e(TAG, "no serverinfo and no filename");
+		Log.e(TAG, "no serverinfo");
 		return null;
 	}
 
-	private Topology loadFromServer(ServerInfo info) {
-		Topology rv = null;
-		String url = info.buildUrl("topology");
+	private JsonObject loadFromServer(ServerInfo info) {
+		JsonObject rv = null;
+		String url = args.getString(Constants.EXTRA_URL);	//info.buildUrl("topology");
 		RestTemplate restTmpl;
 		if (info.isSsl())
 			restTmpl = SslRestTemplate.getInstance(getContext());
@@ -79,7 +72,6 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 		HttpHeaders reqHdrs = new HttpHeaders();
 		reqHdrs.setAuthorization(authHdr);
 		HttpEntity<?> reqEntity = new HttpEntity<String>("", reqHdrs);
-		JsonObject jsonResult = null;
 		int sc = 0;
 		StringBuilder sb = new StringBuilder();
 		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
@@ -93,8 +85,7 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 				if (jsonResp != null) {
 					JsonObject jo = jsonResp.getAsJsonObject();
 					if (jo.has("result")) {
-						jsonResult = jo.getAsJsonObject("result");
-						rv = DomainHelper.getInstance().topologyFromJson(jsonResult);
+						rv = jo.getAsJsonObject("result");
 					}
 					else if (jo.has("errors")) {
 						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
@@ -124,10 +115,10 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 
 	@Override
 	protected void onStartLoading() {
-		if (topology == null)
+		if (jsonObj == null)
 			forceLoad();
 		else
-			deliverResult(topology);
+			deliverResult(jsonObj);
 	}
 
 	@Override
@@ -137,8 +128,8 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 	}
 
 	@Override
-	public void deliverResult(Topology data) {
-		topology = data;
+	public void deliverResult(JsonObject data) {
+		jsonObj = data;
 		if (isStarted())
 			super.deliverResult(data);
 	}

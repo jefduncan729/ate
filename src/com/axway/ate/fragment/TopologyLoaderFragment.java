@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.axway.ate.DomainHelper;
 import com.axway.ate.adapter.TopologyAdapter;
+import com.axway.ate.async.JsonLoader;
+import com.axway.ate.async.TopologyLoader;
+import com.google.gson.JsonObject;
 import com.vordel.api.topology.model.Topology;
 
-public class TopologyLoaderFragment extends TopologyListFragment implements OnItemClickListener, LoaderManager.LoaderCallbacks<Topology> {
+public class TopologyLoaderFragment extends TopologyListFragment implements OnItemClickListener, LoaderManager.LoaderCallbacks<JsonObject> {
 	
 	private static final String TAG = TopologyLoaderFragment.class.getSimpleName();
 
@@ -32,13 +36,13 @@ public class TopologyLoaderFragment extends TopologyListFragment implements OnIt
 	}
 
 	@Override
-	public Loader<Topology> onCreateLoader(int id, Bundle args) {
-		return new TopologyLoader(getActivity(), args);
+	public Loader<JsonObject> onCreateLoader(int id, Bundle args) {
+		return new JsonLoader(getActivity(), args);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Topology> loader, Topology newT) {
-		t = newT;
+	public void onLoadFinished(Loader<JsonObject> loader, JsonObject newT) {
+		t = DomainHelper.getInstance().topologyFromJson(newT);
 		if (listener != null)
 			listener.onTopologyLoaded(t);
 		if (t == null)
@@ -50,7 +54,7 @@ public class TopologyLoaderFragment extends TopologyListFragment implements OnIt
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Topology> loader) {
+	public void onLoaderReset(Loader<JsonObject> loader) {
 		setListAdapter(null);
 	}
 }

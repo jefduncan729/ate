@@ -193,6 +193,7 @@ public class TopologyRestActivity extends TopologyActivity {
 		args.putString(Constants.EXTRA_TOPO_SOURCE, srvrInfo.displayString());
 		args.putBoolean(Constants.EXTRA_HAVE_CONSOLE, isConsoleAvailable());
 		args.putBundle(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
+		args.putString(Constants.EXTRA_URL, srvrInfo.buildUrl("topology"));
 		topoLdrFrag = new TopologyLoaderFragment();
 		topoLdrFrag.setArguments(args);
 		FragmentTransaction ft = getFragmentManager().beginTransaction();
