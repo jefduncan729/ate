@@ -92,12 +92,13 @@ public class EditTagDialog extends AlertDialogFragment {
     	}
     	edit02 = (EditText)dlgView.findViewById(android.R.id.text2);
     	edit02.setText(value);
-        return new AlertDialog.Builder(getActivity())
-                .setTitle(title)
-                .setView(dlgView)
-                .setPositiveButton(android.R.string.yes, onYes)
-                .setNeutralButton(android.R.string.no, NOOP_LISTENER)
-                .setNegativeButton(R.string.action_delete_tag, onDelete)
-                .create();
+        AlertDialog.Builder bldr = new AlertDialog.Builder(getActivity());
+        bldr.setTitle(title)
+        	.setView(dlgView)
+        	.setPositiveButton(android.R.string.yes, onYes)
+        	.setNeutralButton(android.R.string.no, NOOP_LISTENER);
+        if (!TextUtils.isEmpty(key))
+            bldr.setNegativeButton(R.string.action_delete_tag, onDelete);
+        return bldr.create();
     }
 }
