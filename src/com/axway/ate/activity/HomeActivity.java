@@ -37,54 +37,7 @@ public class HomeActivity extends BaseActivity implements SelectServerDialog.Lis
 		setContentView(R.layout.activity_home);
 		grid = (GridView)findViewById(R.id.container01);
 		grid.setOnItemClickListener(this);
-//		for (int i = 0; i < DRAWABLE_IDS.length; i++) {
-//			View v = createItem(i);
-//			if (v != null)
-//				ctr01.addView(v);
-//		}
 	}
-//	
-//	private View createItem(int i) {
-//		if (i < 0 || i >= DRAWABLE_IDS.length)
-//			return null;
-//		int did = DRAWABLE_IDS[i];
-//		int sid = STRING_IDS[i];
-//		View rv = getLayoutInflater().inflate(R.layout.launcher_item, null);
-//		ImageView img = (ImageView)rv.findViewById(android.R.id.icon);
-//		TextView txt = (TextView)rv.findViewById(android.R.id.text1);
-//		img.setImageDrawable(getResources().getDrawable(did));
-//		txt.setText(getString(sid));
-//		rv.setOnClickListener(this);
-//		rv.setTag(i);
-//		return rv;
-//	}
-//
-//	@Override
-//	public void onClick(View v) {
-//		int id = 0;
-//		try {
-//			id = (Integer)v.getTag();
-//		}
-//		catch (Exception e) {
-//			id = 0;
-//		}
-//		switch (id) {
-//			case IDX_SERVER:
-//				workWithServer();
-//			break;
-//			case IDX_LOCAL:
-//				workWithFiles();
-//			break;
-//			case IDX_CONN_MGR:
-//				showConnMgr();
-//			break;
-//			case IDX_SETTINGS:
-//				showSettings();
-//			break;
-//			default:
-//				super.onClick(v);
-//		}
-//	}
 
 	private void workWithServer() {
 		ServerInfo info = getOnlyServerInfo();

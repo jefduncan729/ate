@@ -38,7 +38,7 @@ abstract public class TagAwareDialog extends EditDialog implements OnItemClickLi
 		super.setupView(dlgView);
 		listTags = (ListView)dlgView.findViewById(R.id.tag_list);
 		listTags.setOnItemClickListener(this);
-		listTags.setOnCreateContextMenuListener(this);
+//		listTags.setOnCreateContextMenuListener(this);
 		btnAddTag = (ImageButton)dlgView.findViewById(R.id.action_add_tag);
 		if (btnAddTag != null)
 			btnAddTag.setOnClickListener(this);
@@ -103,50 +103,53 @@ abstract public class TagAwareDialog extends EditDialog implements OnItemClickLi
 			listTags.setAdapter(null);
 			return;
 		}
+		if (action == R.id.action_delete) {
+			confirmDeleteTag(key);
+			return;
+		}
 		tags.remove(key);
 		tags.put(key, value);
 		displayTags();
-//		listTags.setAdapter(new TagListAdapter(getActivity(), tags));
 	}
+//
+//	@Override
+//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+//		AdapterContextMenuInfo cmi = (AdapterContextMenuInfo)menuInfo;
+//		curTagPos = cmi.position;
+//		final Map.Entry<String, String> e = getTagAtPosition(curTagPos);
+//		if (e == null)
+//			return;
+//		menu.setHeaderTitle("Tag: " + e.getKey());
+//		menu.add(0, R.id.action_delete, 1, R.string.action_delete);
+//	}
+//
+//	@Override
+//	public boolean onContextItemSelected(MenuItem item) {
+//		boolean rv = true;
+//		switch (item.getItemId()) {
+//			case R.id.action_delete:
+//				confirmDeleteTag();
+//			break;
+//			default:
+//				rv = super.onContextItemSelected(item);
+//		}
+//		return rv;
+//	}
 
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		AdapterContextMenuInfo cmi = (AdapterContextMenuInfo)menuInfo;
-		curTagPos = cmi.position;
-		final Map.Entry<String, String> e = getTagAtPosition(curTagPos);
-		if (e == null)
-			return;
-		menu.setHeaderTitle("Tag: " + e.getKey());
-		menu.add(0, R.id.action_delete, 1, "Delete");
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		boolean rv = true;
-		switch (item.getItemId()) {
-			case R.id.action_delete:
-				confirmDeleteTag();
-			break;
-			default:
-				rv = super.onContextItemSelected(item);
-		}
-		return rv;
-	}
-
-	private void confirmDeleteTag() {
-		if (curTagPos < 0)
-			return;
-		final Map.Entry<String, String> e = getTagAtPosition(curTagPos);
-		if (e == null)
-			return;
+	private void confirmDeleteTag(final String key) {
+//		if (curTagPos < 0)
+//			return;
+//		final Map.Entry<String, String> e = getTagAtPosition(curTagPos);
+//		if (e == null)
+//			return;
 		AlertDialogFragment dlg = new AlertDialogFragment();
 		Bundle args = new Bundle();
 		args.putString(Intent.EXTRA_TITLE, "Confirm Delete");
-		args.putString(Intent.EXTRA_TEXT, "Touch OK to delete tag " + e.getKey());
+		args.putString(Intent.EXTRA_TEXT, "Touch OK to delete tag " + key);
 		dlg.setOnPositive(new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				deleteTag(e);
+				deleteTag(key);
 				curTagPos = -1;
 			}
 		});
@@ -155,43 +158,20 @@ abstract public class TagAwareDialog extends EditDialog implements OnItemClickLi
 		dlg.show(getFragmentManager(), "delTag");
 	}
 	
-	private void deleteTag(Map.Entry<String, String> tag) {
-		if (tag == null)
+	private void deleteTag(String key) {	//Map.Entry<String, String> tag) {
+		if (TextUtils.isEmpty(key))
 			return;
-		Map<String, String> tags = null;
-		tags = getObjectTags();
-		if (tags != null && tags.containsKey(tag.getKey())) {
-			tags.remove(tag.getKey());
+		Map<String, String> tags = getObjectTags();
+		if (tags != null && tags.containsKey(key)) {
+			tags.remove(key);
 			displayTags();
-//			listTags.setAdapter(new TagListAdapter(getActivity(), tags));
 		}
 	}
 
-//	@Override
-//	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//		super.onCreateOptionsMenu(menu, inflater);
-//		inflater.inflate(R.menu.tag_menu, menu);
-//	}
-//
-//	@Override
-//	public boolean onOptionsItemSelected(MenuItem item) {
-//		boolean rv = true;
-//		switch (item.getItemId()) {
-//			case R.id.action_add_tag:
-//				editTag(null);
-//			break;
-//			default:
-//				rv = super.onOptionsItemSelected(item);
-//		}
-//		return rv;
-//	}
-//
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.action_add_tag) {
 			editTag(null);
 		}
-//		else
-//			super.onClick(v);
 	}
 }

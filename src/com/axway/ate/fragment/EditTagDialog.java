@@ -48,6 +48,15 @@ public class EditTagDialog extends AlertDialogFragment {
 				listener.onTagChanged(key, value, action);
 		}		
 	};
+
+	private DialogInterface.OnClickListener onDelete = new DialogInterface.OnClickListener() {
+		public void onClick(DialogInterface dialog, int whichButton) {
+			final String key = edit01.getText().toString();
+			final String value = edit02.getText().toString();
+			if (listener != null && !TextUtils.isEmpty(key)&& !TextUtils.isEmpty(value))
+				listener.onTagChanged(key, value, R.id.action_delete);
+		}		
+	};
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -87,7 +96,8 @@ public class EditTagDialog extends AlertDialogFragment {
                 .setTitle(title)
                 .setView(dlgView)
                 .setPositiveButton(android.R.string.yes, onYes)
-                .setNegativeButton(android.R.string.no, NOOP_LISTENER)
+                .setNeutralButton(android.R.string.no, NOOP_LISTENER)
+                .setNegativeButton(R.string.action_delete_tag, onDelete)
                 .create();
     }
 }

@@ -87,8 +87,7 @@ public class GroupDialog extends TagAwareDialog {
 		super.setupView(dlgView);
 		if (itemJson != null)
 			grp = DomainHelper.getInstance().groupFromJson(itemJson);
-		if (getTagList() != null && grp != null)
-			getTagList().setAdapter(new TagListAdapter(getActivity(), grp.getTags()));
+		displayTags();
 	}
 
 	@Override

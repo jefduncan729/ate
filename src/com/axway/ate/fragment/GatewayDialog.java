@@ -99,9 +99,7 @@ public class GatewayDialog extends TagAwareDialog {
 
 	@Override
 	protected int getLayoutId() {
-//		if (action == R.id.action_add)
-			return R.layout.edit_svc;
-//		return R.layout.edit_grp;
+		return R.layout.edit_svc;
 	}
 
 	@Override
@@ -153,8 +151,6 @@ public class GatewayDialog extends TagAwareDialog {
 			curGroup = topology.getGroupForService(svc.getId());
 		}
 			
-		if (getTagList() != null && svc != null)
-			getTagList().setAdapter(new TagListAdapter(getActivity(), svc.getTags()));
 		displayTags();
 		
 		if (curHost == null && hosts.size() == 1)
