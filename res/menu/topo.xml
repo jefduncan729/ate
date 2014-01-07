@@ -20,13 +20,13 @@
         android:showAsAction="never"
         android:title="@string/action_save_to_disk"/>
     
+<!--        
     <item
         android:id="@id/action_compare_topo"
         android:orderInCategory="30"
         android:showAsAction="never"
         android:title="@string/action_compare_topo"/>
     
-<!--     
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

@@ -4,12 +4,15 @@ import java.util.Collection;
 
 import org.apache.http.HttpStatus;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestTemplate;
 
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -20,11 +23,14 @@ import android.view.MenuItem;
 
 import com.axway.ate.ApiException;
 import com.axway.ate.Constants;
+import com.axway.ate.DomainHelper;
 import com.axway.ate.R;
 import com.axway.ate.ServerInfo;
 import com.axway.ate.fragment.AlertDialogFragment;
 import com.axway.ate.fragment.SshUserDialog;
 import com.axway.ate.fragment.TopologyLoaderFragment;
+import com.axway.ate.rest.DefaultRestTemplate;
+import com.axway.ate.rest.SslRestTemplate;
 import com.axway.ate.service.BaseIntentService;
 import com.axway.ate.service.RestService;
 import com.axway.ate.util.UiUtils;
@@ -634,5 +640,45 @@ public class TopologyRestActivity extends TopologyActivity {
 		e.putBoolean(Constants.KEY_REMEMBER_USER, false);
 		e.commit();
 		UiUtils.showToast(this, R.string.sshuser_forgotten);
+	}
+
+	@Override
+	public void onRequestMonitoring(Intent i) {
+		if (topology == null)
+			return;
+//		String id = i.getStringExtra(Constants.EXTRA_ITEM_ID);
+//		if (TextUtils.isEmpty(id))
+//			return;
+		Service anm = topology.adminNodeManager();
+		if (anm == null)
+			return;
+		Host h = topology.getHost(anm.getHostID());
+		if (h == null)
+			return;
+		StringBuilder url = new StringBuilder();
+		url.append(anm.getScheme()).append("://").append(h.getName()).append(":").append(anm.getManagementPort());
+		Intent iWeb = new Intent(Intent.ACTION_VIEW, Uri.parse(url.toString()));
+		startActivity(iWeb);
+	}
+
+	@Override
+	public void onManageKps(Intent i) {
+		if (srvrInfo == null || i == null)
+			return;
+		String id = i.getStringExtra(Constants.EXTRA_ITEM_ID);
+		if (TextUtils.isEmpty(id))
+			return;
+		String[] ids = id.split("/");
+		if (ids.length != 2)
+			return;
+		Service s = topology.getService(ids[1]);
+		if (s == null)
+			return;
+		Intent iKps = new Intent(this, KpsActivity.class);
+		iKps.putExtra(Constants.EXTRA_ITEM_ID, s.getId());
+		iKps.putExtra(Constants.EXTRA_SERVER_INFO, srvrInfo.toBundle());
+		String url = srvrInfo.buildUrl("router/service/" + s.getId() + "/api/kps");
+		iKps.putExtra(Constants.EXTRA_URL, url);
+		startActivity(iKps);
 	}
 }

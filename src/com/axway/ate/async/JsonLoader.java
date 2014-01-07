@@ -25,56 +25,67 @@ import com.axway.ate.rest.SslRestTemplate;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class JsonLoader extends AsyncTaskLoader<JsonObject>{
+public class JsonLoader extends AsyncTaskLoader<JsonElement>{
 
 	private static final String TAG = JsonLoader.class.getSimpleName();
 
-	private JsonObject jsonObj;
+	private JsonElement jsonObj;
 	private Bundle args;
+	private ExceptionHandler excpHandler;
+	
+	public interface ExceptionHandler {
+		public void onLoaderException(ApiException e);
+	}
 	
 	public JsonLoader(Context context, Bundle args) {
 		super(context);
 		jsonObj = null;
+		excpHandler = null;
 		this.args = args;
 	}
 
+	public void setExceptionHandler(ExceptionHandler newVal) {
+		excpHandler = newVal;
+	}
+	
 	@Override
-	public JsonObject loadInBackground() {
-		JsonObject rv = null;
+	public JsonElement loadInBackground() {
+		JsonElement rv = null;
 		if (args == null)
 			return rv;
 		try {
-			rv = performLoad();
+			ServerInfo info = ServerInfo.fromBundle(args.getBundle(Constants.EXTRA_SERVER_INFO));
+			if (info == null)
+				Log.e(TAG, "no serverinfo");
+			else
+				rv = loadFromServer(info);
 		}
-		catch (ApiException excp) {
-			Log.e(TAG, excp.getLocalizedMessage(), excp);
+		catch (ApiException e) {
+			Log.e(TAG, e.getLocalizedMessage(), e);
+			if (excpHandler != null)
+				excpHandler.onLoaderException(e);
 		}
 		return rv;
 	}
 	
-	private JsonObject performLoad() {
-		ServerInfo info = ServerInfo.fromBundle(args.getBundle(Constants.EXTRA_SERVER_INFO));
-		if (info != null)
-			return loadFromServer(info);
-		Log.e(TAG, "no serverinfo");
-		return null;
-	}
-
-	private JsonObject loadFromServer(ServerInfo info) {
-		JsonObject rv = null;
+	private JsonElement loadFromServer(ServerInfo info) {
 		String url = args.getString(Constants.EXTRA_URL);	//info.buildUrl("topology");
 		RestTemplate restTmpl;
 		if (info.isSsl())
 			restTmpl = SslRestTemplate.getInstance(getContext());
 		else
 			restTmpl = DefaultRestTemplate.getInstance();
-		HttpAuthentication authHdr = new HttpBasicAuthentication(info.getUser(), info.getPasswd());
+//		return DomainHelper.getInstance().getJsonFromUrl(restTmpl, url, info.getUser(), info.getPasswd());
+		JsonElement rv = null;
 		HttpHeaders reqHdrs = new HttpHeaders();
-		reqHdrs.setAuthorization(authHdr);
+		if (info.getUser() != null) {
+			HttpAuthentication authHdr = new HttpBasicAuthentication(info.getUser(), info.getPasswd());
+			reqHdrs.setAuthorization(authHdr);
+		}
 		HttpEntity<?> reqEntity = new HttpEntity<String>("", reqHdrs);
 		int sc = 0;
 		StringBuilder sb = new StringBuilder();
-		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
+		sb.append(HttpMethod.GET).append(" ").append(url);
 		Log.d(TAG, sb.toString());
 		try {
 			ResponseEntity<String> resp = restTmpl.exchange(url,  HttpMethod.GET, reqEntity, String.class);
@@ -85,12 +96,14 @@ public class JsonLoader extends AsyncTaskLoader<JsonObject>{
 				if (jsonResp != null) {
 					JsonObject jo = jsonResp.getAsJsonObject();
 					if (jo.has("result")) {
-						rv = jo.getAsJsonObject("result");
+						rv = jo.get("result");
 					}
 					else if (jo.has("errors")) {
 						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
 						throw excp;
 					}
+					else
+						rv = jo;
 				}
 			}
 		}
@@ -110,6 +123,8 @@ public class JsonLoader extends AsyncTaskLoader<JsonObject>{
 		catch (Exception e) {
 			throw new ApiException(e);
 		}
+		if (rv != null)
+			Log.d(TAG, "jsonElement retrieved: " + rv.toString());
 		return rv;
 	}
 
@@ -128,7 +143,7 @@ public class JsonLoader extends AsyncTaskLoader<JsonObject>{
 	}
 
 	@Override
-	public void deliverResult(JsonObject data) {
+	public void deliverResult(JsonElement data) {
 		jsonObj = data;
 		if (isStarted())
 			super.deliverResult(data);

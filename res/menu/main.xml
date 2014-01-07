@@ -1,5 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 <!--         
+    
+    <item
+        android:id="@id/action_test"
+        android:orderInCategory="99"
+        android:showAsAction="ifRoom"
+        android:title="@string/action_test"/>
+    
     <item
         android:id="@id/action_add_host"
         android:orderInCategory="5"
@@ -13,12 +20,6 @@
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_add_grp"
         android:title="@string/action_add_group"/>
- 
-    <item
-        android:id="@+id/action_test"
-        android:orderInCategory="99"
-        android:showAsAction="ifRoom"
-        android:title="@string/test"/>
     
     <item
         android:id="@id/action_conn_mgr"

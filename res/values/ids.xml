@@ -28,7 +28,11 @@
     <item type="id" name="action_ssh_to_host"/>
     <item type="id" name="action_start_gateway"/>
     <item type="id" name="action_move_gateway"/>
+    <item type="id" name="action_gateway_kps"/>
     <item type="id" name="action_forget_sshuser"/>
+    <item type="id" name="action_monitoring"/>
+    <item type="id" name="action_refresh"/>
+    <item type="id" name="action_test"/>
     
     <!-- Containers -->
     <item type="id" name="container01"/>

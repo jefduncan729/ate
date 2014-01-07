@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 
+import com.axway.ate.ApiException;
 import com.axway.ate.Constants;
 import com.axway.ate.R;
 import com.axway.ate.adapter.TopologyAdapter;
@@ -32,15 +33,18 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 
 	public interface Listener {
 		public void onTopologyLoaded(Topology t);
+		public void onLoadError(ApiException e);
 		public void onTopologyItemSelected(EntityType itemType, String id);
 		public void onDelete(Intent i);
 		public void onSshToHost(Intent i);
 		public void onAddGateway(Intent i);
 		public void onStartGateway(Intent i);
+		public void onRequestMonitoring(Intent i);
 		public void onAddHost(Intent i);
 		public void onAddGroup(Intent i);
 		public void onSaveToDisk(Intent i);
 		public void onCompare(Intent i);
+		public void onManageKps(Intent i);
 	}
 	
 	public TopologyListFragment() {
@@ -123,8 +127,8 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		if (listener == null)
 			return false;
 		Intent i = item.getIntent();
-		if (i == null)
-			return false;
+//		if (i == null)
+//			return false;
 		boolean rv = true;
 		switch (item.getItemId()) {
 			case R.id.action_delete:
@@ -138,6 +142,12 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 			break;
 			case R.id.action_start_gateway:
 				listener.onStartGateway(i);
+			break;
+			case R.id.action_monitoring:
+				listener.onRequestMonitoring(i);
+			break;
+			case R.id.action_gateway_kps:
+				listener.onManageKps(i);
 			break;
 			default:
 				rv = false;
@@ -159,6 +169,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 		Intent iDel = new Intent();
 		iDel.putExtra(Constants.EXTRA_REFERRING_ITEM_ID, e.id);
 		iDel.putExtra(Constants.EXTRA_ITEM_TYPE, e.itemType.name());
+		Intent iKps = null;
 		int p=0;
 		switch (e.itemType) {
 			case Host:
@@ -169,6 +180,7 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 					iSsh.putExtra(Constants.EXTRA_ITEM_NAME, e.name);
 					menu.add(0, R.id.action_ssh_to_host, p++, R.string.action_ssh_to_host).setIntent(iSsh);
 				}
+				menu.add(0, R.id.action_monitoring, p++, R.string.action_monitoring);
 			break;
 			case Group:
 				iAdd = new Intent();
@@ -190,6 +202,9 @@ public class TopologyListFragment extends ListFragment implements OnItemClickLis
 					menu.add(0, R.id.action_start_gateway, p++, R.string.action_start_gateway).setIntent(iStart);
 				}
 				menu.add(0, R.id.action_delete, p++, R.string.action_delete).setIntent(iDel);
+//				iKps = new Intent();
+//				iKps.putExtra(Constants.EXTRA_ITEM_ID, e.id);
+//				menu.add(0, R.id.action_gateway_kps, p++, R.string.action_gateway_kps).setIntent(iKps);
 			break;
 			case NodeManager:
 			break;

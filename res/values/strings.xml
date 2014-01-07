@@ -18,6 +18,7 @@
     <string name="action_enable">Enable</string>
     <string name="action_disable">Disable</string>
     <string name="action_console">Console</string>
+    <string name="action_monitoring">Monitoring</string>
     <string name="enabled">Enabled</string>
     <string name="action_add_tag">Add Tag</string>
     <string name="action_save">Save</string>
@@ -27,14 +28,18 @@
     <string name="action_load_from_anm">Load Topology from server</string>
     <string name="action_work_local">Local Files</string>
     <string name="action_retry">Retry</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_test">Test</string>
     <string name="action_topo_details">Topology Details</string>
     <string name="action_conn_mgr">Connection Manager</string>
     <string name="action_compare_topo">Compare Topology</string>
     <string name="action_ssh_to_host">SSH to host</string>
     <string name="action_start_gateway">Start Gateway</string>
     <string name="action_move_gateway">Move Gateway to another group</string>
+    <string name="action_gateway_kps">Manage KPS</string>
     <string name="msg_loading">Loading&#8230;</string>
     <string name="empty_string"></string>
+    <string name="refresh_interval">Refresh Interval</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>

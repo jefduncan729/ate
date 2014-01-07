@@ -87,7 +87,7 @@ public class ConnMgrFragment extends ListFragment implements LoaderManager.Loade
 		setListAdapter(adapter);
 		getListView().setOnItemClickListener(this);
 		getListView().setOnCreateContextMenuListener(this);
-		setEmptyText("Add a connection");
+		setEmptyText("Add an Admin Node Manager connection");
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-   <PreferenceCategory
-            android:title="@string/general_settings">
 <!--             
+    <PreferenceCategory
+            android:title="@string/general_settings">
         <CheckBoxPreference
             android:key="showNodeMgrs"
             android:title="Show NodeManagers"
@@ -75,7 +75,22 @@
                 android:summary="Walks will be auto-stopped after this many minutes"
                 android:dialogTitle="Max Walk Time (minutes)"
                 />
+    </PreferenceCategory>
 -->        
+    
+	<PreferenceCategory
+		android:title="@string/action_monitoring">
+		
+        <com.axway.ate.util.IntegerPreference
+            android:key="com.axway.ate.refreshSecs"
+            android:defaultValue="60"
+            android:dialogTitle="@string/refresh_interval"
+            android:dialogMessage="Refresh Interval (seconds)"
+            android:title="@string/refresh_interval"
+            android:summary=""
+        	android:dialogLayout="@layout/int_dlg"
+       	/>
+	    		
     </PreferenceCategory>
     
 </PreferenceScreen>

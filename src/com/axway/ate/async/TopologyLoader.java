@@ -82,7 +82,7 @@ public class TopologyLoader extends AsyncTaskLoader<Topology>{
 		JsonObject jsonResult = null;
 		int sc = 0;
 		StringBuilder sb = new StringBuilder();
-		sb.append(HttpMethod.GET).append(" ").append(url).append(" ").append(url);
+		sb.append(HttpMethod.GET).append(" ").append(url);
 		Log.d(TAG, sb.toString());
 		try {
 			ResponseEntity<String> resp = restTmpl.exchange(url,  HttpMethod.GET, reqEntity, String.class);

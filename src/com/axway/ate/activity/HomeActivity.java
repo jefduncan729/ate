@@ -72,7 +72,7 @@ public class HomeActivity extends BaseActivity implements SelectServerDialog.Lis
 		}
 		c.close();
 		if (c == null || c.getCount() == 0)
-			alertDialog(getString(R.string.add_conn));
+			infoDialog("No connections available", getString(R.string.add_conn));
 		return rv;
 	}
 	

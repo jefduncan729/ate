@@ -48,6 +48,7 @@ public class Constants {
 	public static final String EXTRA_HAVE_CONSOLE = EXTRA_BASE + "have_console";
 	public static final String EXTRA_HOST_ID = EXTRA_BASE + "host_id";
 	public static final String EXTRA_FILENAME = EXTRA_BASE + "filename";
+	public static final String EXTRA_REFRESH_INTERVAL = EXTRA_BASE + "refreshSecs";
 	
 	public static final String KEY_SHOW_NODE_MGRS = "showNodeMgrs";
 	public static final String KEY_RELOAD_AFTER_UPD = "reloadAfterUpdate";
@@ -68,4 +69,6 @@ public class Constants {
 	public static final String JACKPAL_EXTRA_INITIAL_CMD = "jackpal.androidterm.iInitialCommand";
 	public static final String JACKPAL_ACTION_RUN_SCRIPT = "jackpal.androidterm.RUN_SCRIPT";
 	public static final String JACKPAL_ACTION_NEW_WINDOW = "jackpal.androidterm.OPEN_NEW_WINDOW";
+	
+	public static final int DEF_REFRESH_SECS = 60;
 }

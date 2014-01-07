@@ -12,8 +12,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidatorException;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -23,14 +21,31 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.http.HttpStatus;
+import org.springframework.http.HttpAuthentication;
+import org.springframework.http.HttpBasicAuthentication;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
+
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.axway.ate.util.UiUtils;
+import com.axway.ate.kps.KpsStore;
+import com.axway.ate.kps.KpsType;
+import com.axway.ate.metrics.BaseMetrics;
+import com.axway.ate.metrics.GroupMetrics;
+import com.axway.ate.metrics.SysOverview;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.vordel.api.monitoring.model.MetricGroup;
+import com.vordel.api.monitoring.model.Summary;
 import com.vordel.api.topology.model.Group;
 import com.vordel.api.topology.model.Host;
 import com.vordel.api.topology.model.Service;
@@ -492,5 +507,345 @@ public class DomainHelper {
 		nmSvc.setManagementPort(mgmtPort);
 		nmSvc.setName(EntityType.NodeManager.name() + "-" + Integer.toString(nmSvc.getManagementPort()));
 		return nmSvc;
+	}
+	
+	
+	public Summary summaryFromJson(JsonObject json) {
+		Summary rv = null;
+		if (json == null)
+			return rv;
+		rv = new Summary();
+		if (json.has("id")) {
+			String s = json.get("id").getAsString();
+			if (!TextUtils.isEmpty(s))
+				rv.setId(s);
+		}
+		if (json.has("name"))
+			rv.setName(json.get("name").getAsString());
+		if (json.has("groupId"))
+			rv.setGroupId(json.get("groupId").getAsString());
+		if (json.has("groupName"))
+			rv.setGroupName(json.get("groupName").getAsString());
+		if (json.has("hostName"))
+			rv.setHostName(json.get("hostName").getAsString());
+		if (json.has("summaryMetrics"))
+			rv.setSummaryMetrics(jsonToMetrics(json.getAsJsonObject("summaryMetrics")));
+		return rv;
+	}
+	
+	private HashMap<String, Object> jsonToMetrics(JsonObject json) {
+		HashMap<String, Object> rv = new HashMap<String, Object>();
+		if (json == null)
+			return rv;
+		Set<Entry<String, JsonElement>> mets = json.entrySet();
+		if (mets == null || mets.size() == 0)
+			return rv;
+		for (Entry<String, JsonElement> e: mets) {
+			rv.put(e.getKey(), e.getValue());
+		}
+		return rv;
+	}
+	
+	public MetricGroup metricGroupFromJson(JsonObject json) {
+		if (json == null)
+			return null;
+		MetricGroup rv = new MetricGroup();
+		if (json.has("id"))
+			rv.setId(json.get("id").getAsInt());
+		if (json.has("name"))
+			rv.setName(json.get("name").getAsString());
+		if (json.has("type"))
+			rv.setType(json.get("type").getAsString());
+		if (json.has("parentId"))
+			rv.setParentId(json.get("parentId").getAsInt());
+		return rv;
+	}
+
+	private void loadBaseMetrics(BaseMetrics bm, JsonObject json) {
+		if (json.has("gatewayGroupName"))
+			bm.setGatewayGroupName(json.get("gatewayGroupName").getAsString());
+		if (json.has("groupName"))
+			bm.setGroupName(json.get("groupName").getAsString());
+		if (json.has("groupType"))
+			bm.setGroupType(json.get("groupType").getAsString());
+		if (json.has("gatewayId"))
+			bm.setGatewayId(json.get("gatewayId").getAsString());
+		if (json.has("name"))
+			bm.setName(json.get("name").getAsString());		
+	}
+	
+	public SysOverview sysOverviewFromJson(JsonObject json) {
+		if (json == null)
+			return null;
+		SysOverview rv = new SysOverview();
+		loadBaseMetrics(rv, json);
+		if (json.has("cpuUsed"))
+			rv.setCpuUsed(json.get("cpuUsed").getAsLong());
+		if (json.has("sysMemUsed"))
+			rv.setSysMemUsed(json.get("sysMemUsed").getAsLong());
+		if (json.has("sysMemTotal"))
+			rv.setSysMemTotal(json.get("sysMemTotal").getAsLong());
+		if (json.has("diskUsedPercent"))
+			rv.setDiskUsedPercent(json.get("diskUsedPercent").getAsInt());
+		if (json.has("exceptions"))
+			rv.setExceptions(json.get("exceptions").getAsLong());
+		if (json.has("failures"))
+			rv.setFailures(json.get("failures").getAsLong());
+		if (json.has("successes"))
+			rv.setSuccesses(json.get("successes").getAsLong());
+		if (json.has("uptime"))
+			rv.setUptime(json.get("uptime").getAsLong());
+		if (json.has("numSLABreaches"))
+			rv.setNumSlaBreaches(json.get("numSLABreaches").getAsLong());
+		if (json.has("numAlerts"))
+			rv.setNumAlerts(json.get("numAlerts").getAsLong());
+		if (json.has("numClients"))
+			rv.setNumClients(json.get("numClients").getAsLong());
+		if (json.has("cpuUsedMin") && json.has("cpuUsedMax") && json.has("cpuUsedAvg"))
+			rv.setCpuUsedMma(json.get("cpuUsedMin").getAsLong(), json.get("cpuUsedMax").getAsLong(), json.get("cpuUsedAvg").getAsLong());
+		if (json.has("memoryUsedMin") && json.has("memoryUsedMax") && json.has("memoryUsedAvg"))
+			rv.setMemUsedMma(json.get("memoryUsedMin").getAsLong(), json.get("memoryUsedMax").getAsLong(), json.get("memoryUsedAvg").getAsLong());
+		if (json.has("systemCpuMin") && json.has("systemCpuMax") && json.has("systemCpuAvg"))
+			rv.setSysCpuMma(json.get("systemCpuMin").getAsLong(), json.get("systemCpuMax").getAsLong(), json.get("systemCpuAvg").getAsLong());
+		return rv;
+	}
+
+	public String prettyPrint(SysOverview so) {
+		StringBuilder sb = new StringBuilder();
+		if (so == null)
+			return sb.toString();
+		basePrettyPrint(so, sb);
+		sb.append("\nSuccesses: ").append(so.getSuccesses());
+		sb.append("\nFailures: ").append(so.getFailures());
+		sb.append("\nExceptions: ").append(so.getExceptions());
+		
+		sb.append("\n\nUptime: ").append(so.getUptime());
+		sb.append("\nCPU Usage: ").append(so.getCpuUsed());
+		sb.append("\nMemory: ").append(so.getSysMemUsed()).append("/").append(so.getSysMemTotal());
+		sb.append("\nDisk Usage: ").append(so.getDiskUsedPercent());
+		
+		sb.append("\n\nSLA Breaches: ").append(so.getNumSlaBreaches());
+		sb.append("\nAlerts: ").append(so.getNumAlerts());
+		sb.append("\nClients: ").append(so.getNumClients());
+		
+		sb.append("\n\nCPU:\nMin\tMax\tAvg\n");		
+		sb.append(so.getCpuUsedMma().getMin()).append("\t").append(so.getCpuUsedMma().getMax()).append("\t").append(so.getCpuUsedMma().getAvg());
+		sb.append("\n\nMemory:\nMin\tMax\tAvg\n");		
+		sb.append(so.getMemUsedMma().getMin()).append("\t").append(so.getMemUsedMma().getMax()).append("\t").append(so.getMemUsedMma().getAvg());
+		sb.append("\n\nSystem CPU:\nMin\tMax\tAvg\n");		
+		sb.append(so.getSysCpuMma().getMin()).append("\t").append(so.getSysCpuMma().getMax()).append("\t").append(so.getSysCpuMma().getAvg());
+		return sb.toString();
+	}
+	
+	public GroupMetrics groupMetricsFromJson(JsonObject json) {
+		if (json == null)
+			return null;
+		GroupMetrics rv = new GroupMetrics();
+		loadBaseMetrics(rv, json);
+/*		
+		private long[] respTimeRanges;
+		private long[] respStatRanges;
+*/		
+		if (json.has("volumeBytesIn"))
+			rv.setVolumeBytesIn(json.get("volumeBytesIn").getAsLong());
+		if (json.has("volumeBytesOut"))
+			rv.setVolumeBytesOut(json.get("volumeBytesOut").getAsLong());
+		if (json.has("numReportedUps"))
+			rv.setNumReportedUps(json.get("numReportedUps").getAsLong());
+		if (json.has("numReportedDowns"))
+			rv.setNumReportedDowns(json.get("numReportedDowns").getAsInt());
+		if (json.has("numInConnections"))
+			rv.setNumInConnections(json.get("numInConnections").getAsLong());
+		if (json.has("numOutConnections"))
+			rv.setNumOutConnections(json.get("numOutConnections").getAsLong());
+		if (json.has("numTransactions"))
+			rv.setNumTransactions(json.get("numTransactions").getAsLong());
+		if (json.has("uptime"))
+			rv.setUptime(json.get("uptime").getAsLong());
+		if (json.has("respTimeMin") && json.has("respTimeMax") && json.has("respTimeAvg"))
+			rv.setRespTimeMma(json.get("respTimeMin").getAsLong(), json.get("respTimeMax").getAsLong(), json.get("respTimeAvg").getAsLong());
+		return rv;
+	}
+
+	private String basePrettyPrint(BaseMetrics bm, StringBuilder sb) {
+		sb.append("Group Type: ").append(bm.getGroupType());
+		sb.append("\nName: ").append(bm.getName());
+		sb.append("\nGroup Name: ").append(bm.getGroupName());
+		sb.append("\nGateway Group Name: ").append(bm.getGatewayGroupName());
+		sb.append("\nGateway Id: ").append(bm.getGatewayId());
+		return sb.toString();
+	}
+	
+	public String prettyPrint(GroupMetrics gm) {
+		StringBuilder sb = new StringBuilder();
+		if (gm == null)
+			return sb.toString();
+		basePrettyPrint(gm, sb);
+		sb.append("\nConnections: ");
+		sb.append("\nIn: ").append(gm.getNumInConnections());
+		sb.append(", Out: ").append(gm.getNumOutConnections());
+		
+		sb.append("\n\nReported Ups: ").append(gm.getNumReportedUps());
+		sb.append("\nReported Downs: ").append(gm.getNumReportedDowns());
+		sb.append("\nTransactions: ").append(gm.getNumTransactions());
+		sb.append("\nUptime: ").append(gm.getUptime());
+		
+		sb.append("\n\nVolume: ");
+		sb.append("\nBytes In: ").append(gm.getVolumeBytesIn());
+		sb.append(", Bytes Out: ").append(gm.getVolumeBytesOut());
+		return sb.toString();
+	}
+	
+	public String prettyPrint(Summary s) {
+		StringBuilder sb = new StringBuilder();
+		if (s == null)
+			return sb.toString();
+		sb.append("Id: ").append(s.getId());
+		sb.append("\nName: ").append(s.getName());
+		sb.append("\nGroup Id: ").append(s.getGroupId());
+		sb.append("\nGroup Name: ").append(s.getGroupName());
+		sb.append("\nHost Name: ").append(s.getHostName());
+		if (s.getSummaryMetrics() != null) {
+			sb.append("\nMetrics:");
+			for (Map.Entry<String, Object> e: s.getSummaryMetrics().entrySet()) {
+				Object o = e.getValue();
+				sb.append("\n    ").append(e.getKey()).append(": ").append(o == null ? "null": o.toString());
+			}
+		}
+		return sb.toString();
+	}
+	/**
+	 * Get a JSON object from a url; MUST be called in a separate thread from the UI (AsyncTask, etc)
+	 * @param restTmpl
+	 * @param url
+	 * @return
+	 */
+	public JsonElement getJsonFromUrl(RestTemplate restTmpl, String url) throws ApiException {
+		return getJsonFromUrl(restTmpl, url, null, null);
+	}
+	
+	public JsonElement getJsonFromUrl(RestTemplate restTmpl, String url, String user, String passwd) throws ApiException {
+		JsonElement rv = null;
+		HttpHeaders reqHdrs = new HttpHeaders();
+		if (user != null) {
+			HttpAuthentication authHdr = new HttpBasicAuthentication(user, passwd);
+			reqHdrs.setAuthorization(authHdr);
+		}
+		HttpEntity<?> reqEntity = new HttpEntity<String>("", reqHdrs);
+		int sc = 0;
+		StringBuilder sb = new StringBuilder();
+		sb.append(HttpMethod.GET).append(" ").append(url);
+		Log.d(TAG, sb.toString());
+		try {
+			ResponseEntity<String> resp = restTmpl.exchange(url,  HttpMethod.GET, reqEntity, String.class);
+			sc = resp.getStatusCode().value();
+			Log.d(TAG, "response status code: " + Integer.toString(sc));
+			if (sc == HttpStatus.SC_OK) {
+				JsonElement jsonResp = parse(resp.getBody());
+				if (jsonResp != null) {
+					JsonObject jo = jsonResp.getAsJsonObject();
+					if (jo.has("result")) {
+						rv = jo.get("result");
+//						if (je.isJsonArray())
+//							rv = je.getAsJsonArray("result");
+//						else
+//							rv = je.getAsJsonObject("result");
+					}
+					else if (jo.has("errors")) {
+						ApiException excp = new ApiException(jo.getAsJsonArray("errors"));
+						throw excp;
+					}
+					else
+						rv = jo;
+				}
+			}
+		}
+		catch (ResourceAccessException e) {
+			throw new ApiException(e);
+		}
+		catch (HttpClientErrorException e) {
+			switch (e.getStatusCode().value()) {
+				case HttpStatus.SC_UNAUTHORIZED:
+				case HttpStatus.SC_NOT_FOUND:
+				case HttpStatus.SC_FORBIDDEN:
+					throw new ApiException(e.getStatusCode().value());
+				default:
+					throw new ApiException(e);
+			}
+		}
+		catch (Exception e) {
+			throw new ApiException(e);
+		}
+		if (rv != null)
+			Log.d(TAG, "jsonElement retrieved: " + rv.toString());
+		return rv;
+	}
+/*	
+	public Model modelFromJson(JsonObject json) {
+		Model rv = null;
+		if (json == null)
+			return rv;
+		rv = new Model();
+		if (json.has("types")) {
+			JsonArray types = json.get("types").getAsJsonArray();
+			for (int i = 0; i < types.size(); i++) {
+				rv.addType(typeFromJson(types.get(i).getAsJsonObject()));
+			}
+		}
+		return rv;
+	}
+*/	
+	
+	public KpsType typeFromJson(JsonObject json) {
+		if (json == null)
+			return null;
+		KpsType rv = new KpsType();
+		if (json.has("identity"))
+			rv.setIdentity(json.get("identity").getAsString());
+		if (json.has("description")) {
+			JsonElement je = json.get("description");
+			if (!je.isJsonNull())
+				rv.setDescription(json.get("description").getAsString());
+		}
+		if (json.has("properties")) {
+			JsonObject jo = json.get("properties").getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> props = jo.entrySet();
+			for (Map.Entry<String, JsonElement> e: props) {
+				rv.addProperty(e.getKey(), e.getValue().getAsString());
+			}
+		}
+		return rv;
+	}
+	
+	public KpsStore storeFromJson(JsonObject json) {
+		if (json == null)
+			return null;
+		KpsStore rv = new KpsStore();
+		if (json.has("identity"))
+			rv.setIdentity(json.get("identity").getAsString());
+		if (json.has("description") && !json.isJsonNull()) {
+			rv.setDescription(json.get("description").getAsString());
+		}
+		if (json.has("typeId"))
+			rv.setTypeId(json.get("typeId").getAsString());
+		if (json.has("implId"))
+			rv.setImplId(json.get("implId").getAsString());
+		if (json.has("config")) {
+			JsonObject jo = json.get("config").getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> props = jo.entrySet();
+			for (Map.Entry<String, JsonElement> e: props) {
+				if (e.getKey().equals("internal"))
+					rv.addProperty("internal", e.getValue().getAsBoolean());
+			}
+		}
+		return rv;
+	}
+	
+	public String prettyPrint(KpsType kpsType) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n    Identity: ").append(kpsType.getIdentity());
+		sb.append("\n    Description: ").append(kpsType.getDescription());
+		sb.append("\n    Properties: ");
+		return sb.toString();
 	}
 }

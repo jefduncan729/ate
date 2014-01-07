@@ -13,14 +13,13 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name">
-<!--         
+        android:label="@string/app_name"
         android:theme="@style/AppTheme" >
- -->
          
         <provider
             android:name=".db.DbProvider"
             android:authorities="com.axway.ate"
+            android:exported="false"
         />
  
         <service android:name=".service.RestService" android:exported="false" />
@@ -56,6 +55,11 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.KpsActivity"
+            android:windowSoftInputMode="stateHidden"
+            android:label="@string/action_gateway_kps" >
+        </activity>
+        <activity
             android:name=".activity.EditActivity"
             android:windowSoftInputMode="stateHidden"
             android:label="@string/hosts" >
@@ -71,6 +75,10 @@
         <activity
             android:name=".activity.TopologyFileActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".activity.ServiceMonitorActivity"
+            android:label="@string/action_monitoring" >
         </activity>
 	</application>
 
