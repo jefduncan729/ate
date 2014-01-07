@@ -1,6 +1,6 @@
-ATE - Android Topology Editor
+TEA - Topology Editor for Android
 ===
-Android Topology Editor is an Android (4.1 and above) application which employs API Gateway's REST API(s) to view and edit API Gateway topologies.
+Topology Editor for Android is an app which employs API Gateway's REST API(s) to view and edit API Gateway topologies.
 
 In my initial attempt to create this tool I tried to integrate the Sun Jersey client jars into my Android environment. 
 However, I ultimately found that Android's Java implementation did not provide the necessary support for Jersey. In the end,
@@ -21,7 +21,7 @@ SSL support). Although, I did roll my own Json marshalling because Spring's fram
 * httpclient-4.2.2.jar
 * gson-2.1.jar
 
-### Android Components used ###
+### Android components used ###
 I experimented with a lot of the different framework components. I started out with an Android Service object to which I binded my Activities.
 This worked fairly well, but the communication between the service and activities was somewhat cumbersome. I also tried just doing the bulk
 of the work in one main activity and some AsyncTasks but that felt clunky. 
